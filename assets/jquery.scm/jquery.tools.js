@@ -177,7 +177,7 @@ var READYPAGE = function(){};
 
 	$.fn.eventTools = function( event ){
 		//this.find( '[data-parallax]' ).setParallax();
-		Waypoint.destroyAll();
+		//Waypoint.destroyAll();
 		this.find( '[data-content-fade]' ).fadeContent();
 		this.find( '[data-tooltip]' ).setTooltip();
 		this.find( '[data-popup]' ).setFancybox();
