@@ -3,7 +3,7 @@
  * Plugin Name:         SCM Assets
  * Plugin URI:          http://studiocreativo-m.it/
  * Description:         SCM Javascript Integration
- * Version:             1.0.2
+ * Version:             1.0.3
  * Author:              Studio Creativo M
  * Author URI:          http://studiocreativo-m.it/
  * License:             http://www.gnu.org/licenses/gpl-3.0.html
@@ -24,8 +24,11 @@
 // *      0.0 ACTIONS AND FILTERS
 // *****************************************************
 
-    add_action( 'wp_enqueue_scripts', 'scm_assets_register_styles', 99 );
-    add_action( 'wp_enqueue_scripts', 'scm_assets_register_scripts', 99 );
+    add_action( 'admin_enqueue_scripts', 'scm_assets_admin_register' );
+    add_action( 'login_enqueue_scripts', 'scm_assets_login_register' );
+    add_action( 'wp_enqueue_scripts', 'scm_assets_register_styles' );
+    add_action( 'wp_enqueue_scripts', 'scm_assets_register_scripts' );
+    
     add_action( 'plugins_loaded', 'scm_assets_init' );
 
 
@@ -52,28 +55,28 @@
             // Fancybox
             
             if( scm_field( 'opt-tools-fancybox', 0, 'option' ) ){
-                wp_register_style( 'fancybox', SCM_ASSETS_URI_ASSETS . 'fancybox-2.1.5/jquery.fancybox.css', false, null );
-                wp_register_style( 'fancybox-thumbs', SCM_ASSETS_URI_ASSETS . 'fancybox-2.1.5/helpers/jquery.fancybox-thumbs.css', false, null );
-                wp_register_style( 'fancybox-buttons', SCM_ASSETS_URI_ASSETS . 'fancybox-2.1.5/helpers/jquery.fancybox-buttons.css', false, null );
-                wp_enqueue_style( 'fancybox' );
-                wp_enqueue_style( 'fancybox-thumbs' );
-                wp_enqueue_style( 'fancybox-buttons' );
+                wp_register_style( 'fancybox-style', SCM_ASSETS_URI_ASSETS . 'fancybox-2.1.5/jquery.fancybox.css', false, null );
+                wp_register_style( 'fancybox-thumbs-style', SCM_ASSETS_URI_ASSETS . 'fancybox-2.1.5/helpers/jquery.fancybox-thumbs.css', false, null );
+                wp_register_style( 'fancybox-buttons-style', SCM_ASSETS_URI_ASSETS . 'fancybox-2.1.5/helpers/jquery.fancybox-buttons.css', false, null );
+                wp_enqueue_style( 'fancybox-style' );
+                wp_enqueue_style( 'fancybox-thumbs-style' );
+                wp_enqueue_style( 'fancybox-buttons-style' );
             }
 
             // Nivo Slider
 
             if( get_field( 'main-slider-active', 'option' ) == 'nivo' || get_field( 'opt-tools-nivo', 'option' ) ){
-                wp_register_style( 'nivo', SCM_ASSETS_URI_ASSETS . 'nivoSlider-3.2/nivo-slider.css', false, null );
-                wp_register_style( 'nivo-theme', SCM_ASSETS_URI_ASSETS . 'nivoSlider-3.2/themes/scm/scm.css', false, null );
-                wp_enqueue_style( 'nivo' );
-                wp_enqueue_style( 'nivo-theme' );
+                wp_register_style( 'nivo-style', SCM_ASSETS_URI_ASSETS . 'nivoSlider-3.2/nivo-slider.css', false, null );
+                wp_register_style( 'nivo-theme-style', SCM_ASSETS_URI_ASSETS . 'nivoSlider-3.2/themes/scm/scm.css', false, null );
+                wp_enqueue_style( 'nivo-style' );
+                wp_enqueue_style( 'nivo-theme-style' );
             }
 
             // BX Slider
 
             if( get_field( 'main-slider-active', 'option' ) == 'bx' || get_field( 'opt-tools-bx', 'option' ) ){
-                wp_register_style( 'bx', SCM_ASSETS_URI_ASSETS . 'jquery.bxslider-4.1.2/jquery.bxslider.css', false, null );
-                wp_enqueue_style( 'bx' );
+                wp_register_style( 'bx-style', SCM_ASSETS_URI_ASSETS . 'jquery.bxslider-4.1.2/jquery.bxslider.css', false, null );
+                wp_enqueue_style( 'bx-style' );
             }
 
             // Parallax
@@ -207,20 +210,30 @@
             wp_register_script( 'jquery-scm', SCM_ASSETS_URI_ASSETS . 'jquery.scm/jquery.scm.js', array( 'jquery-scm-child' ), SCM_SCRIPTS_VERSION, true );
             wp_enqueue_script( 'jquery-scm' );
 
-            if( is_admin() ){
+            consoleLog(!is_admin());
+        }
+    }
 
-                wp_register_script( 'jquery-scm-admin', SCM_ASSETS_URI_ASSETS . 'jquery.scm/jquery.admin.js', array( 'jquery-scm-tools' ), SCM_SCRIPTS_VERSION, true );
-                wp_enqueue_script( 'jquery-scm-admin' );
+    if ( ! function_exists( 'scm_assets_admin_register' ) ) {
+        function scm_assets_admin_register() {
 
-                wp_register_script( 'jquery-scm-admin-child', SCM_URI_JS_CHILD . 'jquery.admin.js', array( 'jquery-scm-admin' ), SCM_SCRIPTS_VERSION, true );
-                wp_enqueue_script( 'jquery-scm-admin-child' );
-                    
-                wp_register_script( 'jquery-scm-login-child', SCM_URI_JS_CHILD . 'jquery.login.js', array( 'jquery-scm-tools' ), SCM_SCRIPTS_VERSION, true );
-                wp_enqueue_script( 'jquery-scm-login-child' );
+            wp_register_script( 'jquery-scm-admin-child', SCM_URI_JS_CHILD . 'jquery.admin.js', array( 'jquery' ), SCM_SCRIPTS_VERSION, true );
+            wp_enqueue_script( 'jquery-scm-admin-child' );
+
+            wp_register_script( 'jquery-scm-admin', SCM_ASSETS_URI_ASSETS . 'jquery.scm/jquery.admin.js', array( 'jquery-scm-admin-child' ), SCM_SCRIPTS_VERSION, true );
+            wp_enqueue_script( 'jquery-scm-admin' );
+
+        }
+    }
+
+    if ( ! function_exists( 'scm_assets_login_register' ) ) {
+        function scm_assets_login_register() {
                 
-                wp_register_script( 'jquery-scm-login', SCM_ASSETS_URI_ASSETS . 'jquery.scm/jquery.login.js', array( 'jquery-scm-login-child' ), SCM_SCRIPTS_VERSION, true );
-                wp_enqueue_script( 'jquery-scm-login' );                
+            wp_register_script( 'jquery-scm-login-child', SCM_URI_JS_CHILD . 'jquery.login.js', array( 'jquery' ), SCM_SCRIPTS_VERSION, true );
+            wp_enqueue_script( 'jquery-scm-login-child' );
+            
+            wp_register_script( 'jquery-scm-login', SCM_ASSETS_URI_ASSETS . 'jquery.scm/jquery.login.js', array( 'jquery-scm-login-child' ), SCM_SCRIPTS_VERSION, true );
+            wp_enqueue_script( 'jquery-scm-login' );                
 
-            }
         }
     }

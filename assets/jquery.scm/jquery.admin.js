@@ -1,87 +1,5 @@
 ( function($){
 
-	jQuery.fn.setColumnWidth = function(){
-
-		return this.each( function(){
-
-			var $this = jQuery(this);
-			var $row = $this.children( '.acf-fields' );
-			var sel = [];
-			if( $row.length ){
-				var $select = $row.children( '.select2-columns_width' );
-				sel = $select.find( '.select2-offscreen' );
-
-			}else{		
-				sel = $this.find( 'table > tbody > tr > .acf-fields > .select2-columns_width .select2-offscreen' );
-			}
-
-			if( sel[0] )
-				var $sel = jQuery( sel[0] );
-			else
-				return this;
-
-			var value = $sel.val();
-
-			if( value == 'auto' )
-				value = '1/1';
-
-			if( value.indexOf( '/' ) > -1 ){
-				value = ( value ? value : '1/1' );
-				value = value.replace('/', '');
-
-				if( !$this.hasClass( 'column' ) ){
-					$this.addClass( 'column' );
-					$this.children( '.acf-fields' ).css( 'width', '100%' );
-				}
-				
-				$this.removeClass( function (index, css) {
-				    return (css.match (/\bcolumn-\S+/g) || []).join(' ');
-				} );
-
-				$this.addClass( 'column-' + value );
-			}
-
-		} );
-
-	}
-
-	jQuery.fn.setLayoutWidth = function(){
-
-		return this.each( function(){
-
-			var $this = jQuery(this);
-			var $row = $this.children( '.acf-fields' );
-			var sel = [];
-			if( $row.length ){
-				var $select = $row.children( '.select2-layout_main' );
-				sel = $select.find( '.select2-offscreen' );
-
-			}else{		
-				sel = $this.find( 'table > tbody > tr > .acf-fields > .select2-layout_main .select2-offscreen' );
-			}
-
-			if( sel[0] )
-				var $sel = jQuery( sel[0] );
-			else
-				return this;
-
-			var value = $sel.val();
-
-			if( value.indexOf( 'responsive' ) > -1 ){
-				$this.removeClass( 'full' );
-			}else{
-				$this.addClass( 'full' );
-			}
-					
-		} );
-
-	}
-
-
-/**************************************************************/
-
-
-
 		var $body = jQuery( 'body' ),
 			$layout = jQuery('.layout' ),
 			$rows = jQuery( '.acf-row' );
@@ -130,64 +48,9 @@
 			}else{
 				if( $this.attr('id') !== 'copypath' )
 					$wrap.removeClass( 'opened' );
-
-				// OPEN FIELDs COLUMN
-				/*if( $this.hasClass( 'order' ) || $this.hasClass( 'fc-layout-order' ) ){
-		    		e.stopPropagation();
-					e.preventDefault();
-					var $parent = jQuery( $this.parent( '.column' ) );
-					if( !$parent.length )
-						$parent = jQuery( $this.parent( '.acf-fc-layout-handle' ).parent( '.column' ) );
-					if( $parent.length ){
-						if( $parent.hasClass( 'full' ) ){
-							//jQuery( '.acf-row' ).setColumnWidth();
-							//$layout.setColumnWidth();
-							$parent.removeClass( 'column-11' );
-							$parent.removeClass( 'full' );						
-						}else{
-							$parent.addClass( 'column-11' );
-							$parent.addClass( 'full' );
-						}
-					}*/
-				//}
 			}
 	    });
 
-		/*$('*').on('change', function(e) {
-			var $elem = jQuery( e.target );
-			if( $elem.hasClass('select2-offscreen') ){
-
-				var $col = $elem.parent( '.select2-container' );
-				if ( $col.length )
-					$col = jQuery( $col ).parent( '.acf-input' ).parent( '.select2-columns_width' );
-				else
-					$col = $elem.parent( '.acf-input' ).parent( '.select2-columns_width' );
-				if( $col.length ){
-					e.stopPropagation();
-					jQuery( '.acf-row' ).setColumnWidth();
-					$layout.setColumnWidth();
-				}
-			}
-		});*/
-
-		/*$('*').on('change', function(e) {
-			var $elem = jQuery( e.target );
-			if( $elem.hasClass('select2-offscreen') ){
-
-				var $col = $elem.parent( '.select2-container' );
-				if ( $col.length )
-					$col = jQuery( $col ).parent( '.acf-input' ).parent( '.select2-layout_main' );
-				else
-					$col = $elem.parent( '.acf-input' ).parent( '.select2-layout_main' );
-				if( $col.length ){
-					e.stopPropagation();
-					//jQuery( '.acf-row' ).setLayoutWidth();
-					$layout.setLayoutWidth();
-				}
-
-
-			}
-		});*/
 
 
 		// SHOW FIELD KEY
@@ -199,11 +62,6 @@
 		$wrap.append( $path );
 		$body.append( $wrap );
 
-		// COLUMNS WIDTH
-
-		/*$rows.setColumnWidth();
-		$layout.setColumnWidth();
-		$layout.setLayoutWidth();*/
 
 		// CONTROL MENU
 
