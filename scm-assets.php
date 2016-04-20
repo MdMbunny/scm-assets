@@ -3,7 +3,7 @@
  * Plugin Name:         SCM Assets
  * Plugin URI:          http://studiocreativo-m.it/
  * Description:         SCM Javascript Integration
- * Version:             1.0.4
+ * Version:             1.0.5
  * Author:              Studio Creativo M
  * Author URI:          http://studiocreativo-m.it/
  * License:             http://www.gnu.org/licenses/gpl-3.0.html
@@ -117,50 +117,40 @@
             // jQuery Effects Core
 
             wp_enqueue_script('jquery-effects-core');
-
-
-            // Skip Link Focus Fix
-
-            wp_register_script( 'skip-link-focus-fix', SCM_ASSETS_URI_ASSETS . 'skip-link-focus-fix.js', array( 'jquery' ), null, true );
-            wp_enqueue_script( 'skip-link-focus-fix' );
-
             
-            // jQuery Transform
+            // jQuery CSS3 Transform
 
             wp_register_script( 'jquery-transform-2d', SCM_ASSETS_URI_ASSETS . 'jquery.transform/jquery.transform2d.js', array( 'jquery' ), null, true );
             wp_enqueue_script( 'jquery-transform-2d' );
 
-            /*wp_register_script( 'jquery-transform-3d', SCM_ASSETS_URI_ASSETS . 'jquery.transform/jquery.transform3d.js', array( 'jquery' ), null, true );
-            wp_enqueue_script( 'jquery-transform-3d' );*/
-
-            // jQuery Mobile
+            // jQuery Mobile --- mh...
             
-            //wp_deregister_script( 'jquery.mobile' );
             wp_register_script( 'jquery-mobile-touch', SCM_ASSETS_URI_ASSETS . 'jquery.mobile-1.4.5/jquery.mobile.touch.min.js', array( 'jquery' ), null, true );
             wp_enqueue_script( 'jquery-mobile-touch' );
 
-            // jQuery TouchSwipe
-
-            //wp_deregister_script( 'jquery.touchSwipe' );
-            wp_register_script( 'jquery-touch-swipe', SCM_ASSETS_URI_ASSETS . 'touchSwipe-1.6.8/jquery.touchSwipe.min.js', array( 'jquery' ), null, true );
-            wp_enqueue_script( 'jquery-touch-swipe' );
-
-            // Modernizr Touch
+            // Modernizr Touch --- mh...
 
             wp_register_script( 'modernizr-touch', SCM_ASSETS_URI_ASSETS . 'modernizr-2.8.3/modernizr.touch.js', array( 'jquery' ), null, true );
             wp_enqueue_script( 'modernizr-touch' );
+
+            // TouchSwipe
+
+            wp_register_script( 'jquery-touch-swipe', SCM_ASSETS_URI_ASSETS . 'touchSwipe-1.6.8/jquery.touchSwipe.min.js', array( 'jquery' ), null, true );
+            wp_enqueue_script( 'jquery-touch-swipe' );
             
-            // Bootstrap
-
-            wp_register_script( 'bootstrap', SCM_ASSETS_URI_ASSETS . 'bootstrap-3.3.6-dist/js/bootstrap.min.js', array( 'jquery' ), null, true );
-            wp_enqueue_script( 'bootstrap' );
-
             // Images Loaded
             
             wp_register_script( 'imagesloaded', SCM_ASSETS_URI_ASSETS . 'imagesloaded-4.1.0/imagesloaded.pkgd.min.js', array( 'jquery' ), null, true );
             wp_enqueue_script( 'imagesloaded' );
 
-            // Fancybox
+            // Awesome Cursor
+
+            if( get_field( 'opt-tools-cursor', 'option' ) ){
+                wp_register_script( 'awesome-cursor',  SCM_ASSETS_URI_ASSETS . 'jquery.awesome-cursor-0.2.0/jquery.awesome-cursor.min.js', array( 'jquery' ), null, true );
+                wp_enqueue_script( 'awesome-cursor' );
+            }
+
+            // Fancybox --- You could replace it
 
             if( get_field( 'opt-tools-fancybox', 'option' ) ){
                 wp_register_script( 'fancybox', SCM_ASSETS_URI_ASSETS . 'fancybox-2.1.5/jquery.fancybox.pack.js', array( 'jquery' ), null, true );
@@ -173,7 +163,33 @@
                 wp_enqueue_script( 'fancybox-media' );
             }
 
-            // Parallax Scrolling
+            // Nivo Slider --- You could replace it (probably with _ScrollMagic_)
+
+            if( get_field( 'main-slider-active', 'option' ) == 'nivo' || get_field( 'opt-tools-nivo', 'option' ) ){
+                wp_register_script( 'nivo', SCM_ASSETS_URI_ASSETS . 'nivoSlider-3.2/jquery.nivo.slider.pack.js', array( 'jquery' ), null, true );
+                wp_enqueue_script( 'nivo' );
+            }
+
+            // BX Slider --- You could replace it (probably with _ScrollMagic_)
+
+            if( get_field( 'main-slider-active', 'option' ) == 'bx' || get_field( 'opt-tools-bx', 'option' ) ){
+                wp_register_script( 'bx', SCM_ASSETS_URI_ASSETS . 'jquery.bxslider-4.1.2/jquery.bxslider.min.js', array( 'jquery' ), null, true );
+                wp_enqueue_script( 'bx' );
+            }
+
+            // Tooltip --- You could replace it (probably with _ScrollMagic_)
+
+            if( get_field( 'opt-tools-tooltip', 'option' ) ){
+                wp_register_script( 'tooltip',  SCM_ASSETS_URI_ASSETS . 'jquery.powertip-1.2.0/jquery.powertip.min.js', array( 'jquery' ), null, true );
+                wp_enqueue_script( 'tooltip' );
+            }
+
+            // Bootstrap --- Will be substituted by _ScrollMagic_
+
+            wp_register_script( 'bootstrap', SCM_ASSETS_URI_ASSETS . 'bootstrap-3.3.6-dist/js/bootstrap.min.js', array( 'jquery' ), null, true );
+            wp_enqueue_script( 'bootstrap' );
+
+            // Parallax Scrolling --- Will be substituted by _ScrollMagic_
 
             if( get_field( 'opt-tools-parallax', 'option' ) ){
                 $old = apply_filters( 'scm_assets_filter_parallax_131', false );
@@ -184,26 +200,7 @@
                 wp_enqueue_script( 'parallax' );
             }
 
-            // Nivo Slider
-
-            if( get_field( 'main-slider-active', 'option' ) == 'nivo' || get_field( 'opt-tools-nivo', 'option' ) ){
-                wp_register_script( 'nivo', SCM_ASSETS_URI_ASSETS . 'nivoSlider-3.2/jquery.nivo.slider.pack.js', array( 'jquery' ), null, true );
-                wp_enqueue_script( 'nivo' );
-            }
-
-            // BX Slider
-
-            if( get_field( 'main-slider-active', 'option' ) == 'bx' || get_field( 'opt-tools-bx', 'option' ) ){
-                wp_register_script( 'bx', SCM_ASSETS_URI_ASSETS . 'jquery.bxslider-4.1.2/jquery.bxslider.min.js', array( 'jquery' ), null, true );
-                wp_enqueue_script( 'bx' );
-            }
-
-            // Tooltip
-
-            wp_register_script( 'tooltip',  SCM_ASSETS_URI_ASSETS . 'jquery.powertip-1.2.0/jquery.powertip.min.js', array( 'jquery' ), null, true );
-            wp_enqueue_script( 'tooltip' );
-
-            // Waypoints
+            // Waypoints --- Will be substituted by _ScrollMagic_
 
             wp_register_script( 'waypoints',  SCM_ASSETS_URI_ASSETS . 'waypoints-4.0.0/lib/jquery.waypoints.min.js', array( 'jquery' ), null, true );
             wp_enqueue_script( 'waypoints' );

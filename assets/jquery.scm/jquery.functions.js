@@ -1,5 +1,13 @@
 (function($) {
 
+	$.functionExists = function( str ){
+		return typeof $.fn[str] !== undefined && $.isFunction($.fn[str]);
+	}
+	
+	$.funExists = function( str ){
+		return typeof $[str] !== undefined && $.isFunction($[str]);
+	}
+	
 	$.consoleDebug = function( db, lg ){
 		if (db)
 			console.log( lg );

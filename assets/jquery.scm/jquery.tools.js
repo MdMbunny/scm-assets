@@ -25,12 +25,7 @@ var READYPAGE = function(){};
 
 ( function($){
 
-	/*var READY = false;
-	var LOADED = false;*/
-	
-	
 	var ARCHIVES = {};
-	var PREVIOUS_FANCYBOX = '';
 
 // ******************************************************
 // ******************************************************
@@ -175,11 +170,28 @@ var READYPAGE = function(){};
 		});
 	};
 
+	// *****************************************************
+	// *      CSS
+	// *****************************************************
+
+	$.fn.checkCss = function( event ){
+		this.find( '[data-bg-color]' ).setCss( 'bg-color', 'background-color' );
+		this.find( '[data-zindex]' ).setCss( 'zindex', 'z-index' );
+		this.find( '[data-left]' ).setCss( 'left' );
+		this.find( '[data-top]' ).setCss( 'top' );
+		this.find( '[data-right]' ).setCss( 'right' );
+		this.find( '[data-bottom]' ).setCss( 'bottom' );
+	}
+
+	// *****************************************************
+	// *      EVENTS - Call these when dynamically attaching/loading contents
+	// *****************************************************	
+
 	$.fn.eventTools = function( event ){
-		//this.find( '[data-parallax]' ).setParallax();
-		//Waypoint.destroyAll();
+		//Waypoint.destroyAll(); <-- questo andrà in scm.js per i Dynamic Content Load
 		this.find( '[data-content-fade]' ).fadeContent();
 		this.find( '[data-tooltip]' ).setTooltip();
+		this.find( '[data-cursor]' ).setCursor();
 		this.find( '[data-popup]' ).setFancybox();
 		this.find( '[data-slider]' ).initSlider();
 		this.find( '[data-current-link]' ).currentLink();
@@ -191,7 +203,7 @@ var READYPAGE = function(){};
 		var $nav 	= this.find( 'a, .navigation' ).filter(':not(.nolinkit):not(.iubenda-embed)').filter(function( index ) { return $( this ).parents( '.ssba' ).length === 0; }),
 			$link 	= this.find( 'a, [data-href]' ).filter(':not(.nolinkit):not(.iubenda-embed)').filter(function( index ) { return $( this ).parents( '.ssba' ).length === 0; });
 
-		$link.filter( ':not(data-link-type)' ).linkIt();
+		$link.filter( ':not([data-link-type])' ).linkIt();
 		$nav.off( 'mousedown' ).on( 'mousedown', function(e){ e.stopPropagation(); } );
 
 		$link.off( 'click' ).on( 'click', function(e){
@@ -235,7 +247,7 @@ var READYPAGE = function(){};
 				$body 	= $( 'body' ),
 				href 	= ( $this.attr('href') ? $this.attr('href') : $this.data('href') ),
 				target 	= ( $this.attr('target') ? $this.attr('target') : $this.data('target') ),
-				state 	= $this.data('link-type');
+				state 	= $this.attr('data-link-type');
 
 				$.consoleDebug( DEBUG, 'state: ' + state);
 
@@ -263,16 +275,6 @@ var READYPAGE = function(){};
 
 	};
 
-
-	$.fn.checkCss = function( event ){
-		this.find( '[data-bg-color]' ).setCss( 'bg-color', 'background-color' );
-		this.find( '[data-zindex]' ).setCss( 'zindex', 'z-index' );
-		this.find( '[data-left]' ).setCss( 'left' );
-		this.find( '[data-top]' ).setCss( 'top' );
-		this.find( '[data-right]' ).setCss( 'right' );
-		this.find( '[data-bottom]' ).setCss( 'bottom' );
-	}
-
 	// *****************************************************
 	// *      LINK
 	// *****************************************************
@@ -283,11 +285,10 @@ var READYPAGE = function(){};
 
 		    var $this 		= $( this );
 
-		    /*if( $this.parents('.ssba').length > 0 )
-		    	return;*/
+		    var host 		= new RegExp(location.host);
 		    	
 		    var data 		= $this.data( 'href' ),
-		    	link 		= ( data ? data : $this.attr( 'href' ) ),
+		    	link 		= ( data ? data : $this.attr( 'href' ) ).replace('page:', host),
 		    	linkpath 	= $.removeSlash( link ),
 		    	linkanchor 	= linkpath.indexOf( '#' ),
 		    	lp 			= linkpath.substr( 0, linkanchor );
@@ -307,13 +308,11 @@ var READYPAGE = function(){};
 
 			var back 		= linkpath == 'back' || linkpath == 'http:back' || linkpath == 'https:back',
 		        load 		= ( $this.data( 'load-content' ) ? $this.data( 'load-content' ) : $this.parent().data( 'load-content' ) ),
-		        app 		= $.startsWith( linkpath, ['mailto:','callto:','fax:','tel:','skype:', 'callto:'] );
+		        app 		= ( $.startsWith( linkpath, ['mailto:','callto:','fax:','tel:','skype:'] ) ? linkpath.substr( 0, ( linkpath.indexOf('to:') > 0 ? linkpath.indexOf('to:') : linkpath.indexOf(':') ) ) : null );
 
 		    var href 		= ( back ? '#' : ( app ? link : ( samepath ? '#top' : ( parpath ? parent + link : ( linkanchor >= 0 && lp === lc ? linkpath.substr( linkanchor ) : link ) ) ) ) ),
 		        hrefanchor 	= href.indexOf( '#' ),
-		        hrefupload 	= href.indexOf( '/uploads/' );
-
-		    var host 		= new RegExp(location.host),
+		        hrefupload 	= href.indexOf( '/uploads/' ),
 				samehost 	= host.test( href ),
 				target 		= ( data ? $this.data( 'target' ) : ( $this.attr( 'target' ) ? $this.attr( 'target' ) : ( $this.hasClass( 'external' ) ? '_blank' : '' ) ) );
 			
@@ -321,7 +320,6 @@ var READYPAGE = function(){};
 				return;
 
 			var state 		= 'site';
-
 
 	        if( back || app || hrefanchor === 0 ){
 	        	state = 'page';
@@ -356,14 +354,14 @@ var READYPAGE = function(){};
 			else
 				$this.attr( 'href', href ).attr( 'target', target );
 
-			$this.data( 'link-type', ( back ? 'back' : ( app ? 'app' : state ) ) );
+			$this.attr( 'data-link-type', ( back ? 'back' : ( app ? app : state ) ) );
 
 		});
 		
 	}
 
 	// *****************************************************
-	// *      CHANGE PAGE
+	// *      NAVIGATION
 	// *****************************************************
 
 	$.bodyIn = function( event ){
@@ -478,7 +476,8 @@ var READYPAGE = function(){};
 		if( state == 'back' ){
 			window.history.back();
 			return false;			
-		}else if( state != 'app' && target != '_blank' && duration > 0 ){
+		//}else if( state != 'app' && target != '_blank' && duration > 0 ){
+		}else if( state == 'site' && target != '_blank' && duration > 0 ){
 
 			$.consoleDebug( DEBUG, 'with animation');
 
@@ -558,51 +557,12 @@ var READYPAGE = function(){};
 
 		};
 
-	/*$.fn.bodyOut = function( event, state ){
-
-		if( state == 'page' ){
-			return;
-		}
-
-		var $body 		= $( 'body' ),
-			$elem 		= this,
-			$navigation = $( '.navigation' ),
-			link 		= ( $elem.attr( 'href' ) ? $elem.attr( 'href' ) : $elem.data( 'href' ) ),
-			duration 	= ( $body.data( 'fade-out' ) ? parseFloat( $body.data( 'fade-out' ) ) : .3 ),
-			wait 		= ( $body.data( 'fade-wait' ) ? $body.data( 'fade-wait' ) : 'no' ),
-			opacity 	= ( $body.data( 'fade-out' ) ? 0 : .6 );
-
-		$elem.data( 'done', false );
-		if( link )
-			$elem.data( 'done', true );
-
-
-		if( state != 'external' && duration > 0 ){
-
-			$navigation.animate( {
-        		opacity: opacity
-        	}, duration * 600 );
-
-			$body.animate( {
-        		opacity: opacity
-        	}, duration * 1000, function() {
-				$elem.goToLink( event, state, 'See You!', function(){ $.bodyIn(); } );
-			});
-
-		}else{
-
-			$body.enableIt();
-			$elem.goToLink( event, state, 'See You!', function(){ $.bodyIn(); } );
-
-		}
-
-	}*/
-
 	// *****************************************************
 	// *      TOGGLE
 	// *****************************************************
 
 	$.fn.toggledIt = function( event, state ) {
+		
 		event.stopPropagation();
 
 		return this.each(function() {
@@ -1751,6 +1711,9 @@ var READYPAGE = function(){};
 
 	$.fn.setNivoSlider = function(){
 
+		if( !$.functionExists( 'nivoSlider' ) )
+			return this;
+
 		return this.each( function() {
 
 			var $body 		= $( 'body' ),
@@ -1914,36 +1877,13 @@ var READYPAGE = function(){};
 	}
 
 	// *****************************************************
-	// *      PARALLAX
-	// *****************************************************
-
-	$.fn.setParallax = function() {
-
-		return this.each( function() {
-
-			var $this 			= $( this ),
-				parallax		= ( $this.data( 'parallax' ) ? parseInt( $this.data( 'parallax' ) ) : 0 ),
-				top 			= ( $this.data( 'parallax-top' ) ? parseInt( $this.data( 'parallax-top' ) ) : 0 );
-				startTop		= ( $this.data( 'parallax-start-top' ) ? parseFloat( $this.data( 'parallax-start-top' ) ) : $this.css( 'top' ) ),
-				fadeIn 			= $this.css( 'opacity' ) == 0 || $this.css( 'display' ) == 'none';
-
-			$this.css( 'z-index', parallax );
-			$this.css( 'top', startTop + '%' );
-			if( fadeIn ){
-				$this.hide().fadeIn('slow');
-			}
-
-			$( window ).off('scroll').on( 'scroll', function(e){
-			});
-	
-		});
-	}
-
-	// *****************************************************
 	// *      FANCYBOX
 	// *****************************************************
 
 	$.fn.setFancybox = function() {
+
+		if( !$.funExists( 'fancybox' ) )
+			return this;
 
 		return this.each( function() {
 
@@ -2133,19 +2073,21 @@ var READYPAGE = function(){};
 
 	$.fn.setTooltip = function( event ){
 
+		if( !$.functionExists( 'powerTip' ) )
+			return this;
+
 		return this.each(function() {
 
 		    var $this = $( this );
 
-
-			data = $this.data('tooltip');
-			$element = $this.find( data );
+			var data = $this.data('tooltip');
+			var $element = $this.find( data );
 			
-			content = $element.html();
+			var content = $element.html();
 			$element.addClass('invisible');
 			//classes = $element.attr('class') + ' tooltip';
-			classes = 'tooltip' + ( $this.data('tooltip-class') ? ' ' + $this.data('tooltip-class') : '' );
-			direction = ( $this.data('tooltip-direction') ? $this.data('tooltip-direction') : 'n' );
+			var classes = 'tooltip' + ( $this.data('tooltip-class') ? ' ' + $this.data('tooltip-class') : '' );
+			var direction = ( $this.data('tooltip-direction') ? $this.data('tooltip-direction') : 'n' );
 			
 			$this.data('powertipjq', $([
 			    '<div class="' + classes + '">' + content + '</div>',
@@ -2163,26 +2105,37 @@ var READYPAGE = function(){};
 	};
 
 	// *****************************************************
-	// *      YOUTUBE EMBED FIX
+	// *      CURSOR
 	// *****************************************************
 
-	$.fn.youtubeFix = function(){
+	$.fn.setCursor = function( icn, at ){
 
-		return this.each( function() {
+		if( !$.functionExists( 'awesomeCursor' ) )
+			return this;
 
-			var $this 	= $( this ),
-				srcAtt 	= $this.attr( 'src' );
+		return this.each(function() {
 
-			if ( -1 == srcAtt.indexOf( '?' ) )
-				srcAtt += '?wmode=transparent';
-			else
-				srcAtt += '&amp;wmode=transparent';
-			$this.attr( 'src', srcAtt );
+		    var $this 		= $( this ),
+		    	$elems 		= ( $this.data('cursor-node') ? $this.find( $this.data('cursor-node') ) : $this ), // String (node 'a, data-href, div') || 'link' = a || 'all' = a, data-href
+				icon 		= ( icn ? icn : ( $this.data('cursor') ? $this.data('cursor') : ( $elems.is($this) ? 'mouse-pointer' : 'hand-pointer-o' ) ) ), // String
+				attr 		= $.extend( {
+					color 		: ( $this.data('cursor-color') ? $this.data('cursor-color') : '#000000' ), // String ( red, #FF0000, rgb(255,0,0), hsl(0,100%,50%) )
+					size 		: ( $this.data('cursor-size') ? $this.data('cursor-size') : 14 ), // Number
+					hotspot		: ( $this.data('cursor-pivot') ? $this.data('cursor-pivot') : [0,0] ), // Array || String ( bottom left - center - center top - center right - top right )
+					flip 		: ( $this.data('cursor-flip') ? $this.data('cursor-flip') : '' ), // String ( horizontal, vertical, both )
+					rotate 		: ( $this.data('cursor-rotate') ? $this.data('cursor-rotate') : 0 ), // Number
+					outline 	: ( $this.data('cursor-outline') ? $this.data('cursor-outline') : null ), // String ( red, #FF0000, rgb(255,0,0), hsl(0,100%,50%) )
+				}, at ),
+				defaults 	= ( $this.data('cursor-defaults') ? $this.data('cursor-defaults') : 0 ); // Boolean
+				
+			if( defaults )
+				$.fn.awesomeCursor.defaults = $.extend( $.fn.awesomeCursor.defaults, attr);
+			$elems.awesomeCursor( icon, attr );
 
 		});
-	}
+	};
 
-	// *****************************************************
+		// *****************************************************
 	// *      LOAD CONTENT
 	// *****************************************************
 
@@ -2210,7 +2163,6 @@ var READYPAGE = function(){};
 			elem.href = id;
 
     		$parent.css( 'overflow', 'hidden' );
-    		//$parent.css( 'overflow', 'visible' );
 			$parent.css('height', p_height);
 
 
@@ -2220,15 +2172,6 @@ var READYPAGE = function(){};
 			if( !ARCHIVES[id] )
 				ARCHIVES[id] = {};
 			ARCHIVES[id][paged] = $container.html();
-
-			/*var loadingContent = function(){
-
-				$parent.append( '<div class="scm-loading loading quadruple relative middle"><i class="fa fa-spin fa-spinner"></i></div>' );
-				$loading = $parent.find( '.scm-loading' );
-				$loading.hide();
-				$loading.fadeIn('slow');
-
-			}*/
 
 			var buildContent = function(){
 
@@ -2268,7 +2211,6 @@ var READYPAGE = function(){};
 
 			var adjustContent = function(){
 				$container.fadeIn('fast', function(){
-					//var newHeight = $container.actualHeight();
 					
 					var new_height = $container.outerHeight();
 
@@ -2288,9 +2230,6 @@ var READYPAGE = function(){};
 
 			var enableContent = function(){
 
-				//$container.css('min-height', 0);
-				//$container.css('max-height', 9999);
-				//$parent.css('line-height', 'inherit');
 				$parent.css( 'height', 'auto' );
 				$parent.css( 'overflow', 'visible' );
 				$container.eventTools();
@@ -2302,7 +2241,6 @@ var READYPAGE = function(){};
 
 		});
 	}
-
 
 	// *****************************************************
 	// *      CSS
@@ -2322,6 +2260,26 @@ var READYPAGE = function(){};
 
 		});
 
+	}
+
+	// *****************************************************
+	// *      YOUTUBE EMBED FIX
+	// *****************************************************
+
+	$.fn.youtubeFix = function(){
+
+		return this.each( function() {
+
+			var $this 	= $( this ),
+				srcAtt 	= $this.attr( 'src' );
+
+			if ( -1 == srcAtt.indexOf( '?' ) )
+				srcAtt += '?wmode=transparent';
+			else
+				srcAtt += '&amp;wmode=transparent';
+			$this.attr( 'src', srcAtt );
+
+		});
 	}
 
 
