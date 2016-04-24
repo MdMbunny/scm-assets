@@ -3,7 +3,7 @@
  * Plugin Name:         SCM Assets
  * Plugin URI:          http://studiocreativo-m.it/
  * Description:         SCM Javascript Integration
- * Version:             1.0.6
+ * Version:             1.0.8
  * Author:              Studio Creativo M
  * Author URI:          http://studiocreativo-m.it/
  * License:             http://www.gnu.org/licenses/gpl-3.0.html
@@ -90,7 +90,10 @@
     add_action( 'admin_enqueue_scripts', 'scm_assets_admin_register' );
     add_action( 'login_enqueue_scripts', 'scm_assets_login_register' );
     add_action( 'wp_enqueue_scripts', 'scm_assets_register_styles' );
-    add_action( 'wp_enqueue_scripts', 'scm_assets_register_scripts' );    
+    add_action( 'wp_enqueue_scripts', 'scm_assets_register_scripts' );  
+
+    add_action( 'wp_enqueue_scripts', 'scm_assets_register_fontawesome' );
+    add_action( 'admin_enqueue_scripts', 'scm_assets_register_fontawesome', 997 );
 
 // *****************************************************
 // *      1.0 ASSETS
@@ -243,7 +246,7 @@
 
             // SCM Child
 
-            wp_register_script( 'jquery-scm-child', SCM_URI_JS_CHILD . 'jquery.scm-child.js', array( 'jquery-scm-tools' ), null, true );
+            wp_register_script( 'jquery-scm-child', get_stylesheet_directory_uri() . '/_assets/js/jquery.scm-child.js', array( 'jquery-scm-tools' ), null, true );
             wp_enqueue_script( 'jquery-scm-child' );
             
             // SCM
@@ -258,7 +261,7 @@
     if ( ! function_exists( 'scm_assets_admin_register' ) ) {
         function scm_assets_admin_register() {
 
-            wp_register_script( 'jquery-scm-admin-child', SCM_URI_JS_CHILD . 'jquery.admin.js', array( 'jquery' ), null, true );
+            wp_register_script( 'jquery-scm-admin-child', get_stylesheet_directory_uri() . '/_assets/js/jquery.admin.js', array( 'jquery' ), null, true );
             wp_enqueue_script( 'jquery-scm-admin-child' );
 
             wp_register_script( 'jquery-scm-admin', SCM_ASSETS_URI_ASSETS . 'js/jquery.scm/jquery.admin.js', array( 'jquery-scm-admin-child' ), null, true );
@@ -271,11 +274,21 @@
     if ( ! function_exists( 'scm_assets_login_register' ) ) {
         function scm_assets_login_register() {
                 
-            wp_register_script( 'jquery-scm-login-child', SCM_URI_JS_CHILD . 'jquery.login.js', array( 'jquery' ), null, true );
+            wp_register_script( 'jquery-scm-login-child', get_stylesheet_directory_uri() . '/_assets/js/jquery.login.js', array( 'jquery' ), null, true );
             wp_enqueue_script( 'jquery-scm-login-child' );
             
             wp_register_script( 'jquery-scm-login', SCM_ASSETS_URI_ASSETS . 'js/jquery.scm/jquery.login.js', array( 'jquery-scm-login-child' ), null, true );
             wp_enqueue_script( 'jquery-scm-login' );                
+
+        }
+    }
+
+    // fontawesome
+    if ( ! function_exists( 'scm_assets_register_fontawesome' ) ) {
+        function scm_assets_register_fontawesome() {
+
+            wp_register_style('font-awesome', SCM_ASSETS_URI_ASSETS . 'font/font-awesome-4.6.1/css/font-awesome.min.css', false, null );
+            wp_enqueue_style( 'font-awesome' );   
 
         }
     }
