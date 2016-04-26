@@ -205,7 +205,6 @@ var READYPAGE = function(){};
 
 		$link.filter( ':not([data-link-type])' ).linkIt();
 		$nav.off( 'mousedown' ).on( 'mousedown', function(e){ e.stopPropagation(); } );
-
 		$link.off( 'click' ).on( 'click', function(e){
 
 			var $this = $( this );
@@ -315,6 +314,13 @@ var READYPAGE = function(){};
 		        hrefupload 	= href.indexOf( '/uploads/' ),
 				samehost 	= host.test( href ),
 				target 		= ( data ? $this.data( 'target' ) : ( $this.attr( 'target' ) ? $this.attr( 'target' ) : ( $this.hasClass( 'external' ) ? '_blank' : '' ) ) );
+				//extension 	= href.split('.').pop();
+
+			/*if( extension.toLowerCase() == 'pdf' ){
+				$this.removeAttr('href').removeAttr('data-href').removeAttr('target').removeAttr('data-target');
+				$this.attr('data-pop-up', href).attr('data-pop-up-type', 'iframe');
+				return;
+			}*/
 			
 			if( linkanchor !== 0 && !samehost && target === '_self' )
 				return;
