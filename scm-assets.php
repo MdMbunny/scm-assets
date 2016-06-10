@@ -3,7 +3,7 @@
  * Plugin Name:         SCM Assets
  * Plugin URI:          http://studiocreativo-m.it/
  * Description:         SCM Javascript Integration
- * Version:             1.1.2
+ * Version:             1.1.3
  * Author:              Studio Creativo M
  * Author URI:          http://studiocreativo-m.it/
  * License:             http://www.gnu.org/licenses/gpl-3.0.html
@@ -20,7 +20,6 @@
     // Init Plugin
     if ( ! function_exists( 'scm_plugin_init' ) ) {
         function scm_plugin_init($file){
-            //print( $file . ' FROM ' . __FILE__ );
             $file = ( $file ?: __FILE__ );
             $plugin = scm_plugin_name( $file );
             $slug = sanitize_title( $plugin );
@@ -42,7 +41,6 @@
             load_plugin_textdomain( $slug, false, $dir . 'lang/' );
         }
     }else{
-        //print('ALREADY EXISTS, SO...');
         scm_plugin_init( __FILE__ );
     }
 
@@ -58,15 +56,11 @@
         }
         // Name
         function scm_plugin_name( $file ) {
-            $plug = scm_plugin_data( $file );
-            return $plug[ 'Name' ];
-            //return scm_plugin_data( $file )[ 'Name' ];
+            return scm_plugin_data( $file )[ 'Name' ];
         }
         // Version
         function scm_plugin_version( $file ) {
-            $plug = scm_plugin_data( $file );
-            return $plug[ 'Version' ];
-            //return scm_plugin_data( $file )[ 'Version' ];
+            return scm_plugin_data( $file )[ 'Version' ];
         }
     }
 
@@ -291,8 +285,10 @@
     if ( ! function_exists( 'scm_assets_register_fontawesome' ) ) {
         function scm_assets_register_fontawesome() {
 
-            wp_register_style('font-awesome', SCM_ASSETS_URI_ASSETS . 'font/font-awesome-4.6.1/css/font-awesome.min.css', false, null );
-            wp_enqueue_style( 'font-awesome' );   
+            wp_register_script('font-awesome', 'https://use.fontawesome.com/ee6c1736d8.js', null, null, true );
+            wp_enqueue_script( 'font-awesome' );
+            //wp_register_style('font-awesome', SCM_ASSETS_URI_ASSETS . 'font/font-awesome-4.6.1/css/font-awesome.min.css', false, null );
+            //wp_enqueue_style( 'font-awesome' );   
 
         }
     }
