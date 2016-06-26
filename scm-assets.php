@@ -3,7 +3,7 @@
  * Plugin Name:         SCM Assets
  * Plugin URI:          http://studiocreativo-m.it/
  * Description:         SCM Javascript Integration
- * Version:             1.1.3
+ * Version:             1.1.4
  * Author:              Studio Creativo M
  * Author URI:          http://studiocreativo-m.it/
  * License:             http://www.gnu.org/licenses/gpl-3.0.html
@@ -56,11 +56,15 @@
         }
         // Name
         function scm_plugin_name( $file ) {
-            return scm_plugin_data( $file )[ 'Name' ];
+            $plug = scm_plugin_data( $file );
+            return $plug[ 'Name' ];
+            //return scm_plugin_data( $file )[ 'Name' ];
         }
         // Version
         function scm_plugin_version( $file ) {
-            return scm_plugin_data( $file )[ 'Version' ];
+            $plug = scm_plugin_data( $file );
+            return $plug[ 'Version' ];
+            //return scm_plugin_data( $file )[ 'Version' ];
         }
     }
 
