@@ -1906,6 +1906,7 @@ var READYPAGE = function(){};
 				type 			= ( $this.data( 'popup-type' ) ? $this.data( 'popup-type' ) : 'image' ),
 				content 		= ( $this.data( 'popup-content' ) ? $this.data( 'popup-content' ) : '' ),
 				list 			= ( $this.data( 'popup-list' ) ? $this.data( 'popup-list' ) : 0 ),
+				//margin 			= ( list ? ( list=='right' ? : ) : 25 ),
 				data 			= ( $this.data( 'popup-data' ) ? $this.data( 'popup-data' ) : 'float' ),
 				titles 			= ( $this.data( 'popup-titles' ) ? parseInt( $this.data( 'popup-titles' ) ) : 0 ),
 				captions	 	= ( $this.data( 'popup-captions' ) ? parseInt( $this.data( 'popup-captions' ) ) : 0 ),
@@ -2017,16 +2018,18 @@ var READYPAGE = function(){};
 		                autoSize: false,
 
 			    		padding: 0,
+			    		margin: [ 0, 25, 25, 25],
 			    		helpers: {
 			    			overlay: {
 			    				css : {
-					                'background-color' : 'rgba(0, 0, 0, .85)',
+					                'background-color' : 'rgba(0, 0, 0, 1)',
+					                'background-image' : 'none',
 					            },
 					            closeClick:false,
 		                        speedOut:0,
 		                        showEarly:true
 			    			},
-			    			title: { type: data},
+			    			title: { type: data },
 				   		},
 				   		type: type,
 				   		openEffect: 'fade',
@@ -2047,9 +2050,9 @@ var READYPAGE = function(){};
 				   		index: init,
 				   		list: list,
 				   		tpl: {
-				   			wrap: '<div class="fancybox-wrap" tabIndex="-1"><h1 class="text-center">' + name + '</h1><div class="fancybox-skin"><div class="fancybox-outer"><div class="fancybox-inner"></div></div></div></div>',
+				   			wrap: '<div class="fancybox-wrap" ' + ( list ? 'style="padding-bottom:0"' : '' ) + ' tabIndex="-1"><h1 class="fancybox-name text-center">' + name + '</h1><div class="fancybox-skin"><div class="fancybox-outer"><div class="fancybox-inner"></div></div></div></div>',// + ( list ? '<ul id="fancybox-links"></ul>' : '' ),
 				   		},
-				   		afterLoad: function() {
+				   		/*afterLoad: function() {
 						
 							if( this.list ){
 							    var $list = $( '#fancybox-links' );
@@ -2083,6 +2086,49 @@ var READYPAGE = function(){};
 							    //console.log($('#fancybox-links'));
 							    
 							}
+						},*/
+						beforeLoad: function() {
+						
+							if( this.list ){
+							    var $list = $( '.fancybox-links' );
+							    if (!$list.length)
+							    	$list = $( '<ul class="fancybox-links"></ul>' );
+							    
+							    var $elems = $list.children( 'li' );
+							    if (!$elems.length) {
+							        for (var i = 0; i < this.group.length; i++) {
+							        	var item = '<li data-index="' + i + '"><label></label></li>';
+							            $( item ).appendTo( $list );
+							        }
+							        //console.log($list);
+
+							        
+							        this.list_position = this.list;
+							        this.list = $list[0].outerHTML;
+							        //$elems = $list.children( 'li' );
+							    }
+
+							    /*$elems.removeClass( 'active' ).eq( this.index ).addClass( 'active' );
+							    $elems.click( function() {
+							        $.fancybox.jumpto( $( this ).data( 'index' ) );
+							    });*/
+							}
+						},
+						afterLoad: function() {
+							if( this.list ){
+							    var $list = $( '.fancybox-links' );
+							    if (!$list.length)
+							    	$list = $( this.list );
+							    this.list = 1;
+							    var $elems = $list.children( 'li' );
+							    $elems.removeClass( 'active' ).eq( this.index ).addClass( 'active' );
+							    $elems.click( function() {
+							        $.fancybox.jumpto( $( this ).data( 'index' ) );
+							    });
+							    $( '.fancybox-overlay' ).prepend( $list );
+
+							}
+
 						},
 						beforeShow: function() {
 
@@ -2097,6 +2143,11 @@ var READYPAGE = function(){};
 
 							$( 'body' ).addClass( 'no-scroll' );
 
+							if( this.list )
+								$( '.fancybox-overlay' ).addClass( 'list' ).addClass( 'list-' + this.list_position );
+
+							$( '.fancybox-overlay' ).addClass( this.helpers.title.type );
+
 							$( '.fancybox-inner' ).eventTools();
 							$( '.fancybox-inner' ).eventLinks();
 						
@@ -2107,7 +2158,7 @@ var READYPAGE = function(){};
 
 							window.ontouchmove = null;
 
-						    $( '#fancybox-links' ).remove();
+						    $( '.fancybox-links' ).remove();
 
 						},
 						/*afterLoad: function(){
