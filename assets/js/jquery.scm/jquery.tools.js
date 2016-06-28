@@ -286,15 +286,20 @@ var READYPAGE = function(){};
 
 		    var host 		= new RegExp(location.host);
 		    	
-		    var data 		= $this.data( 'href' ),
-		    	link 		= ( data ? data : $this.attr( 'href' ) ).replace('page:', host),
-		    	linkpath 	= $.removeSlash( link ),
+		    var data 		= ( $this.data( 'href' ) ? $this.data( 'href' ) : $this.attr( 'href' ) );
+
+		    if( !data )
+		    	return;
+
+		    var	link 		= data.replace('page:', host);
+
+		    	if( !link )
+		    		return;
+
+		    var	linkpath 	= $.removeSlash( link ),
 		    	linkanchor 	= linkpath.indexOf( '#' ),
 		    	lp 			= linkpath.substr( 0, linkanchor );
 
-		    if( !link )
-		    	return;
-		        
 			var current 	= document.URL,
 				curpath		= $.removeSlash( current ),
 				curanchor 	= curpath.indexOf( '#' ),
@@ -1900,10 +1905,17 @@ var READYPAGE = function(){};
 				name 			= ( $this.data( 'popup-title' ) ? $this.data( 'popup-title' ) : '' ),
 				type 			= ( $this.data( 'popup-type' ) ? $this.data( 'popup-type' ) : 'image' ),
 				content 		= ( $this.data( 'popup-content' ) ? $this.data( 'popup-content' ) : '' ),
-				list 			= ( $this.data( 'popup-list' ) ? $this.data( 'popup-list' ) : 'true' ),
+				list 			= ( $this.data( 'popup-list' ) ? $this.data( 'popup-list' ) : 0 ),
+				data 			= ( $this.data( 'popup-data' ) ? $this.data( 'popup-data' ) : 'float' ),
+				titles 			= ( $this.data( 'popup-titles' ) ? parseInt( $this.data( 'popup-titles' ) ) : 0 ),
+				captions	 	= ( $this.data( 'popup-captions' ) ? parseInt( $this.data( 'popup-captions' ) ) : 0 ),
+				alternates 		= ( $this.data( 'popup-alternates' ) ? parseInt( $this.data( 'popup-alternates' ) ) : 0 ),
+				descriptions 	= ( $this.data( 'popup-descriptions' ) ? parseInt( $this.data( 'popup-descriptions' ) ) : 0 ),
+				dates 			= ( $this.data( 'popup-dates' ) ? parseInt( $this.data( 'popup-dates' ) ) : 0 ),
+				modifies 		= ( $this.data( 'popup-modifies' ) ? parseInt( $this.data( 'popup-modifies' ) ) : 0 ),
+				filenames 		= ( $this.data( 'popup-filenames' ) ? parseInt( $this.data( 'popup-filenames' ) ) : 0 ),
+				types 			= ( $this.data( 'popup-types' ) ? parseInt( $this.data( 'popup-types' ) ) : 0 ),
 				images 			= [],
-				titles 			= [],
-				descriptions 	= [],
 				i 				= 0,
 				j 				= 0;
 
@@ -1949,14 +1961,37 @@ var READYPAGE = function(){};
 
 				}else if( typeof( popup[i].url ) !== undefined ){
 
-					images.push( {
-						href: path + popup[i].url,
-						title: popup[i].title,
-						//description: popup[i].description,
-					});
+					var temp = { href: path + popup[i].url };
+					var info = '';
+
+					if( titles || captions || alternates || descriptions || dates || modifies || filenames || types ){
+
+						if ( titles && popup[i].title )
+							info = info + '<span class="imgdata title">' + popup[i].title + '</span>';
+						if ( captions && popup[i].caption )
+							info = info + '<span class="imgdata caption">' + popup[i].caption + '</span>';
+						if ( alternates && popup[i].alt )
+							info = info + '<span class="imgdata alt">' + popup[i].alt + '</span>';
+						if ( descriptions && popup[i].description )
+							info = info + '<span class="imgdata description">' + popup[i].description + '</span>';
+						if ( dates && popup[i].date )
+							info = info + '<span class="imgdata date">' + popup[i].date + '</span>';
+						if ( modifies && popup[i].modified )
+							info = info + '<span class="imgdata modified">' + popup[i].modified + '</span>';
+						if ( filenames && popup[i].filename )
+							info = info + '<span class="imgdata filename">' + popup[i].filename + '</span>';
+						if ( types && popup[i].type )
+							info = info + '<span class="imgdata type">' + popup[i].type + '</span>';
+
+						temp.title = info;
+						
+					}
+
+					images.push( temp );
+					
 				}
 
-			};
+			}
 
 			if( type != 'load' ){
 				//$this.css( 'pointer-events', 'all' );
@@ -1991,6 +2026,7 @@ var READYPAGE = function(){};
 		                        speedOut:0,
 		                        showEarly:true
 			    			},
+			    			title: { type: data},
 				   		},
 				   		type: type,
 				   		openEffect: 'fade',
@@ -2009,34 +2045,43 @@ var READYPAGE = function(){};
 				   		closeOpacity: true,
 				   		closeClick: false,
 				   		index: init,
+				   		list: list,
 				   		tpl: {
 				   			wrap: '<div class="fancybox-wrap" tabIndex="-1"><h1 class="text-center">' + name + '</h1><div class="fancybox-skin"><div class="fancybox-outer"><div class="fancybox-inner"></div></div></div></div>',
 				   		},
-				   		beforeLoad: function() {
+				   		afterLoad: function() {
 						
-							if( list == 'true' ){
-							    var list = $( '#fancybox-links' );
+							if( this.list ){
+							    var $list = $( '#fancybox-links' );
 							    
-							    if (!list.length) {  
+							    if (!$list.length) {  
 
 							    	if( this.group.length > 1 ){
 
-								        list = $( '<ul id="fancybox-links">' );
+								        var $opened = $('.fancybox-opened');
+								        $('.fancybox-opened').append('<ul/>', {
+										    id: 'fancybox-links',
+										}).appendTo( $opened );
+								        
+								        $list = $('#fancybox-links');
+
 								        for (var i = 0; i < this.group.length; i++) {
-								        	var item = '<li data-index="' + i + '"><label></label></li>';
-								            $( item ).click( function() {
+								        	$list.append('<li data-index="' + i + '"><label></label></li>').click( function() {
 
 								            	$.fancybox.jumpto( $( this ).data( 'index' ) );
 
-								            }).appendTo( list );
-								        }
+								            });
+								        }								        
 								        
-								        list.appendTo( 'body' );
 								    }
 
 							    }
 
-							    list.find( 'li' ).removeClass( 'active' ).eq( this.index ).addClass( 'active' );
+							    $list.find( 'li' ).removeClass( 'active' ).eq( this.index ).addClass( 'active' );
+
+							    //console.log($list);
+							    //console.log($('#fancybox-links'));
+							    
 							}
 						},
 						beforeShow: function() {
@@ -2065,6 +2110,11 @@ var READYPAGE = function(){};
 						    $( '#fancybox-links' ).remove();
 
 						},
+						/*afterLoad: function(){
+
+							this.title = this.title + info;
+
+						},*/
 			    	}
 			    );
 			    
