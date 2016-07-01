@@ -25,6 +25,10 @@
 
 	// STRING
 
+	$.decodeEmail = function( str ){
+		return str.replace( '()', '@' ).replace( ',', '.' );
+	}
+
 	$.startsWith = function( str, arr ){
 		for (var i = 0; i < arr.length; i++) {
 			if( str.indexOf( arr[i] ) === 0 )

@@ -253,14 +253,13 @@ var READYPAGE = function(){};
 			switch( state ){
 
 				case 'load':
+					$.consoleDebug( DEBUG, 'loading content');
+					$this.loadContent( event, href );
+				break;
+
 				case 'page':
-					if( state == 'load' ){
-						$.consoleDebug( DEBUG, 'loading content');
-						$this.loadContent( event, href );
-					}else{
-						$.consoleDebug( DEBUG, 'scrolling');
-						$this.smoothScroll();
-					}
+					$.consoleDebug( DEBUG, 'scrolling');
+					$this.smoothScroll();
 				break;
 
 				default:
@@ -508,14 +507,14 @@ var READYPAGE = function(){};
 
 			$.consoleDebug( DEBUG, 'without animation');
 
-			$.goToLink( link, target );
+			$.goToLink( link, target, state );
 
 		}
 
 	}
 
 
-	$.goToLink = function( link, target ){
+	$.goToLink = function( link, target, state ){
 
 			$.consoleDebug( DEBUG, '-----------');
 			$.consoleDebug( DEBUG, 'goToLink:');
@@ -528,6 +527,11 @@ var READYPAGE = function(){};
 
 			$.consoleDebug( DEBUG, link);
 			$.consoleDebug( DEBUG, 'target: ' + target);
+
+			if( state == 'mail' ){
+				window.location = $.decodeEmail( link );
+				return this;
+			}
 
 			if( target != '_blank' ){
 
@@ -1902,11 +1906,18 @@ var READYPAGE = function(){};
 				popup 			= ( $this.data( 'popup' ) ? $this.data( 'popup' ) : '' ),
 				path 			= ( $this.data( 'popup-path' ) ? $this.data( 'popup-path' ) : '' ),
 				init 			= ( $this.data( 'popup-init' ) ? $this.data( 'popup-init' ) : 0 ),
-				name 			= ( $this.data( 'popup-title' ) ? $this.data( 'popup-title' ) : '' ),
+				title 			= ( $this.data( 'popup-title' ) ? $this.data( 'popup-title' ) : '' ),
 				type 			= ( $this.data( 'popup-type' ) ? $this.data( 'popup-type' ) : 'image' ),
 				content 		= ( $this.data( 'popup-content' ) ? $this.data( 'popup-content' ) : '' ),
+				
+				arrows 			= ( $this.data( 'popup-arrows' ) ? $this.data( 'popup-arrows' ) : 0 ),
+				name 			= ( $this.data( 'popup-name' ) ? $this.data( 'popup-name' ) : 0 ),
+				counter			= ( $this.data( 'popup-counter' ) ? $this.data( 'popup-counter' ) : 0 ),
+				close			= ( $this.data( 'popup-close' ) ? $this.data( 'popup-close' ) : 0 ),
+				info			= ( $this.data( 'popup-info' ) ? $this.data( 'popup-info' ) : 0 ),
+				color			= ( $this.data( 'popup-color' ) ? $this.data( 'popup-color' ) : 0 ),
+				tools 			= close || info || color,
 				list 			= ( $this.data( 'popup-list' ) ? $this.data( 'popup-list' ) : 0 ),
-				//margin 			= ( list ? ( list=='right' ? : ) : 25 ),
 				data 			= ( $this.data( 'popup-data' ) ? $this.data( 'popup-data' ) : 'float' ),
 				titles 			= ( $this.data( 'popup-titles' ) ? parseInt( $this.data( 'popup-titles' ) ) : 0 ),
 				captions	 	= ( $this.data( 'popup-captions' ) ? parseInt( $this.data( 'popup-captions' ) ) : 0 ),
@@ -1916,17 +1927,18 @@ var READYPAGE = function(){};
 				modifies 		= ( $this.data( 'popup-modifies' ) ? parseInt( $this.data( 'popup-modifies' ) ) : 0 ),
 				filenames 		= ( $this.data( 'popup-filenames' ) ? parseInt( $this.data( 'popup-filenames' ) ) : 0 ),
 				types 			= ( $this.data( 'popup-types' ) ? parseInt( $this.data( 'popup-types' ) ) : 0 ),
+				
 				images 			= [],
 				i 				= 0,
-				j 				= 0;
+				j 				= 0,
+				space 			= $.EmToPx( 1 ),
+				extra 			= $.EmToPx( 3 ),
+				margin 			= [ extra + space, extra, extra + space, extra ];
 
 			if( !popup || !popup.length )
 				return;
 
 			var len = popup.length;
-			var countLoad = function(){
-
-			}
 
 			$this.disableIt();
 
@@ -1946,15 +1958,10 @@ var READYPAGE = function(){};
 						j++;
 						if( j == len ){
 							$this.find( '.loading' ).remove();
-							//$this.css( 'pointer-events', 'all' );
 							$this.enableIt();
 							$this.animate( { 'opacity' : 1 }, 'fast' );
 						}
 					});
-
-				/*}else if( type == 'gallery' ){
-
-					console.log('pippo');*/
 
 				}else if( typeof( popup[i] ) === 'string' ){
 
@@ -1963,28 +1970,28 @@ var READYPAGE = function(){};
 				}else if( typeof( popup[i].url ) !== undefined ){
 
 					var temp = { href: path + popup[i].url };
-					var info = '';
+					var tit = '';
 
 					if( titles || captions || alternates || descriptions || dates || modifies || filenames || types ){
 
 						if ( titles && popup[i].title )
-							info = info + '<span class="imgdata title">' + popup[i].title + '</span>';
+							tit = tit + '<span class="imgdata title">' + popup[i].title + '</span>';
 						if ( captions && popup[i].caption )
-							info = info + '<span class="imgdata caption">' + popup[i].caption + '</span>';
+							tit = tit + '<span class="imgdata caption">' + popup[i].caption + '</span>';
 						if ( alternates && popup[i].alt )
-							info = info + '<span class="imgdata alt">' + popup[i].alt + '</span>';
+							tit = tit + '<span class="imgdata alt">' + popup[i].alt + '</span>';
 						if ( descriptions && popup[i].description )
-							info = info + '<span class="imgdata description">' + popup[i].description + '</span>';
+							tit = tit + '<span class="imgdata description">' + popup[i].description + '</span>';
 						if ( dates && popup[i].date )
-							info = info + '<span class="imgdata date">' + popup[i].date + '</span>';
+							tit = tit + '<span class="imgdata date">' + popup[i].date + '</span>';
 						if ( modifies && popup[i].modified )
-							info = info + '<span class="imgdata modified">' + popup[i].modified + '</span>';
+							tit = tit + '<span class="imgdata modified">' + popup[i].modified + '</span>';
 						if ( filenames && popup[i].filename )
-							info = info + '<span class="imgdata filename">' + popup[i].filename + '</span>';
+							tit = tit + '<span class="imgdata filename">' + popup[i].filename + '</span>';
 						if ( types && popup[i].type )
-							info = info + '<span class="imgdata type">' + popup[i].type + '</span>';
+							tit = tit + '<span class="imgdata type">' + popup[i].type + '</span>';
 
-						temp.title = info;
+						temp.title = tit;
 						
 					}
 
@@ -1995,7 +2002,6 @@ var READYPAGE = function(){};
 			}
 
 			if( type != 'load' ){
-				//$this.css( 'pointer-events', 'all' );
 				$this.enableIt();
 			}
 
@@ -2012,26 +2018,22 @@ var READYPAGE = function(){};
 			    $.fancybox.open(
 			    	images,
 			    	{
-
 			    		modal: false,
+						type: type,
 		                scrolling: 'auto',
 		                autoSize: false,
-
 			    		padding: 0,
-			    		margin: [ 0, 25, 25, 25],
-			    		helpers: {
-			    			overlay: {
-			    				css : {
-					                'background-color' : 'rgba(0, 0, 0, 1)',
-					                'background-image' : 'none',
-					            },
-					            closeClick:false,
-		                        speedOut:0,
-		                        showEarly:true
-			    			},
-			    			title: { type: data },
-				   		},
-				   		type: type,
+			    		margin: margin,
+
+			    		openOpacity: true,
+			    		arrows: false,
+			    		nextClick: false,
+				   		closeBtn: false,
+				   		closeOpacity: true,
+				   		closeClick: false,
+				   		index: init,
+				   		list: list,
+				   		
 				   		openEffect: 'fade',
 				   		closeEffect: 'fade',
 				   		nextEffect: 'elastic',
@@ -2044,128 +2046,150 @@ var READYPAGE = function(){};
 				   		closeSpeed: 350,
 				   		nextSpeed: 600,
 				   		prevSpeed: 600,
-				   		openOpacity: true,
-				   		closeOpacity: true,
-				   		closeClick: false,
-				   		index: init,
-				   		list: list,
-				   		tpl: {
-				   			wrap: '<div class="fancybox-wrap" ' + ( list ? 'style="padding-bottom:0"' : '' ) + ' tabIndex="-1"><h1 class="fancybox-name text-center">' + name + '</h1><div class="fancybox-skin"><div class="fancybox-outer"><div class="fancybox-inner"></div></div></div></div>',// + ( list ? '<ul id="fancybox-links"></ul>' : '' ),
+				   		
+				   		helpers: {
+			    			overlay: {
+			    				css : {
+					                'background-color' : 'rgba(0, 0, 0, .85)',
+					                'background-image' : 'none',
+					            },
+					            closeClick:false,
+		                        speedOut:0,
+		                        showEarly:true
+			    			},
+			    			title: { type: data },
 				   		},
-				   		/*afterLoad: function() {
-						
-							if( this.list ){
-							    var $list = $( '#fancybox-links' );
-							    
-							    if (!$list.length) {  
-
-							    	if( this.group.length > 1 ){
-
-								        var $opened = $('.fancybox-opened');
-								        $('.fancybox-opened').append('<ul/>', {
-										    id: 'fancybox-links',
-										}).appendTo( $opened );
-								        
-								        $list = $('#fancybox-links');
-
-								        for (var i = 0; i < this.group.length; i++) {
-								        	$list.append('<li data-index="' + i + '"><label></label></li>').click( function() {
-
-								            	$.fancybox.jumpto( $( this ).data( 'index' ) );
-
-								            });
-								        }								        
-								        
-								    }
-
-							    }
-
-							    $list.find( 'li' ).removeClass( 'active' ).eq( this.index ).addClass( 'active' );
-
-							    //console.log($list);
-							    //console.log($('#fancybox-links'));
-							    
-							}
-						},*/
+				   		tpl: {
+				   			wrap 	 : '<div class="fancybox-wrap" tabIndex="-1"><div class="fancybox-skin"><div class="fancybox-outer"><div class="fancybox-inner"></div></div></div></div>',
+				   			//next     : '<a title="Next" class="fancybox-nav fancybox-next" href="javascript:;"><span>&rsaquo;</span></a>',
+							//prev     : '<a title="Previous" class="fancybox-nav fancybox-prev" href="javascript:;"><span>&lsaquo;</span></a>',
+							//closeBtn : '<a title="Close" class="fancybox-item fancybox-close" href="javascript:;"></a>',
+				   		},
+				   		
 						beforeLoad: function() {
-						
-							if( this.list ){
-							    var $list = $( '.fancybox-links' );
-							    if (!$list.length)
-							    	$list = $( '<ul class="fancybox-links"></ul>' );
-							    
-							    var $elems = $list.children( 'li' );
-							    if (!$elems.length) {
-							        for (var i = 0; i < this.group.length; i++) {
-							        	var item = '<li data-index="' + i + '"><label></label></li>';
-							            $( item ).appendTo( $list );
-							        }
-							        //console.log($list);
-
-							        
-							        this.list_position = this.list;
-							        this.list = $list[0].outerHTML;
-							        //$elems = $list.children( 'li' );
-							    }
-
-							    /*$elems.removeClass( 'active' ).eq( this.index ).addClass( 'active' );
-							    $elems.click( function() {
-							        $.fancybox.jumpto( $( this ).data( 'index' ) );
-							    });*/
-							}
-						},
-						afterLoad: function() {
-							if( this.list ){
-							    var $list = $( '.fancybox-links' );
-							    if (!$list.length)
-							    	$list = $( this.list );
-							    this.list = 1;
-							    var $elems = $list.children( 'li' );
-							    $elems.removeClass( 'active' ).eq( this.index ).addClass( 'active' );
-							    $elems.click( function() {
-							        $.fancybox.jumpto( $( this ).data( 'index' ) );
-							    });
-							    $( '.fancybox-overlay' ).prepend( $list );
-
-							}
-
-						},
-						beforeShow: function() {
-
-							$( '.fancybox-overlay' ).show();
-
+							
+							// DISABLE SCROLLING
 							window.ontouchmove  = function(e) {
 								e = e || window.event;
 								if (e.preventDefault)
 									e.preventDefault();
 								e.returnValue = false;  
 							}
-
 							$( 'body' ).addClass( 'no-scroll' );
 
-							if( this.list )
-								$( '.fancybox-overlay' ).addClass( 'list' ).addClass( 'list-' + this.list_position );
-
-							$( '.fancybox-overlay' ).addClass( this.helpers.title.type );
-
-							$( '.fancybox-inner' ).eventTools();
-							$( '.fancybox-inner' ).eventLinks();
-						
 						},
+
+						afterLoad: function() {
+
+							var $over = $( '.fancybox-overlay' );
+							var $wrap = $( '.fancybox-wrap' );
+
+							// ARROWS
+							if( arrows ){
+								
+							    var $arrows = $( '.fancybox-nav' );
+							    if (!$arrows.length){
+							    	$( '<a title="Next" class="fancybox-stuff fancybox-nav fancybox-next" href="javascript:;"><span>&rsaquo;</span></a>' ).click( function() {
+								        $.fancybox.next();
+								    }).appendTo( $over );
+							    	$( '<a title="Previous" class="fancybox-stuff fancybox-nav fancybox-prev" href="javascript:;"><span>&lsaquo;</span></a>' ).click( function() {
+								        $.fancybox.prev();
+								    }).appendTo( $over );
+							    }
+							}
+							
+							// NAVLIST
+							if( list ){
+							    var $list = $( '.fancybox-links' );
+							    if (!$list.length){
+							    	$list = $( '<ul class="fancybox-stuff fancybox-links" data-elements="' + this.group.length + '"></ul>' );
+							        for (var i = 0; i < this.group.length; i++){
+							        	$( '<li data-index="' + i + '"><label></label></li>' ).click( function() {
+									        if( $( this ).hasClass( 'active' ) )
+									        	return;
+									        $.fancybox.jumpto( $( this ).data( 'index' ) );
+									    }).appendTo( $list );
+							        }
+							    	$over.prepend( $list );
+							    	$over.addClass( 'list' );
+							    	$over.addClass( data );
+							    }
+
+							    $list.find( '[data-index=' + this.index + ']' ).addClass( 'active' ).siblings().removeClass( 'active' );
+							}
+
+							// TOOLS
+							if( tools ){
+							    var $tools = $( '.fancybox-tools' );
+							    if (!$tools.length){
+							    	
+							    	$tools = $( '<div class="fancybox-tools"></div>' );
+							    	
+							    	if( color ){
+							    		$( '<a title="Color" class="fancybox-stuff fancybox-item fancybox-color" href="javascript:;"><i class="fa fa-circle"></i></a>' ).click( function() {
+									        $( this ).toggleClass( 'on' );
+									        $over.toggleClass( 'white' );
+									    }).appendTo( $tools );
+							    	}
+							    	
+							    	if( info ){
+							    		$( '<a title="Info" class="fancybox-stuff fancybox-item fancybox-info" href="javascript:;"><i class="fa fa-info-circle"></i></a>' ).click( function() {
+									        $( this ).toggleClass( 'on' );
+									        $over.toggleClass( 'info' );
+									        
+									        if( $over.hasClass( 'info' ) )
+									        	$( this ).parent().siblings( '.fancybox-nav' ).css( 'opacity', 0 );
+									        else
+									        	$( this ).parent().siblings( '.fancybox-nav' ).css( 'opacity', 'initial' );
+									        
+									        $over.find( '.fancybox-counter, .fancybox-name, .fancybox-links, .fancybox-title' ).toggleClass( 'hidden' );
+									    }).appendTo( $tools );
+							    	}
+							    	
+							    	if( close ){
+							    		$( '<a title="Back" class="fancybox-stuff fancybox-item fancybox-back" href="javascript:;"><i class="fa fa-times-circle"></i></a>' ).click( function() {
+									        $.fancybox.close();
+									    }).appendTo( $tools );
+							    	}
+
+							    	$over.prepend( $tools );
+							    }
+							}
+
+							// TITLE
+							if( name ){
+							    var $name = $( '.fancybox-name' );
+							    if (!$name.length)
+							    	$over.prepend( $( '<h1 class="fancybox-stuff fancybox-name text-center">' + title + '</h1>' ) );
+							}
+
+							// COUNTER
+							if( counter ){
+							    var $counter = $( '.fancybox-counter' );
+							    if (!$counter.length)
+							    	$over.prepend( $( '<h2 class="fancybox-stuff fancybox-counter">' + ( this.index + 1 ) + '/' + this.group.length + '</h2>' ) );
+							}
+
+							$wrap.eventLinks();
+
+						},
+
+						beforeShow: function() {
+
+							$( '.fancybox-counter' ).html( ( this.index + 1 ) + '/' + this.group.length );
+
+						},
+
+						afterShow: function() {						
+						},
+
 						beforeClose: function() {
 
+							// ENABLE SCROLLING
 							$( 'body' ).removeClass( 'no-scroll' );
-
 							window.ontouchmove = null;
 
-						    $( '.fancybox-links' ).remove();
-
 						},
-						/*afterLoad: function(){
-
-							this.title = this.title + info;
-
-						},*/
 			    	}
 			    );
 			    
@@ -2234,7 +2258,7 @@ var READYPAGE = function(){};
 					outline 	: ( $this.data('cursor-outline') ? $this.data('cursor-outline') : null ), // String ( red, #FF0000, rgb(255,0,0), hsl(0,100%,50%) )
 				}, at ),
 				defaults 	= ( $this.data('cursor-defaults') ? $this.data('cursor-defaults') : 0 ); // Boolean
-				
+
 			if( defaults )
 				$.fn.awesomeCursor.defaults = $.extend( $.fn.awesomeCursor.defaults, attr);
 			$elems.awesomeCursor( icon, attr );

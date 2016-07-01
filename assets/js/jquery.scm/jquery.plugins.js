@@ -181,12 +181,6 @@
 						current = ( m > current ? m : current );
 				
 				});
-
-
-
-
-				//current_max = ( current_max == 9999999 ? 'auto' : current_max );
-				//current_min = ( current_min == 0 ? 'auto' : current_min );
 				
 				switch( equal ){
 					case 'height':
@@ -279,37 +273,5 @@
 			: jQuery("<p>").append(this.eq(0).clone()).html();
 		}
 	}
-
-	/*if ( !$.fn.goToLink ) {
-
-		$.fn.goToLink = function( event, state, title, fallback ){
-
-			var link 		= this.data( 'href' ),
-				ext 		= ( this.attr('target') == '_blank' ? true : ( this.data( 'target' ) == '_blank' ? true : this.hasClass( 'external' ) ) ),
-				title 		= ( typeof title !== 'undefined' ? title : 'Arrivederci!' );
-				//ext 		= ( typeof this.attr( 'target' ) !== 'undefined' ? ( this.attr('target') == '_blank' ? true : false ) : this.hasClass( 'external' ) ),
-			if( !link ){
-				if ( fallback ) fallback();
-				return this;
-			}
-
-			if( !ext || link.indexOf( 'mailto:' ) === 0 || link.indexOf( 'callto:' ) === 0 || link.indexOf( 'fax:' ) === 0 || link.indexOf( 'tel:' ) === 0 || link.indexOf( 'skype:' ) === 0 ){
-				
-				window.location = link;
-				return false;
-
-			}else{
-
-				window.open( link, title );
-				return this;
-
-			}
-			
-			if ( fallback ) fallback();
-
-			return this;
-
-		};
-	}*/
 
 })( jQuery );
