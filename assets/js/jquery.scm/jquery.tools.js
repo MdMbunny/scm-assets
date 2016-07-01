@@ -282,18 +282,12 @@ var READYPAGE = function(){};
 		return this.each(function() {
 
 		    var $this 		= $( this );
+		    	host 		= new RegExp(location.host);
+		    	data 		= $this.data( 'href' );
+		    	link 		= ( data ? data.replace('page:', host) : $this.attr( 'href' ).replace('page:', host) );
 
-		    var host 		= new RegExp(location.host);
-		    	
-		    var data 		= ( $this.data( 'href' ) ? $this.data( 'href' ) : $this.attr( 'href' ) );
-
-		    if( !data )
-		    	return;
-
-		    var	link 		= data.replace('page:', host);
-
-		    	if( !link )
-		    		return;
+	    	if( !link )
+	    		return;
 
 		    var	linkpath 	= $.removeSlash( link ),
 		    	linkanchor 	= linkpath.indexOf( '#' ),
@@ -317,19 +311,11 @@ var READYPAGE = function(){};
 		        hrefanchor 	= href.indexOf( '#' ),
 		        hrefupload 	= href.indexOf( '/uploads/' ),
 				samehost 	= host.test( href ),
-				target 		= ( data ? $this.data( 'target' ) : ( $this.attr( 'target' ) ? $this.attr( 'target' ) : ( $this.hasClass( 'external' ) ? '_blank' : '' ) ) );
-				//extension 	= href.split('.').pop();
-
-			/*if( extension.toLowerCase() == 'pdf' ){
-				$this.removeAttr('href').removeAttr('data-href').removeAttr('target').removeAttr('data-target');
-				$this.attr('data-pop-up', href).attr('data-pop-up-type', 'iframe');
-				return;
-			}*/
+				target 		= ( data ? $this.data( 'target' ) : ( $this.attr( 'target' ) ? $this.attr( 'target' ) : ( $this.hasClass( 'external' ) ? '_blank' : '' ) ) ),
+				state 		= 'site';
 			
 			if( linkanchor !== 0 && !samehost && target === '_self' )
 				return;
-
-			var state 		= 'site';
 
 	        if( back || app || hrefanchor === 0 ){
 	        	state = 'page';
@@ -342,8 +328,7 @@ var READYPAGE = function(){};
 	        }
 
 			if( load ){
-				//target = '_self';
-				//href = load;
+				
 				state = 'load';
 			
 			}else if( (samehost && target !== '_blank') ){
@@ -1913,10 +1898,10 @@ var READYPAGE = function(){};
 				arrows 			= ( $this.data( 'popup-arrows' ) ? $this.data( 'popup-arrows' ) : 0 ),
 				name 			= ( $this.data( 'popup-name' ) ? $this.data( 'popup-name' ) : 0 ),
 				counter			= ( $this.data( 'popup-counter' ) ? $this.data( 'popup-counter' ) : 0 ),
-				close			= ( $this.data( 'popup-close' ) ? $this.data( 'popup-close' ) : 0 ),
+				//close			= ( $this.data( 'popup-close' ) ? $this.data( 'popup-close' ) : 0 ),
 				info			= ( $this.data( 'popup-info' ) ? $this.data( 'popup-info' ) : 0 ),
 				color			= ( $this.data( 'popup-color' ) ? $this.data( 'popup-color' ) : 0 ),
-				tools 			= close || info || color,
+				//tools 			= close || info || color,
 				list 			= ( $this.data( 'popup-list' ) ? $this.data( 'popup-list' ) : 0 ),
 				data 			= ( $this.data( 'popup-data' ) ? $this.data( 'popup-data' ) : 'float' ),
 				titles 			= ( $this.data( 'popup-titles' ) ? parseInt( $this.data( 'popup-titles' ) ) : 0 ),
@@ -2054,7 +2039,7 @@ var READYPAGE = function(){};
 					                'background-image' : 'none',
 					            },
 					            closeClick:false,
-		                        speedOut:0,
+		                        speedOut:50,
 		                        showEarly:true
 			    			},
 			    			title: { type: data },
@@ -2084,6 +2069,9 @@ var READYPAGE = function(){};
 							var $over = $( '.fancybox-overlay' );
 							var $wrap = $( '.fancybox-wrap' );
 
+							$over.addClass( type );
+							$over.addClass( data );
+
 							// ARROWS
 							if( arrows ){
 								
@@ -2111,15 +2099,14 @@ var READYPAGE = function(){};
 									    }).appendTo( $list );
 							        }
 							    	$over.prepend( $list );
-							    	$over.addClass( 'list' );
-							    	$over.addClass( data );
+							    	$over.addClass( 'list list-points' );
 							    }
 
 							    $list.find( '[data-index=' + this.index + ']' ).addClass( 'active' ).siblings().removeClass( 'active' );
 							}
 
 							// TOOLS
-							if( tools ){
+							//if( tools ){
 							    var $tools = $( '.fancybox-tools' );
 							    if (!$tools.length){
 							    	
@@ -2146,15 +2133,15 @@ var READYPAGE = function(){};
 									    }).appendTo( $tools );
 							    	}
 							    	
-							    	if( close ){
+							    	//if( close ){
 							    		$( '<a title="Back" class="fancybox-stuff fancybox-item fancybox-back" href="javascript:;"><i class="fa fa-times-circle"></i></a>' ).click( function() {
 									        $.fancybox.close();
 									    }).appendTo( $tools );
-							    	}
+							    	//}
 
 							    	$over.prepend( $tools );
 							    }
-							}
+							//}
 
 							// TITLE
 							if( name ){
