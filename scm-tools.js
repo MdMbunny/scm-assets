@@ -1888,22 +1888,27 @@ var READYPAGE = function(){};
 		return this.each( function() {
 
 			var $this 			= $( this ),
-				popup 			= ( $this.data( 'popup' ) ? $this.data( 'popup' ) : '' ),
+				popup 			= ( $this.data( 'popup' ) ? $this.data( 'popup' ) : '' );
+
+				if( !popup  || !popup.length )
+					return;
+
+			var len 			= popup.length,
 				path 			= ( $this.data( 'popup-path' ) ? $this.data( 'popup-path' ) : '' ),
 				init 			= ( $this.data( 'popup-init' ) ? $this.data( 'popup-init' ) : 0 ),
 				title 			= ( $this.data( 'popup-title' ) ? $this.data( 'popup-title' ) : '' ),
 				type 			= ( $this.data( 'popup-type' ) ? $this.data( 'popup-type' ) : 'image' ),
-				content 		= ( $this.data( 'popup-content' ) ? $this.data( 'popup-content' ) : '' ),
+				content 		= ( $this.data( 'popup-content' ) ? $this.data( 'popup-content' ) : '' );
 				
-				arrows 			= ( $this.data( 'popup-arrows' ) ? $this.data( 'popup-arrows' ) : 0 ),
+			var arrows 			= ( len === 1 ? 0 : ( $this.data( 'popup-arrows' ) ? $this.data( 'popup-arrows' ) : 0 ) ),
+				mini 			= ( $this.data( 'popup-miniarrows' ) ? $this.data( 'popup-miniarrows' ) : 0 ),
 				name 			= ( $this.data( 'popup-name' ) ? $this.data( 'popup-name' ) : 0 ),
 				counter			= ( $this.data( 'popup-counter' ) ? $this.data( 'popup-counter' ) : 0 ),
-				//close			= ( $this.data( 'popup-close' ) ? $this.data( 'popup-close' ) : 0 ),
 				info			= ( $this.data( 'popup-info' ) ? $this.data( 'popup-info' ) : 0 ),
 				color			= ( $this.data( 'popup-color' ) ? $this.data( 'popup-color' ) : 0 ),
-				//tools 			= close || info || color,
-				list 			= ( $this.data( 'popup-list' ) ? $this.data( 'popup-list' ) : 0 ),
+				list 			= ( len === 1 ? 0 : ( $this.data( 'popup-list' ) ? $this.data( 'popup-list' ) : 0 ) ),
 				data 			= ( $this.data( 'popup-data' ) ? $this.data( 'popup-data' ) : 'float' ),
+				reverse			= ( $this.data( 'popup-reverse' ) ? $this.data( 'popup-reverse' ) : 0 ),
 				titles 			= ( $this.data( 'popup-titles' ) ? parseInt( $this.data( 'popup-titles' ) ) : 0 ),
 				captions	 	= ( $this.data( 'popup-captions' ) ? parseInt( $this.data( 'popup-captions' ) ) : 0 ),
 				alternates 		= ( $this.data( 'popup-alternates' ) ? parseInt( $this.data( 'popup-alternates' ) ) : 0 ),
@@ -1911,19 +1916,14 @@ var READYPAGE = function(){};
 				dates 			= ( $this.data( 'popup-dates' ) ? parseInt( $this.data( 'popup-dates' ) ) : 0 ),
 				modifies 		= ( $this.data( 'popup-modifies' ) ? parseInt( $this.data( 'popup-modifies' ) ) : 0 ),
 				filenames 		= ( $this.data( 'popup-filenames' ) ? parseInt( $this.data( 'popup-filenames' ) ) : 0 ),
-				types 			= ( $this.data( 'popup-types' ) ? parseInt( $this.data( 'popup-types' ) ) : 0 ),
+				types 			= ( $this.data( 'popup-types' ) ? parseInt( $this.data( 'popup-types' ) ) : 0 );
 				
-				images 			= [],
+			var images 			= [],
 				i 				= 0,
 				j 				= 0,
 				space 			= $.EmToPx( 1 ),
 				extra 			= $.EmToPx( 3 ),
 				margin 			= [ extra + space, extra, extra + space, extra ];
-
-			if( !popup || !popup.length )
-				return;
-
-			var len = popup.length;
 
 			$this.disableIt();
 
@@ -2071,6 +2071,8 @@ var READYPAGE = function(){};
 
 							$over.addClass( type );
 							$over.addClass( data );
+							if(reverse )
+								$over.addClass( 'reverse' );
 
 							// ARROWS
 							if( arrows ){
@@ -2083,6 +2085,8 @@ var READYPAGE = function(){};
 							    	$( '<a title="Previous" class="fancybox-stuff fancybox-nav fancybox-prev" href="javascript:;"><span>&lsaquo;</span></a>' ).click( function() {
 								        $.fancybox.prev();
 								    }).appendTo( $over );
+								    if( mini )
+									    $over.addClass( 'miniarrows' );
 							    }
 							}
 							
