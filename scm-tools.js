@@ -2164,6 +2164,7 @@ var READYPAGE = function(){};
 						beforeShow: function() {
 
 							$( '.fancybox-counter' ).html( ( this.index + 1 ) + '/' + this.group.length );
+							$( '.fancybox-wrap' ).bind("contextmenu", function (e) { return false; });
 
 						},
 

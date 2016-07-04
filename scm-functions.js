@@ -1,10 +1,21 @@
 /*
 *****************************************************
-*      SCRIPTS
+*
+*	1.0 PLUGINS
+*	2.0 FUNCTIONS
+*	3.0 PRESETS
+*
 *****************************************************
 */
 
+
 (function($) {
+
+/*
+*****************************************************
+*	1.0 PLUGINS
+*****************************************************
+*/
 
 	if ( !$.fn.style ) {
 	
@@ -254,24 +265,145 @@
 
 	}
 
+//Back Page Link
 	if ( !$.fn.goBack ) {
+		$.fn.goBack = function( e ) { window.history.back(); };
+	}
 
-		//Go Back
-		$.fn.goBack = function( e ) {
+/*
+*****************************************************
+*	2.0 FUNCTIONS
+*****************************************************
+*/
 
-			window.history.back();
+	$.functionExists = function( str ){
+		return typeof $.fn[str] !== undefined && $.isFunction($.fn[str]);
+	}
+	
+	$.funExists = function( str ){
+		return typeof $[str] !== undefined && $.isFunction($[str]);
+	}
+	
+	$.consoleDebug = function( db, lg ){
+		if (db)
+			console.log( lg );
+	}
 
+	$.EmToPx = function( input ) {
+	    var emSize = parseFloat($("body").css("font-size"));
+	    return (emSize * input);
+	}
+
+	$.PxToEm = function( input ) {
+	    var emSize = parseFloat($("body").css("font-size"));
+	    return (input / emSize);
+	}
+
+	// STRING
+
+	$.decodeEmail = function( str ){
+		return str.replace( '()', '@' ).replace( ',', '.' );
+	}
+
+	$.startsWith = function( str, arr ){
+		for (var i = 0; i < arr.length; i++) {
+			if( str.indexOf( arr[i] ) === 0 )
+				return true;
 		};
+
+		return false;
+	}
+
+	$.log = function( message, touch ) {
+		if ( !touch && window.console ) {
+			console.log( new Date().getTime() - performance.timing.navigationStart + 'ms' );
+			console.log( message );
+			console.log('---');
+		}
+	} 
+
+	// Escape regex chars with \
+	$.escapeBS = function( text ) {
+		return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+	}
+
+	$.removeSlash = function( text ) {
+		return text.replace( /\//g, '' );
+	}
+
+	$.trailingSlash = function( str ) {
+
+	    if( str.substr( -1 ) == '/')
+	        return str.substr( 0, str.length - 1 );
+
+	    return str;
 
 	}
 
-	if ( !$.fn.outerHTML ) {
+	$.getUrlData = function( str ) {
 
-		$.fn.outerHTML = function(s) {
-			return (s)
-			? this.before(s).remove()
-			: jQuery("<p>").append(this.eq(0).clone()).html();
+	    str = str.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+
+	    var regex = new RegExp("[\\?&]" + str + "=([^&#]*)"),
+	        results = regex.exec(location.search);
+
+	    return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+	    
+	}
+
+	$.getUrlParameter = function( param, url ) {
+
+		if( !url )
+	    	url = window.location.search.substring( 1 );
+	    
+	    var sURLVariables = url.split( '?' );
+
+	    for ( var i = 1; i < sURLVariables.length; i++ ) {
+
+	        var sParameterName = sURLVariables[i].split( '=' );
+
+	        var name = sParameterName[0];
+	        var num = sParameterName[1].split( '#' )[0];
+
+	        if ( name == param ) {
+
+	            return num;
+
+	        }
+	    }
+
+	} 
+
+	$.getScripts = function(arr, path) {
+
+		if( typeof( arr ) == 'string' ){
+			arr = [ arr ];
 		}
+	    var _arr = $.map(arr, function(scr) {
+	        return $.getScript( (path||"") + scr );
+	    });
+
+	    _arr.push($.Deferred(function( deferred ){
+	        $( deferred.resolve );
+	    }));
+
+	    return $.when.apply($, _arr);
+	}
+
+/*
+*****************************************************
+*	3.0 PRESETS
+*****************************************************
+*/
+
+	$.iconLoading = function( dimension, classes, icon ) {
+
+		dimension = ( dimension ? dimension : 'quadruple' );
+		classes = ( classes ? classes : 'relative middle' );
+		icon = ( icon ? icon : 'spinner' );
+
+		return '<div class="scm-loading loading ' + dimension + ' ' + classes + '""><i class="fa fa-spin fa-' + icon + '""></i></div>';
+
 	}
 
 })( jQuery );
