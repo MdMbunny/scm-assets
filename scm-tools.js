@@ -378,6 +378,10 @@ var READYPAGE = function(){};
 			$button 		= $( 'a[href="#' + anchor + '"], *[data-href="#' + anchor + '"]' ),
 			$doc 			= $( document );
 
+		if( $body.hasClass( 'bodyin' ) ) return;
+
+		$body.addClass( 'bodyin' );
+		$body.removeClass( 'bodyout' );
 		$body.css( 'opacity', opacity );
 		$navigation.css( 'opacity', 1 );
 
@@ -467,6 +471,11 @@ var READYPAGE = function(){};
 			duration 	= ( $body.data( 'fade-out' ) ? parseFloat( $body.data( 'fade-out' ) ) : 0 ),
 			wait 		= ( $body.data( 'fade-wait' ) ? $body.data( 'fade-wait' ) : 'no' );
 			//opacity 	= ( $body.data( 'fade-out' ) ? 0 : .6 );
+
+		if( $body.hasClass( 'bodyout' ) ) return;
+
+		$body.addClass( 'bodyout' );
+		$body.removeClass( 'bodyin' );
 
 		if( state == 'back' ){
 			window.history.back();

@@ -39,7 +39,7 @@
 			$page 		= $( '.site-page' );
 
 			href 		= $location.attr( 'href' );
-			start 		= 'imgsLoaded';
+			start 		= 'documentDone';
 			wait 		= $body.data( 'fade-wait' );
 			touch 		= ( typeof Modernizr !== 'undefined' && ( Modernizr.touchEvents || Modernizr.touch ) ) && ( $body.hasClass('is-iphone') || $body.hasClass('is-tablet') || $body.hasClass('is-mobile') );
 
@@ -55,11 +55,13 @@
 		var debugEvents = function(){
 			$.consoleDebug( DEBUG, '- debugEvents Start');
 
-			$body.on( 'documentDone', function(e){ if( DEBUG ) $.log('document.done', touch); } );
-			$body.on( 'imgsLoaded', function(e){ if( DEBUG ) $.log('imgsLoaded', touch); } );
-			$body.on( 'nivoLoaded', function(e){ if( DEBUG ) $.log('nivoLoaded', touch); } );
-			$body.on( 'mapLoaded', function(e){ if( DEBUG ) $.log('mapLoaded', touch); } );
-			$body.on( 'mapsLoaded', function(e){ if( DEBUG ) $.log('mapsLoaded', touch); } );
+			if( DEBUG ){
+				$body.on( 'documentDone', function(e){ $.log('document.done', touch); } );
+				//$body.on( 'imgsLoaded', function(e){ $.log('imgsLoaded', touch); } );
+				$body.on( 'nivoLoaded', function(e){ $.log('nivoLoaded', touch); } );
+				$body.on( 'mapLoaded', function(e){ $.log('mapLoaded', touch); } );
+				$body.on( 'mapsLoaded', function(e){ $.log('mapsLoaded', touch); } );
+			}
 			$body.trigger( 'documentJquery' );
 			if( DEBUG ) $.log('documentJquery', touch);
 			
@@ -151,12 +153,16 @@
 		var startEvents = function(){
 			$.consoleDebug( DEBUG, '- startEvents Start');
 			switch( wait ){
-				case 'images': case 'nobg': break;
+				case 'images': case 'nobg':
+					start = 'imgsLoaded';
+				break;
 				case 'sliders':
 					if( $( '.nivoSlider' ).length ) start = 'nivoLoaded';
+					else start = 'imgsLoaded';
 				break;
 				case 'maps':
 					if( $( '.scm-map' ).length ) start = 'mapsLoaded';
+					else start = 'imgsLoaded';
 				break;
 				default:
 					start = 'documentDone';
@@ -171,7 +177,7 @@
 					$.consoleDebug( DEBUG, 'BodyIn FORCED START');
 					$.bodyIn();
 				}
-         	}, 12000);
+         	}, 5000);
 
 			$.consoleDebug( DEBUG, '- startEvents End');
 		}
@@ -308,26 +314,31 @@
 			var bgs = {};
 
 			if( wait != 'nobg')
-				bgs = { background: '*' };
+				bgs = { background: true };
 
 			$html.imagesLoaded( bgs )
-					.always( function( instance ) {
+				.always( function( instance ) {
 					$body.trigger( 'imgsLoaded', instance );
-					$.consoleDebug( DEBUG, 'all imgsLoaded' );
+					$.consoleDebug( DEBUG, 'imgsLoaded' );
 				})
-					.done( function( instance ) {
+				.done( function( instance ) {
 					$body.trigger( 'imgsDone', instance );
 					$.consoleDebug( DEBUG, 'imgsDone' );
 				})
-					.fail( function() {
+				.fail( function() {
 					$body.trigger( 'imgsFail' );
 					$.consoleDebug( DEBUG, 'imgsFail' );
 				})
-					.progress( function( instance, image ) {
+				.progress( function( instance, image ) {
 					var result = image.isLoaded ? 'loaded' : 'broken';
-					$body.trigger( 'imgLoaded', instance, result, image );
-					$.consoleDebug( DEBUG, 'imgLoaded ' + result + ': ' + image.img.src );
-			});
+					if( image.isLoaded ){
+						$body.trigger( 'imgLoaded', instance, image );
+						$.consoleDebug( DEBUG, 'imgLoaded: ' + image.img.src );
+					}else{
+						$body.trigger( 'imgFailed', instance, image );
+						$.consoleDebug( DEBUG, 'imgFailed: ' + image.img.src );
+					}					
+				});
 
 			$body.responsiveClasses('force');
 			$.consoleDebug( DEBUG, '- triggerEvents End');
