@@ -3,7 +3,7 @@
  * Plugin Name:         SCM Assets
  * Plugin URI:          http://studiocreativo-m.it/
  * Description:         SCM Javascript Integration
- * Version:             1.2.3
+ * Version:             1.2.4
  * Author:              Studio Creativo M
  * Author URI:          http://studiocreativo-m.it/
  * License:             http://www.gnu.org/licenses/gpl-3.0.html
@@ -137,14 +137,6 @@
     // scripts
     if ( ! function_exists( 'scm_assets_register_scripts' ) ) {
         function scm_assets_register_scripts() {
-
-            // SCM Stuff
-            
-            wp_register_script( 'jquery-scm-functions', SCM_ASSETS_URI . 'scm-functions.js', array( 'jquery' ), null, false );
-            wp_enqueue_script( 'jquery-scm-functions' );
-
-            wp_register_script( 'jquery-scm-tools', SCM_ASSETS_URI . 'scm-tools.js', array( 'jquery-scm-functions' ), null, false );
-            wp_enqueue_script( 'jquery-scm-tools' );
             
             // jQuery Effects Core
 
@@ -239,6 +231,14 @@
             //wp_register_script( 'waypoints-debug',  SCM_ASSETS_URI_ASSETS . 'waypoints-4.0.0/lib/waypoints.debug.js', false, SCM_ASSETS_VERSION, true );
             //wp_enqueue_script( 'waypoints-debug' );
             // import waypoints shortcuts if needed (sticky, infinite, ...)
+
+            // SCM Stuff
+            
+            wp_register_script( 'jquery-scm-functions', SCM_ASSETS_URI . 'scm-functions.js', array( 'jquery' ), null, true );
+            wp_enqueue_script( 'jquery-scm-functions' );
+
+            wp_register_script( 'jquery-scm-tools', SCM_ASSETS_URI . 'scm-tools.js', array( 'jquery-scm-functions' ), null, true );
+            wp_enqueue_script( 'jquery-scm-tools' );
 
             // SCM Child
 
