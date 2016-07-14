@@ -472,9 +472,6 @@ var READYPAGE = function(){};
 			wait 		= ( $body.data( 'fade-wait' ) ? $body.data( 'fade-wait' ) : 'no' );
 			//opacity 	= ( $body.data( 'fade-out' ) ? 0 : .6 );
 
-		if( $body.hasClass( 'bodyout' ) ) return;
-
-		$body.addClass( 'bodyout' );
 		$body.removeClass( 'bodyin' );
 
 		if( state == 'back' ){
@@ -482,6 +479,9 @@ var READYPAGE = function(){};
 			return false;			
 		//}else if( state != 'app' && target != '_blank' && duration > 0 ){
 		}else if( state == 'site' && target != '_blank' && duration > 0 ){
+
+			if( $body.hasClass( 'bodyout' ) ) return;
+			$body.addClass( 'bodyout' );
 
 			$.consoleDebug( DEBUG, 'with animation');
 
