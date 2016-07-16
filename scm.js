@@ -8,6 +8,7 @@
 
 		var GOOGLE_API_KEY;
 
+		var $document;
 		var $window;
 		var $html;
 		var $head;
@@ -30,6 +31,7 @@
 			$.consoleDebug( DEBUG, '- initPage Start');
 			GOOGLE_API_KEY = 'AIzaSyBZEApCxfzuavDWXdJ2DAVAftxbMjZWrVY';
 
+			$document 	= $( document );
 			$window 	= $( window );
 			$html 		= $( 'html' );
 			$head 		= $( 'head' );
@@ -93,7 +95,7 @@
 
 				        	var $this 		= $( this ),
 				        		$target 	= $( e.target ),
-				        		toggle = ( $target.hasClass( '.toggle' ) ? 1 : $target.parents( '.toggle' ).length );
+				        		toggle = ( $target.hasClass( 'toggle' ) ? 1 : $target.parents( 'toggle' ).length );
 
 				        	if( toggle ){
 			        			$this.toggledOn( e );
@@ -106,7 +108,7 @@
 
 				        	var $this = $( this ),
 				        		$target 	= $( e.target ),
-								toggle = ( $target.hasClass( '.toggle' ) ? 1 : $target.parents( '.toggle' ).length );
+								toggle = ( $target.hasClass( 'toggle' ) ? 1 : $target.parents( 'toggle' ).length );
 				        	
 				        	if( toggle ){
 			        			$this.toggledOff( e );
@@ -238,6 +240,80 @@
 		}
 
 		// *****************************************************
+		// *      ACF FORMS EVENTS
+		// *****************************************************
+
+		var formEvents = function(){
+			/*$document.keydown( function(e){
+				if( e.key == 'Alt' ){
+					$body.addClass( 'form-active' );
+				}
+			} );
+			$document.keyup( function(e){
+				if( e.key == 'Alt' ){
+					$body.removeClass( 'form-active' );
+				}
+			} );*/
+
+			$forms = $( '#scm-forms' );
+
+			if( $forms.length ){
+
+				//$( '.acf-gallery-add' ).click( function(e){
+					/*e.preventDefault;
+					e.stopPropagation();
+
+					var media = wp.media({
+						title: 'Select or Upload Media Of Your Chosen Persuasion',
+      					button: { text: 'Use this media' },
+	    				multiple: true,
+	    				frame: 'post'
+    				})
+    				media.view.settings.post.id = $this.data( 'id' );
+    				media.open();*/
+				//} );
+			
+				$( '.post[data-id]' ).click( function(e){
+					
+					if( e[ADVANCED] && !$forms.hasClass( 'show' ) ){
+						e.preventDefault;
+						e.stopPropagation();
+						window.ontouchmove  = function(e) {
+							e = e || window.event;
+							if (e.preventDefault)
+								e.preventDefault();
+							e.returnValue = false;  
+						}
+						$body.addClass( 'no-scroll' );
+						$this = $( this );
+
+
+						if( wp.media ){
+							wp.media.view.settings.post.id = $this.data( 'id' );
+							/*wp.media.events.on( 'editor:frame-create', function( arguments ) {
+							});*/
+						}
+						
+						$form = $( '#form-' + $this.data( 'id' ) );
+						$forms.addClass( 'show' );
+						if( $form.length )
+							$form.addClass( 'show' );
+					}
+				} );
+
+				$( '#scm-close-forms' ).click( function(e){
+					e.preventDefault;
+					e.stopPropagation();
+					window.ontouchmove = null;
+					$body.removeClass( 'no-scroll' );
+					$forms.removeClass( 'show' );
+					$( '.acf-form' ).removeClass( 'show' );
+				});
+
+			}
+		}
+
+		// *****************************************************
 		// *      TRIGGERS
 		// *****************************************************
 
@@ -359,6 +435,7 @@
 			layoutEvents();
 			navEvents();
 			triggerEvents();
+			formEvents();
 			$.consoleDebug( DEBUG, '--- startPage Done');
 		}
 

@@ -18,6 +18,7 @@
 //*****************************************************
 
 var DEBUG = false;
+var ADVANCED = 'altKey';
 var INITPAGE = function(){};
 var INITCHILD = function(){};
 var READYCHILD = function(){};
@@ -200,8 +201,8 @@ var READYPAGE = function(){};
 
 	$.fn.eventLinks = function( event ){
 
-		var $nav 	= this.find( 'a, .navigation' ).filter(':not(.nolinkit):not(.iubenda-embed)').filter(function( index ) { return $( this ).parents( '.ssba' ).length === 0; }),
-			$link 	= this.find( 'a, [data-href]' ).filter(':not(.nolinkit):not(.iubenda-embed)').filter(function( index ) { return $( this ).parents( '.ssba' ).length === 0; });
+		var $nav 	= this.find( 'a, .navigation' ).filter(':not(.nolinkit):not(.iubenda-embed)').filter(function( index ) { return $( this ).parents( '.ssba, .acf-form' ).length === 0; }),
+			$link 	= this.find( 'a, [data-href]' ).filter(':not(.nolinkit):not(.iubenda-embed)').filter(function( index ) { return $( this ).parents( '.ssba, .acf-form' ).length === 0; });
 
 		$link.filter( ':not([data-link-type])' ).linkIt();
 		$nav.off( 'mousedown' ).on( 'mousedown', function(e){ e.stopPropagation(); } );
@@ -281,9 +282,9 @@ var READYPAGE = function(){};
 
 		return this.each(function() {
 
-		    var $this 		= $( this );
-		    	host 		= new RegExp(location.host);
-		    	data 		= $this.data( 'href' );
+		    var $this 		= $( this ),
+		    	host 		= new RegExp(location.host),
+		    	data 		= $this.data( 'href' ),
 		    	link 		= ( data ? data.replace('page:', host) : $this.attr( 'href' ).replace('page:', host) );
 
 	    	if( !link )
@@ -2002,7 +2003,9 @@ var READYPAGE = function(){};
 			if( type == 'video' || type == 'load' )
 				type = 'html';
 
-			$this.click( function() {
+			$this.click( function(e) {
+
+				if( e[ADVANCED] ) return;
 
 				var $current = $( '.fancybox-overlay' );
 				if( $current.length ){
@@ -2055,9 +2058,6 @@ var READYPAGE = function(){};
 				   		},
 				   		tpl: {
 				   			wrap 	 : '<div class="fancybox-wrap" tabIndex="-1"><div class="fancybox-skin"><div class="fancybox-outer"><div class="fancybox-inner"></div></div></div></div>',
-				   			//next     : '<a title="Next" class="fancybox-nav fancybox-next" href="javascript:;"><span>&rsaquo;</span></a>',
-							//prev     : '<a title="Previous" class="fancybox-nav fancybox-prev" href="javascript:;"><span>&lsaquo;</span></a>',
-							//closeBtn : '<a title="Close" class="fancybox-item fancybox-close" href="javascript:;"></a>',
 				   		},
 				   		
 						beforeLoad: function() {
