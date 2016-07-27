@@ -1,11 +1,24 @@
 ( function($){
 
 		var $body = jQuery( 'body' ),
-			$layout = jQuery('.layout' ),
-			$rows = jQuery( '.acf-row' );
+			$layout = jQuery('.acf-flexible-content .layout' );
 
 
-		$('.acf-field .acf-label label:empty').addClass('empty');
+		jQuery('.acf-field .acf-label label:empty').addClass('empty');
+
+		//jQuery( '.acf-flexible-content .layout' )
+
+		$layout.addClass( '-collapsed' );
+		//$layout.css( 'visibility', 'visible' );
+
+		$body.on('click', function(e){
+			var $this = jQuery( e.target );
+			if( $this.hasClass('acf-fc-layout-handle') ){
+				$this.parent('.layout').siblings('.layout').addClass('-collapsed');
+			}else if( $this.parents('.layout').length == 0 ){
+				$body.find('.layout').addClass('-collapsed');
+			}
+		} );
 
 		
 		// ADVANCED FIELDS
