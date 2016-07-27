@@ -7,6 +7,32 @@
 
 		$('.acf-field .acf-label label:empty').addClass('empty');
 
+		
+		// ADVANCED FIELDS
+
+		var $adv = jQuery( '.scm-advanced-options' );
+		var advanced = false;
+
+		$body.on( 'keydown', function(e){
+			if( e.key == 'Alt' ){
+				$adv = jQuery( '.scm-advanced-options' );
+			}
+		} );
+
+		$body.on( 'keyup', function(e){
+			if( e.key == 'Alt' ){
+				if( advanced ){
+					advanced = false;
+					$adv.addClass( 'hidden' );
+				}else{
+					advanced = true;
+					$adv.removeClass( 'hidden' );
+				}
+			}
+		} );
+
+
+		// SHOW FIELD KEY
 
 		$body.on( 'mouseenter', '.acf-field', function(e){
 			var $this = jQuery(this);
@@ -50,10 +76,6 @@
 					$wrap.removeClass( 'opened' );
 			}
 	    });
-
-
-
-		// SHOW FIELD KEY
 		
 		var $path = jQuery('<textarea id="copypath"></textarea>'),
 			$wrap = jQuery('<div id="toppathwrap"></div>'),
@@ -136,6 +158,7 @@
 		} );
 		
 
+		// LOADED
 
 		jQuery(window).load(function() {
 			$body.addClass( 'loaded' );
