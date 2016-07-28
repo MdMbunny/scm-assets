@@ -3,7 +3,7 @@
  * Plugin Name:         SCM Assets
  * Plugin URI:          http://studiocreativo-m.it/
  * Description:         SCM Javascript Integration
- * Version:             1.2.9
+ * Version:             1.3.0
  * Author:              Studio Creativo M
  * Author URI:          http://studiocreativo-m.it/
  * License:             http://www.gnu.org/licenses/gpl-3.0.html
@@ -75,7 +75,7 @@
 // ***************************************************************************************************************************************************************
 // ***************************************************************************************************************************************************************
 
-define( SCM_ASSETS_FANCYBOX, 'https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/' );
+define( 'SCM_ASSETS_FANCYBOX', 'https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/' );
 
 /*
 *****************************************************
