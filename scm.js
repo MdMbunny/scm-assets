@@ -354,6 +354,23 @@
 			// Call EqualChildrenSize function
 			// Load GoogleMaps and trigger
 
+			/*var $fancy = $( '[data-popup]' );
+			if( $fancy.length ){
+
+				var path = 'https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/';
+
+				$head.append( '<link type="text/css" href="' + path + 'jquery.fancybox.min.css" rel="stylesheet" media="all">' );
+				$head.append( '<link type="text/css" href="' + path + 'helpers/jquery.fancybox-thumbs.css" rel="stylesheet" media="all">' );
+				$head.append( '<link type="text/css" href="' + path + 'helpers/jquery.fancybox-buttons.css" rel="stylesheet" media="all">' );
+            
+				$body.append( '<script type="text/javascript" src="' + path + 'jquery.fancybox.pack.js">' );
+				$body.append( '<script type="text/javascript" src="' + path + 'helpers/jquery.fancybox-thumbs.js" async defer>' );
+				$body.append( '<script type="text/javascript" src="' + path + 'helpers/jquery.fancybox-buttons.js" async defer>' );
+				$body.append( '<script type="text/javascript" src="' + path + 'helpers/jquery.fancybox-media.js" async defer>' );
+
+				$fancy.setFancybox();
+			}*/
+
 
 			$body.on( 'imgsLoaded', function( instance ) {
 			    
@@ -361,9 +378,10 @@
 			    
 			    $( '[data-equal]' ).equalChildrenSize();
 
+			    var script;
 			    var $maps = $( '.scm-map' );
 
-			    if( $maps.length > 0 ){
+			    if( $maps.length ){
 
 			    	window.initialize = function() {
 					    script = document.createElement('script');

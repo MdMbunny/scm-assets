@@ -3,7 +3,7 @@
  * Plugin Name:         SCM Assets
  * Plugin URI:          http://studiocreativo-m.it/
  * Description:         SCM Javascript Integration
- * Version:             1.2.8
+ * Version:             1.2.9
  * Author:              Studio Creativo M
  * Author URI:          http://studiocreativo-m.it/
  * License:             http://www.gnu.org/licenses/gpl-3.0.html
@@ -75,6 +75,7 @@
 // ***************************************************************************************************************************************************************
 // ***************************************************************************************************************************************************************
 
+define( SCM_ASSETS_FANCYBOX, 'https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/' );
 
 /*
 *****************************************************
@@ -108,6 +109,9 @@
             // Fancybox
             
             if( get_field( 'opt-tools-fancybox', 'option' ) ){
+                /*wp_register_style( 'fancybox-style', SCM_ASSETS_FANCYBOX . 'jquery.fancybox.min.css', false, null );
+                wp_register_style( 'fancybox-thumbs-style', SCM_ASSETS_FANCYBOX . 'helpers/jquery.fancybox-thumbs.css', false, null );
+                wp_register_style( 'fancybox-buttons-style', SCM_ASSETS_FANCYBOX . 'helpers/jquery.fancybox-buttons.css', false, null );*/
                 wp_register_style( 'fancybox-style', SCM_ASSETS_URI_ASSETS . 'fancybox-2.1.5/jquery.fancybox.css', false, null );
                 wp_register_style( 'fancybox-thumbs-style', SCM_ASSETS_URI_ASSETS . 'fancybox-2.1.5/helpers/jquery.fancybox-thumbs.css', false, null );
                 wp_register_style( 'fancybox-buttons-style', SCM_ASSETS_URI_ASSETS . 'fancybox-2.1.5/helpers/jquery.fancybox-buttons.css', false, null );
@@ -149,68 +153,73 @@
 
             // jQuery Mobile --- mh...
             
-            wp_register_script( 'jquery-mobile-touch', SCM_ASSETS_URI_ASSETS . 'jquery.mobile-1.4.5/jquery.mobile.touch.min.js', array( 'jquery' ), null, true );
+            wp_register_script( 'jquery-mobile-touch', SCM_ASSETS_URI_ASSETS . 'jquery.mobile-1.4.5/jquery.mobile.touch.min.js', array( 'jquery-transform-2d' ), null, true );
             wp_enqueue_script( 'jquery-mobile-touch' );
 
             // Modernizr Touch --- mh...
 
-            wp_register_script( 'modernizr-touch', SCM_ASSETS_URI_ASSETS . 'modernizr-2.8.3/modernizr.touch.js', array( 'jquery' ), null, true );
+            wp_register_script( 'modernizr-touch', SCM_ASSETS_URI_ASSETS . 'modernizr-2.8.3/modernizr.touch.js', array( 'jquery-mobile-touch' ), null, true );
             wp_enqueue_script( 'modernizr-touch' );
 
             // TouchSwipe
 
-            wp_register_script( 'jquery-touch-swipe', SCM_ASSETS_URI_ASSETS . 'touchSwipe-1.6.8/jquery.touchSwipe.min.js', array( 'jquery' ), null, true );
+            wp_register_script( 'jquery-touch-swipe', SCM_ASSETS_URI_ASSETS . 'touchSwipe-1.6.8/jquery.touchSwipe.min.js', array( 'modernizr-touch' ), null, true );
             wp_enqueue_script( 'jquery-touch-swipe' );
             
             // Images Loaded
             
-            wp_register_script( 'imagesloaded', SCM_ASSETS_URI_ASSETS . 'imagesloaded-4.1.0/imagesloaded.pkgd.min.js', array( 'jquery' ), null, true );
+            wp_register_script( 'imagesloaded', SCM_ASSETS_URI_ASSETS . 'imagesloaded-4.1.0/imagesloaded.pkgd.min.js', array( 'jquery-touch-swipe' ), null, true );
             wp_enqueue_script( 'imagesloaded' );
 
             // Awesome Cursor
 
             if( get_field( 'opt-tools-cursor', 'option' ) ){
-                wp_register_script( 'awesome-cursor',  SCM_ASSETS_URI_ASSETS . 'awesome-cursor-0.3.0/dist/jquery.awesome-cursor.min.js', array( 'jquery' ), null, true );
+                wp_register_script( 'awesome-cursor',  SCM_ASSETS_URI_ASSETS . 'awesome-cursor-0.3.0/dist/jquery.awesome-cursor.min.js', array( 'imagesloaded' ), null, true );
                 wp_enqueue_script( 'awesome-cursor' );
             }
 
             // Fancybox --- You could replace it
 
             if( get_field( 'opt-tools-fancybox', 'option' ) ){
-                wp_register_script( 'fancybox', SCM_ASSETS_URI_ASSETS . 'fancybox-2.1.5/jquery.fancybox.pack.js', array( 'jquery' ), null, true );
-                wp_register_script( 'fancybox-thumbs', SCM_ASSETS_URI_ASSETS . 'fancybox-2.1.5/helpers/jquery.fancybox-thumbs.js', array( 'jquery' ), null, true );
-                wp_register_script( 'fancybox-buttons', SCM_ASSETS_URI_ASSETS . 'fancybox-2.1.5/helpers/jquery.fancybox-buttons.js', array( 'jquery' ), null, true );
-                wp_register_script( 'fancybox-media', SCM_ASSETS_URI_ASSETS . 'fancybox-2.1.5/helpers/jquery.fancybox-media.js', array( 'jquery' ), null, true );
+                
+                /*wp_register_script( 'fancybox', SCM_ASSETS_FANCYBOX . 'jquery.fancybox.pack.js', array( 'jquery' ), null, true );
+                wp_register_script( 'fancybox-thumbs', SCM_ASSETS_FANCYBOX . 'helpers/jquery.fancybox-thumbs.js', array( 'jquery' ), null, true );
+                wp_register_script( 'fancybox-buttons', SCM_ASSETS_FANCYBOX . 'helpers/jquery.fancybox-buttons.js', array( 'jquery' ), null, true );
+                wp_register_script( 'fancybox-media', SCM_ASSETS_FANCYBOX . 'helpers/jquery.fancybox-media.js', array( 'jquery' ), null, true );*/
+                wp_register_script( 'fancybox', SCM_ASSETS_URI_ASSETS . 'fancybox-2.1.5/jquery.fancybox.pack.js', array( 'imagesloaded' ), null, true );
                 wp_enqueue_script( 'fancybox' );
+                wp_register_script( 'fancybox-thumbs', SCM_ASSETS_URI_ASSETS . 'fancybox-2.1.5/helpers/jquery.fancybox-thumbs.js', array( 'fancybox' ), null, true );
                 wp_enqueue_script( 'fancybox-thumbs' );
+                wp_register_script( 'fancybox-buttons', SCM_ASSETS_URI_ASSETS . 'fancybox-2.1.5/helpers/jquery.fancybox-buttons.js', array( 'fancybox-thumbs' ), null, true );
                 wp_enqueue_script( 'fancybox-buttons' );
+                wp_register_script( 'fancybox-media', SCM_ASSETS_URI_ASSETS . 'fancybox-2.1.5/helpers/jquery.fancybox-media.js', array( 'fancybox-buttons' ), null, true );
                 wp_enqueue_script( 'fancybox-media' );
             }
 
             // Nivo Slider --- You could replace it (probably with _ScrollMagic_)
 
             if( get_field( 'main-slider-active', 'option' ) == 'nivo' || get_field( 'opt-tools-nivo', 'option' ) ){
-                wp_register_script( 'nivo', SCM_ASSETS_URI_ASSETS . 'nivoSlider-3.2/jquery.nivo.slider.pack.js', array( 'jquery' ), null, true );
+                wp_register_script( 'nivo', SCM_ASSETS_URI_ASSETS . 'nivoSlider-3.2/jquery.nivo.slider.pack.js', array( 'imagesloaded' ), null, true );
                 wp_enqueue_script( 'nivo' );
             }
 
             // BX Slider --- You could replace it (probably with _ScrollMagic_)
 
             if( get_field( 'main-slider-active', 'option' ) == 'bx' || get_field( 'opt-tools-bx', 'option' ) ){
-                wp_register_script( 'bx', SCM_ASSETS_URI_ASSETS . 'jquery.bxslider-4.1.2/jquery.bxslider.min.js', array( 'jquery' ), null, true );
+                wp_register_script( 'bx', SCM_ASSETS_URI_ASSETS . 'jquery.bxslider-4.1.2/jquery.bxslider.min.js', array( 'imagesloaded' ), null, true );
                 wp_enqueue_script( 'bx' );
             }
 
             // Tooltip --- You could replace it (probably with _ScrollMagic_)
 
             if( get_field( 'opt-tools-tooltip', 'option' ) ){
-                wp_register_script( 'tooltip',  SCM_ASSETS_URI_ASSETS . 'jquery.powertip-1.2.0/jquery.powertip.min.js', array( 'jquery' ), null, true );
+                wp_register_script( 'tooltip',  SCM_ASSETS_URI_ASSETS . 'jquery.powertip-1.2.0/jquery.powertip.min.js', array( 'imagesloaded' ), null, true );
                 wp_enqueue_script( 'tooltip' );
             }
 
             // Bootstrap --- Will be substituted by _ScrollMagic_
 
-            wp_register_script( 'bootstrap', SCM_ASSETS_URI_ASSETS . 'bootstrap-3.3.6-dist/js/bootstrap.min.js', array( 'jquery' ), null, true );
+            wp_register_script( 'bootstrap', SCM_ASSETS_URI_ASSETS . 'bootstrap-3.3.6-dist/js/bootstrap.min.js', array( 'imagesloaded' ), null, true );
             wp_enqueue_script( 'bootstrap' );
 
             // Parallax Scrolling --- Will be substituted by _ScrollMagic_
@@ -218,15 +227,15 @@
             if( get_field( 'opt-tools-parallax', 'option' ) ){
                 $old = apply_filters( 'scm_assets_filter_parallax_131', false );
                 if(!$old)
-                    wp_register_script( 'parallax',  SCM_ASSETS_URI_ASSETS . 'parallax-1.4.2/parallax.min.js', array( 'jquery' ), null, true );
+                    wp_register_script( 'parallax',  SCM_ASSETS_URI_ASSETS . 'parallax-1.4.2/parallax.min.js', array( 'bootstrap' ), null, true );
                 else
-                    wp_register_script( 'parallax',  SCM_ASSETS_URI_ASSETS . 'parallax-1.3.1/parallax.min.js', array( 'jquery' ), null, true );
+                    wp_register_script( 'parallax',  SCM_ASSETS_URI_ASSETS . 'parallax-1.3.1/parallax.min.js', array( 'bootstrap' ), null, true );
                 wp_enqueue_script( 'parallax' );
             }
 
             // Waypoints --- Will be substituted by _ScrollMagic_
 
-            wp_register_script( 'waypoints',  SCM_ASSETS_URI_ASSETS . 'waypoints-4.0.0/lib/jquery.waypoints.min.js', array( 'jquery' ), null, true );
+            wp_register_script( 'waypoints',  SCM_ASSETS_URI_ASSETS . 'waypoints-4.0.0/lib/jquery.waypoints.min.js', array( 'bootstrap' ), null, true );
             wp_enqueue_script( 'waypoints' );
             //wp_register_script( 'waypoints-debug',  SCM_ASSETS_URI_ASSETS . 'waypoints-4.0.0/lib/waypoints.debug.js', false, SCM_ASSETS_VERSION, true );
             //wp_enqueue_script( 'waypoints-debug' );
@@ -234,7 +243,7 @@
 
             // SCM Stuff
             
-            wp_register_script( 'jquery-scm-functions', SCM_ASSETS_URI . 'scm-functions.js', array( 'jquery' ), null, true );
+            wp_register_script( 'jquery-scm-functions', SCM_ASSETS_URI . 'scm-functions.js', array( 'waypoints' ), null, true );
             wp_enqueue_script( 'jquery-scm-functions' );
 
             wp_register_script( 'jquery-scm-tools', SCM_ASSETS_URI . 'scm-tools.js', array( 'jquery-scm-functions' ), null, true );
