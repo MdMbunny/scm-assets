@@ -1,15 +1,30 @@
 ( function($){
 
-		var $body = jQuery( 'body' ),
-			$layout = jQuery('.acf-flexible-content .layout' );
+		var $body = jQuery( 'body' );
 
+		// ADMIN MENU
 
+		jQuery( jQuery( '#adminmenu > .wp-has-current-submenu' ).prevAll('.scm-separator')[0] ).addClass('current').addClass('active').nextUntil( '.scm-separator' ).addClass('active');
+
+		jQuery( '#adminmenu' ).on( 'click', '.scm-separator', function(e){
+			var $this = jQuery( this );
+			//if( $this.hasClass('acf-fc-layout-handle') ){
+			if( $this.hasClass( 'active' ) ){
+				$this.removeClass( 'active' );
+				$this.nextUntil( '.scm-separator' ).removeClass( 'active' );
+			}else{
+				$this.siblings().removeClass( 'active' );
+				$this.addClass('active');
+				$this.nextUntil( '.scm-separator' ).addClass('active');
+			}
+		} );
+
+		// COLLAPSE LAYOUTS
+
+		var $layout = jQuery('.acf-flexible-content .layout' );
 		jQuery('.acf-field .acf-label label:empty').addClass('empty');
 
-		//jQuery( '.acf-flexible-content .layout' )
-
 		$layout.addClass( '-collapsed' );
-		//$layout.css( 'visibility', 'visible' );
 
 		$body.on('click', function(e){
 			var $this = jQuery( e.target );

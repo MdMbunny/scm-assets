@@ -345,6 +345,9 @@ var READYPAGE = function(){};
 				state = 'external';
 			}
 
+			if( hrefanchor === 0 )
+				$this.attr( 'data-anchor', href );
+
 			if(data)
 				$this.data( 'href', href ).data( 'target', target );
 			else
@@ -943,8 +946,11 @@ var READYPAGE = function(){};
 	            threshold 		= ( $elem.data( 'current-link-threshold' ) ? $elem.data( 'current-link-threshold' ) : 0 ),
 	            interval 		= ( $elem.data( 'current-link-interval' ) ? $elem.data( 'current-link-interval' ) : 250 ),
 	            filter 			= ( $elem.data( 'current-link-filter' ) ? $elem.data( 'current-link-filter' ) : '' ),
-	            $links 			= $elem.find( 'a[href^="#"]:not([data-anchor]), a[data-anchor]:not([href^="#"])' ).filter( ':not(.external) :not([href="#top"])' ),
-	            $hash 			= [],
+	            $links 			= $( '[data-anchor]' ).filter( ':not([data-anchor="#top"])' ),
+	            //$links 			= $elem.find( '[data-href^="#"]), a[href^="#"], [data-anchor]' ).filter( ':not(.external) :not([data-href="#top"]) :not([href="#top"])' ),
+	            $last 			= $( '.page > .section.last' ).attr( 'id' ),
+	            $lasts 			= ( $last && $last.length ? $links.filter('[data-anchor="#' + $last + '"]') : $links ),
+	            anchors 		= '',
 	            $anchors 		= [],
 	            didScroll 		= true,
 	            timer 			= null;
@@ -959,25 +965,14 @@ var READYPAGE = function(){};
             if( !$links.length )
                 return this;
 
-            $links.each( function(){
-                var hash, anchors;
+            for (var i = 0; i < $links.length; i++) {
+            	var link = $( $links[i] );
+            	anchors = anchors + link.attr('data-anchor');
+            	if( i < $links.length - 1 )
+            		anchors = anchors + ', ';
+            }
 
-                hash = $( this ).data( 'anchor' );
-                if( !hash )
-                    hash = this.hash;
-                
-                anchors = $body.find( hash );
-
-                if( anchors.length ){
-                    $anchors.push( anchors );
-                    $hash.push( $( this ) );
-                }
-
-            } );
-
-            if( !$hash.length )
-            	return this;
-
+            $anchors = $( anchors );
 			        
 	        var setTimer = function() {
 	            
@@ -1005,54 +1000,41 @@ var READYPAGE = function(){};
 	        };
 	        
 	        var setActiveClass = function() {
-	            //var i;
 
 	            var $win 		= $( window ),
 	            	$body 		= $( 'body' ),
-	            	scrollPos 	= $win.scrollTop(),
 	            	heightWin 	= $win.height(),
 	            	heightBody 	= $body.outerHeight(),
+	            	scrollPos 	= $win.scrollTop(),
+	            	pageEnd 	= scrollPos + heightWin >= heightBody,
 	            	current 	= '';
 
-	            for( var i = 0; i < $anchors.length; i++ ) {
+	            if ( pageEnd && $last && $last.length ){
+	            	
+	            	$links.parent().removeClass( currentClass );
+	                $lasts.parent().addClass( currentClass );
+	            
+	            }else{
 
-	                var $anchor = $anchors[i];
+		            for( var i = 0; i < $anchors.length; i++ ) {
 
-	                var coords = {
-	                    top: Math.round( $anchor.offset().top ) - offset,
-	                    bottom: Math.round( $anchor.offset().top + $anchor.outerHeight() ) - offset
-	                };
+		                var $anchor = $( $anchors[i] );
 
-	                var link = $( $hash[i] ).parent();
-	                var $link = $( link );
-	                var hs = $hash[i][0]['hash'];
-					
-	                if ( scrollPos >= coords.top - threshold && scrollPos < coords.bottom - threshold ){
-	                	if( !$link.hasClass( currentClass ) ){
-		                    $link.addClass( currentClass );
-	                	}
-	                }else{
-	                	if( $link.hasClass( currentClass ) ){
+		                var coords = {
+		                    top: Math.round( $anchor.offset().top ) - offset,
+		                    bottom: Math.round( $anchor.offset().top + $anchor.outerHeight() ) - offset
+		                };
+
+		                var $link = $links.filter('[data-anchor="#' + $anchor.attr('id') + '"]').parent();
+		                var active = scrollPos >= coords.top - threshold && scrollPos < coords.bottom - threshold;
+						
+		                if ( active ){
+			                $link.addClass( currentClass );
+		                }else{
 							$link.removeClass( currentClass );
-	                	}
-	                }
-	            }
-
-	            if ( scrollPos + heightWin >= heightBody ) {
-
-	                link = $( $hash[$hash.length-1] ).parent();
-	                $link = $( link );
-	                $( $hash ).each( function(){
-	                    $( this ).parent().removeClass( currentClass );
-	                });
-
-	                //hs = $hash[$hash.length-1][0]['hash'];
-	                //cBody = 'current-' + hs.substring(1,hs.length);
-	                
-	                $link.addClass( currentClass );
-	                //$body.addClass( cBody );
-
-	            }
+						}
+		            }
+		        }	            
 	        }
 
 	        didScroll = true;
@@ -2364,8 +2346,8 @@ var READYPAGE = function(){};
 
 				$parent.css( 'height', 'auto' );
 				$parent.css( 'overflow', 'visible' );
-				$container.eventTools();
 				$container.eventLinks();
+				$container.eventTools();
 				$( elem ).smoothScroll( offset );
 			}
 

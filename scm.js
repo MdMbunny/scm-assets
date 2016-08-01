@@ -345,8 +345,8 @@
 			$body.addClass('ready');
 
 			// Set tools
-			$body.eventTools();
 			$body.eventLinks();
+			$body.eventTools();
 			$body.currentSection();
 			$body.checkCss();
 

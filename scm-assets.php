@@ -3,7 +3,7 @@
  * Plugin Name:         SCM Assets
  * Plugin URI:          http://studiocreativo-m.it/
  * Description:         SCM Javascript Integration
- * Version:             1.3.0
+ * Version:             1.3.1
  * Author:              Studio Creativo M
  * Author URI:          http://studiocreativo-m.it/
  * License:             http://www.gnu.org/licenses/gpl-3.0.html
@@ -227,15 +227,15 @@ define( 'SCM_ASSETS_FANCYBOX', 'https://cdnjs.cloudflare.com/ajax/libs/fancybox/
             if( get_field( 'opt-tools-parallax', 'option' ) ){
                 $old = apply_filters( 'scm_assets_filter_parallax_131', false );
                 if(!$old)
-                    wp_register_script( 'parallax',  SCM_ASSETS_URI_ASSETS . 'parallax-1.4.2/parallax.min.js', array( 'bootstrap' ), null, true );
+                    wp_register_script( 'parallax',  SCM_ASSETS_URI_ASSETS . 'parallax-1.4.2/parallax.min.js', array( 'imagesloaded' ), null, true );
                 else
-                    wp_register_script( 'parallax',  SCM_ASSETS_URI_ASSETS . 'parallax-1.3.1/parallax.min.js', array( 'bootstrap' ), null, true );
+                    wp_register_script( 'parallax',  SCM_ASSETS_URI_ASSETS . 'parallax-1.3.1/parallax.min.js', array( 'imagesloaded' ), null, true );
                 wp_enqueue_script( 'parallax' );
             }
 
             // Waypoints --- Will be substituted by _ScrollMagic_
 
-            wp_register_script( 'waypoints',  SCM_ASSETS_URI_ASSETS . 'waypoints-4.0.0/lib/jquery.waypoints.min.js', array( 'bootstrap' ), null, true );
+            wp_register_script( 'waypoints',  SCM_ASSETS_URI_ASSETS . 'waypoints-4.0.0/lib/jquery.waypoints.min.js', array( 'imagesloaded' ), null, true );
             wp_enqueue_script( 'waypoints' );
             //wp_register_script( 'waypoints-debug',  SCM_ASSETS_URI_ASSETS . 'waypoints-4.0.0/lib/waypoints.debug.js', false, SCM_ASSETS_VERSION, true );
             //wp_enqueue_script( 'waypoints-debug' );
