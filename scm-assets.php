@@ -3,7 +3,7 @@
  * Plugin Name:         SCM Assets
  * Plugin URI:          http://studiocreativo-m.it/
  * Description:         SCM Javascript Integration
- * Version:             1.3.1
+ * Version:             1.3.2
  * Author:              Studio Creativo M
  * Author URI:          http://studiocreativo-m.it/
  * License:             http://www.gnu.org/licenses/gpl-3.0.html
@@ -20,6 +20,7 @@
     // Init Plugin
     if ( ! function_exists( 'scm_plugin_init' ) ) {
         function scm_plugin_init($file){
+            
             $file = ( $file ?: __FILE__ );
             $plugin = scm_plugin_name( $file );
             $slug = sanitize_title( $plugin );
@@ -145,25 +146,31 @@ define( 'SCM_ASSETS_FANCYBOX', 'https://cdnjs.cloudflare.com/ajax/libs/fancybox/
             // jQuery Effects Core
 
             wp_enqueue_script('jquery-effects-core');
+
+            if( get_field( 'opt-tools-greensock', 'option' ) ){
+                wp_register_script( 'greensock',  SCM_ASSETS_URI_ASSETS . 'greensock-js-1.18.3/src/minified/TweenMax.min.js', array( 'jquery' ), null, true );
+                wp_enqueue_script( 'greensock' );
+                wp_register_script( 'gsap',  SCM_ASSETS_URI_ASSETS . 'greensock-js-1.18.3/src/minified/jquery.gsap.min.js', array( 'greensock' ), null, true );
+                wp_enqueue_script( 'gsap' );
+                /*wp_register_script( 'greensock-scrollto',  SCM_ASSETS_URI_ASSETS . 'greensock-js-1.18.3/src/minified/plugins/ScrollToPlugin.min.js', array( 'greensock' ), null, true );
+                wp_enqueue_script( 'greensock-scrollto' );*/
+            }
+
+            wp_register_script( 'scroll-magic',  SCM_ASSETS_URI_ASSETS . 'scrollmagic-2.0.5/minified/ScrollMagic.min.js', array( 'jquery' ), null, true );
+            wp_enqueue_script( 'scroll-magic' );
+            wp_register_script( 'scroll-magic-jquery',  SCM_ASSETS_URI_ASSETS . 'scrollmagic-2.0.5/minified/plugins/jquery.ScrollMagic.min.js', array( 'scroll-magic' ), null, true );
+            wp_enqueue_script( 'scroll-magic-jquery' );
+            wp_register_script( 'scroll-magic-debug',  SCM_ASSETS_URI_ASSETS . 'scrollmagic-2.0.5/minified/plugins/debug.addIndicators.min.js', array( 'scroll-magic-jquery' ), null, true );
+            wp_enqueue_script( 'scroll-magic-debug' );
             
-            // jQuery CSS3 Transform
-
-            wp_register_script( 'jquery-transform-2d', SCM_ASSETS_URI_ASSETS . 'jquery.transform/jquery.transform2d.js', array( 'jquery' ), null, true );
-            wp_enqueue_script( 'jquery-transform-2d' );
-
-            // jQuery Mobile --- mh...
-            
-            wp_register_script( 'jquery-mobile-touch', SCM_ASSETS_URI_ASSETS . 'jquery.mobile-1.4.5/jquery.mobile.touch.min.js', array( 'jquery-transform-2d' ), null, true );
-            wp_enqueue_script( 'jquery-mobile-touch' );
-
             // Modernizr Touch --- mh...
 
-            wp_register_script( 'modernizr-touch', SCM_ASSETS_URI_ASSETS . 'modernizr-2.8.3/modernizr.touch.js', array( 'jquery-mobile-touch' ), null, true );
-            wp_enqueue_script( 'modernizr-touch' );
+            /*wp_register_script( 'modernizr-touch', SCM_ASSETS_URI_ASSETS . 'modernizr-3.3.1/modernizr.touch.js', array( 'jquery' ), null, true );
+            wp_enqueue_script( 'modernizr-touch' );*/
 
             // TouchSwipe
 
-            wp_register_script( 'jquery-touch-swipe', SCM_ASSETS_URI_ASSETS . 'touchSwipe-1.6.8/jquery.touchSwipe.min.js', array( 'modernizr-touch' ), null, true );
+            wp_register_script( 'jquery-touch-swipe', SCM_ASSETS_URI_ASSETS . 'touchSwipe-1.6.8/jquery.touchSwipe.min.js', array( 'scroll-magic-jquery' ), null, true );
             wp_enqueue_script( 'jquery-touch-swipe' );
             
             // Images Loaded
@@ -182,18 +189,24 @@ define( 'SCM_ASSETS_FANCYBOX', 'https://cdnjs.cloudflare.com/ajax/libs/fancybox/
 
             if( get_field( 'opt-tools-fancybox', 'option' ) ){
                 
+                // CDN
                 /*wp_register_script( 'fancybox', SCM_ASSETS_FANCYBOX . 'jquery.fancybox.pack.js', array( 'jquery' ), null, true );
                 wp_register_script( 'fancybox-thumbs', SCM_ASSETS_FANCYBOX . 'helpers/jquery.fancybox-thumbs.js', array( 'jquery' ), null, true );
                 wp_register_script( 'fancybox-buttons', SCM_ASSETS_FANCYBOX . 'helpers/jquery.fancybox-buttons.js', array( 'jquery' ), null, true );
                 wp_register_script( 'fancybox-media', SCM_ASSETS_FANCYBOX . 'helpers/jquery.fancybox-media.js', array( 'jquery' ), null, true );*/
+                // MAIN
                 wp_register_script( 'fancybox', SCM_ASSETS_URI_ASSETS . 'fancybox-2.1.5/jquery.fancybox.pack.js', array( 'imagesloaded' ), null, true );
                 wp_enqueue_script( 'fancybox' );
-                wp_register_script( 'fancybox-thumbs', SCM_ASSETS_URI_ASSETS . 'fancybox-2.1.5/helpers/jquery.fancybox-thumbs.js', array( 'fancybox' ), null, true );
+                // MIN
+                wp_register_script( 'fancybox-helpers', SCM_ASSETS_URI_ASSETS . 'fancybox-2.1.5/helpers/jquery.fancybox-helpers.min.js', array( 'fancybox' ), null, true );
+                wp_enqueue_script( 'fancybox-helpers' );
+                // FULL
+                /*wp_register_script( 'fancybox-thumbs', SCM_ASSETS_URI_ASSETS . 'fancybox-2.1.5/helpers/jquery.fancybox-thumbs.js', array( 'fancybox' ), null, true );
                 wp_enqueue_script( 'fancybox-thumbs' );
                 wp_register_script( 'fancybox-buttons', SCM_ASSETS_URI_ASSETS . 'fancybox-2.1.5/helpers/jquery.fancybox-buttons.js', array( 'fancybox-thumbs' ), null, true );
                 wp_enqueue_script( 'fancybox-buttons' );
                 wp_register_script( 'fancybox-media', SCM_ASSETS_URI_ASSETS . 'fancybox-2.1.5/helpers/jquery.fancybox-media.js', array( 'fancybox-buttons' ), null, true );
-                wp_enqueue_script( 'fancybox-media' );
+                wp_enqueue_script( 'fancybox-media' );*/
             }
 
             // Nivo Slider --- You could replace it (probably with _ScrollMagic_)
@@ -217,11 +230,6 @@ define( 'SCM_ASSETS_FANCYBOX', 'https://cdnjs.cloudflare.com/ajax/libs/fancybox/
                 wp_enqueue_script( 'tooltip' );
             }
 
-            // Bootstrap --- Will be substituted by _ScrollMagic_
-
-            wp_register_script( 'bootstrap', SCM_ASSETS_URI_ASSETS . 'bootstrap-3.3.6-dist/js/bootstrap.min.js', array( 'imagesloaded' ), null, true );
-            wp_enqueue_script( 'bootstrap' );
-
             // Parallax Scrolling --- Will be substituted by _ScrollMagic_
 
             if( get_field( 'opt-tools-parallax', 'option' ) ){
@@ -233,25 +241,23 @@ define( 'SCM_ASSETS_FANCYBOX', 'https://cdnjs.cloudflare.com/ajax/libs/fancybox/
                 wp_enqueue_script( 'parallax' );
             }
 
-            // Waypoints --- Will be substituted by _ScrollMagic_
-
-            wp_register_script( 'waypoints',  SCM_ASSETS_URI_ASSETS . 'waypoints-4.0.0/lib/jquery.waypoints.min.js', array( 'imagesloaded' ), null, true );
-            wp_enqueue_script( 'waypoints' );
-            //wp_register_script( 'waypoints-debug',  SCM_ASSETS_URI_ASSETS . 'waypoints-4.0.0/lib/waypoints.debug.js', false, SCM_ASSETS_VERSION, true );
-            //wp_enqueue_script( 'waypoints-debug' );
-            // import waypoints shortcuts if needed (sticky, infinite, ...)
-
             // SCM Stuff
-            
-            wp_register_script( 'jquery-scm-functions', SCM_ASSETS_URI . 'scm-functions.js', array( 'waypoints' ), null, true );
-            wp_enqueue_script( 'jquery-scm-functions' );
 
+            // MIN
+            /*wp_register_script( 'jquery-scm-tools', SCM_ASSETS_URI . 'scm.min.js', array( 'imagesloaded' ), null, true );
+            wp_enqueue_script( 'jquery-scm-tools' );*/
+            // FULL
+            wp_register_script( 'jquery-scm-functions', SCM_ASSETS_URI . 'scm-functions.js', array( 'imagesloaded' ), null, true );
+            wp_enqueue_script( 'jquery-scm-functions' );
             wp_register_script( 'jquery-scm-tools', SCM_ASSETS_URI . 'scm-tools.js', array( 'jquery-scm-functions' ), null, true );
             wp_enqueue_script( 'jquery-scm-tools' );
 
+            wp_register_script( 'jquery-scm-acf', SCM_ASSETS_URI . 'scm-acf.js', array( 'jquery-scm-tools' ), null, true );
+            wp_enqueue_script( 'jquery-scm-acf' );
+
             // SCM Child
 
-            wp_register_script( 'jquery-scm-child', get_stylesheet_directory_uri() . '/_assets/js/jquery.scm-child.js', array( 'jquery-scm-tools' ), null, true );
+            wp_register_script( 'jquery-scm-child', get_stylesheet_directory_uri() . '/_assets/js/jquery.scm-child.js', array( 'jquery-scm-acf' ), null, true );
             wp_enqueue_script( 'jquery-scm-child' );
             
             // SCM

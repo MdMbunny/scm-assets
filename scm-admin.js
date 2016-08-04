@@ -35,84 +35,6 @@
 			}
 		} );
 
-		
-		// ADVANCED FIELDS
-
-		var $adv = jQuery( '.scm-advanced-options' );
-		var advanced = false;
-
-		$body.on( 'keydown', function(e){
-			if( e.key == 'Alt' ){
-				$adv = jQuery( '.scm-advanced-options' );
-			}
-		} );
-
-		$body.on( 'keyup', function(e){
-			if( e.key == 'Alt' ){
-				if( advanced ){
-					advanced = false;
-					$adv.addClass( 'hidden' );
-				}else{
-					advanced = true;
-					$adv.removeClass( 'hidden' );
-				}
-			}
-		} );
-
-
-		// SHOW FIELD KEY
-
-		$body.on( 'mouseenter', '.acf-field', function(e){
-			var $this = jQuery(this);
-
-			if( $this.hasClass( 'acf-field' ) ){
-				jQuery( '.show-field-key' ).remove();
-				if ( e.altKey ){
-					e.stopPropagation();
-					$this.append( '<div class="show-field-key">' + $this.attr( 'data-name' ) + '</div>' );
-				}else if ( e.shiftKey){
-					e.stopPropagation();
-					$this.append( '<div class="show-field-key">' + $this.attr( 'data-key' ) + '</div>' );
-				}
-			}
-		} );
-
-		$body.on( 'mouseleave', '.acf-field', function(e){
-			var $this = jQuery(this);
-			if( $this.hasClass( 'acf-field' ) ){
-				jQuery( '.show-field-key' ).remove();
-			}
-		} );
-
-	    $body.on('click', function(e){
-	    	var $this = jQuery( e.target );
-			if( e.target.className.indexOf( 'show-field-key' ) > -1 ){
-				if ( e.altKey || e.shiftKey ){
-					e.stopPropagation();
-					e.preventDefault();
-			        var path = $this.html();
-			        path = path.replace(/ &amp;gt; /g,".");
-			        $path.val(path);
-			        $wrap.addClass( 'opened' );
-			        $path.focus();
-			        $path.select();
-		    	}else{
-		    		$wrap.removeClass( 'opened' );
-			    }
-			}else{
-				if( $this.attr('id') !== 'copypath' )
-					$wrap.removeClass( 'opened' );
-			}
-	    });
-		
-		var $path = jQuery('<textarea id="copypath"></textarea>'),
-			$wrap = jQuery('<div id="toppathwrap"></div>'),
-			$fields = jQuery( '.acf-field' );
-
-		$wrap.append( $path );
-		$body.append( $wrap );
-
-
 		// CONTROL MENU
 
 		var $publish = jQuery( '#publishing-action, #edittag p.submit' );
@@ -184,7 +106,87 @@
 			var id = $next.find( '[data-name="id"] input' ).val();
 			window.location.href = 'post.php?post=' + id + '&action=edit';
 		} );
+
+		// ONLY ADVANCED ADMIN
+
+		if( $body.hasClass( 'scm-advanced' ) ){
+
+			// ADVANCED FIELDS
 		
+			var $adv = jQuery( '.scm-advanced-options' );
+			var advanced = false;
+
+			$body.on( 'keydown', function(e){
+				if( e.key == 'Alt' ){
+					$adv = jQuery( '.scm-advanced-options' );
+				}
+			} );
+
+			$body.on( 'keyup', function(e){
+				if( e.key == 'Alt' ){
+					if( advanced ){
+						advanced = false;
+						$adv.addClass( 'hidden' );
+					}else{
+						advanced = true;
+						$adv.removeClass( 'hidden' );
+					}
+				}
+			} );
+
+			// SHOW FIELD KEY
+
+			$body.on( 'mouseenter', '.acf-field', function(e){
+				var $this = jQuery(this);
+
+				if( $this.hasClass( 'acf-field' ) ){
+					jQuery( '.show-field-key' ).remove();
+					if ( e.altKey ){
+						e.stopPropagation();
+						$this.append( '<div class="show-field-key">' + $this.attr( 'data-name' ) + '</div>' );
+					}else if ( e.shiftKey){
+						e.stopPropagation();
+						$this.append( '<div class="show-field-key">' + $this.attr( 'data-key' ) + '</div>' );
+					}
+				}
+			} );
+
+			$body.on( 'mouseleave', '.acf-field', function(e){
+				var $this = jQuery(this);
+				if( $this.hasClass( 'acf-field' ) ){
+					jQuery( '.show-field-key' ).remove();
+				}
+			} );
+
+		    $body.on('click', function(e){
+		    	var $this = jQuery( e.target );
+				if( e.target.className.indexOf( 'show-field-key' ) > -1 ){
+					if ( e.altKey || e.shiftKey ){
+						e.stopPropagation();
+						e.preventDefault();
+				        var path = $this.html();
+				        path = path.replace(/ &amp;gt; /g,".");
+				        $path.val(path);
+				        $wrap.addClass( 'opened' );
+				        $path.focus();
+				        $path.select();
+			    	}else{
+			    		$wrap.removeClass( 'opened' );
+				    }
+				}else{
+					if( $this.attr('id') !== 'copypath' )
+						$wrap.removeClass( 'opened' );
+				}
+		    });
+			
+			var $path = jQuery('<textarea id="copypath"></textarea>'),
+				$wrap = jQuery('<div id="toppathwrap"></div>'),
+				$fields = jQuery( '.acf-field' );
+
+			$wrap.append( $path );
+			$body.append( $wrap );
+
+		}		
 
 		// LOADED
 

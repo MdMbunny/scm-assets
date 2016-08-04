@@ -87,8 +87,8 @@
 				height = this.css( 'height' );
 			
 			this.css( {
-				top : 0,
-				height : 0,
+				//top : 0,
+				//height : 0,
 				overflow : 'scroll'
 			} );
 
@@ -351,28 +351,87 @@
 	    
 	}
 
-	$.getUrlParameter = function( param, url ) {
+	$.getCleanUrl = function( url, just ) {
 
 		if( !url )
 	    	url = window.location.search.substring( 1 );
+
+		var anchor = url.indexOf('#');
+		if( anchor != -1 )
+			url = url.substring(0, anchor);
+
+		if( !just ){
+			var params = url.indexOf('?');
+			if( params != -1 )
+			    url = url.substring(0, params);
+		}
+
+		return url;
+	}
+
+	$.getUrlAnchor = function( url, fallback ) {
+
+		if( !url )
+	    	url = window.location.search.substring( 1 );
+
+	    if( typeof fallback === 'undefined' )
+	    	fallback = '';
+
+	    var split = url.split('#');
+		if( split.length > 1 )
+			return split[1];
+
+		return fallback;		
+	}
+
+	$.getUrlParameters = function( name, url, fallback ) {
+		
+		if( !url )
+	    	url = window.location.search.substring( 1 );
+
+	    if( typeof fallback === 'undefined' )
+	    	fallback = {};
+
+		return url?JSON.parse('{"' + url.replace(/&/g, '","').replace(/=/g,'":"') + '"}', function(key, value) { return key===""?value:decodeURIComponent(value) }):{};
+	}
+
+	$.getUrlParameter = function( name, url, fallback ) {
+
+		if( !url )
+	    	url = window.location.search.substring( 1 );
+
+	    if( typeof fallback === 'undefined' )
+	    	fallback = '';
 	    
-	    var sURLVariables = url.split( '?' );
+	    url = url.split( '?' );
 
-	    for ( var i = 1; i < sURLVariables.length; i++ ) {
+	    for ( var i = 1; i < url.length; i++ ) {
 
-	        var sParameterName = sURLVariables[i].split( '=' );
+	        var param = url[i].split( '=' );
 
-	        var name = sParameterName[0];
-	        var num = sParameterName[1].split( '#' )[0];
+	        var key = param[0];
+	        var value = param[1].split( '#' )[0];
 
-	        if ( name == param ) {
+	        if ( key == name ) {
 
-	            return num;
+	            return value;
 
 	        }
 	    }
 
-	} 
+	    return fallback;
+	}
+
+	$.getUrlParameter = function( name, fallback ) {
+		
+		if( !url )
+			return fallback;
+
+		if( typeof PARAMS[name] === 'undefined' )
+			return PARAMS[name];
+		
+		return fallback;
+	}
 
 	$.getScripts = function(arr, path) {
 

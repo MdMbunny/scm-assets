@@ -21,6 +21,7 @@
 		var start;
 		var touch;
 		var wait;
+		var touch;
 
 
 		// *****************************************************
@@ -28,22 +29,23 @@
 		// *****************************************************
 
 		var initPage = function(){
-			$.consoleDebug( DEBUG, '- initPage Start');
-			GOOGLE_API_KEY = 'AIzaSyBZEApCxfzuavDWXdJ2DAVAftxbMjZWrVY';
+			$.consoleDebug( DEBUG, '- initPage Start'),
+			GOOGLE_API_KEY = 'AIzaSyBZEApCxfzuavDWXdJ2DAVAftxbMjZWrVY',
 
-			$document 	= $( document );
-			$window 	= $( window );
-			$html 		= $( 'html' );
-			$head 		= $( 'head' );
-			$body 		= $( 'body' );
-			$location 	= $( location );
-			$navigation = $( '.navigation' );
-			$page 		= $( '.site-page' );
+			$document 	= $( document ),
+			$window 	= $( window ),
+			$html 		= $( 'html' ),
+			$head 		= $( 'head' ),
+			$body 		= $( 'body' ),
+			$location 	= $( location ),
+			$navigation = $( '.navigation' ),
+			$page 		= $( '.site-page' ),
 
-			href 		= $location.attr( 'href' );
-			start 		= 'documentDone';
-			wait 		= $body.data( 'fade-wait' );
-			touch 		= ( typeof Modernizr !== 'undefined' && ( Modernizr.touchEvents || Modernizr.touch ) ) && ( $body.hasClass('is-iphone') || $body.hasClass('is-tablet') || $body.hasClass('is-mobile') );
+			href 		= $location.attr( 'href' ),
+			start 		= 'documentDone',
+			wait 		= $body.data( 'fade-wait' ),
+			touch 		= ( $body.hasClass('is-iphone') || $body.hasClass('is-tablet') || $body.hasClass('is-mobile') );
+			//touch 		= ( typeof Modernizr !== 'undefined' && Modernizr.touchevents ) && ( $body.hasClass('is-iphone') || $body.hasClass('is-tablet') || $body.hasClass('is-mobile') );
 
 			$html.removeClass( 'no-js' );
 
@@ -93,37 +95,27 @@
 
 				        swipeDown: function( e, direction, distance, duration, fingerCount ) {
 
-				        	var $this 		= $( this ),
-				        		$target 	= $( e.target ),
-				        		toggle = ( $target.hasClass( 'toggle' ) ? 1 : $target.parents( 'toggle' ).length );
-
-				        	if( toggle ){
+				        	var $this = $( this );
+				        	if( $this.hasClass( 'toggle' ) ? 1 : $this.parents( 'toggle' ).length ){
+				        		e.stopPropagation();
 			        			$this.toggledOn( e );
-			        			e.stopPropagation();
 			        		}
-			        		
 				        },
 
 				        swipeUp: function( e, direction, distance, duration, fingerCount ) {
 
-				        	var $this = $( this ),
-				        		$target 	= $( e.target ),
-								toggle = ( $target.hasClass( 'toggle' ) ? 1 : $target.parents( 'toggle' ).length );
-				        	
-				        	if( toggle ){
+				        	var $this = $( this );
+				        	if(  $this.hasClass( 'toggle' ) ? 1 : $this.parents( 'toggle' ).length ){
+				        		e.stopPropagation();
 			        			$this.toggledOff( e );
-			        			e.stopPropagation();
 			        		}
-
 				        },
 
 				        threshold: 10,
 				        excludedElements: '',
 
 				    });
-				
 				}
-				
 			}
 			$.consoleDebug( DEBUG, '- touchEvents End');
 		}
@@ -134,17 +126,24 @@
 
 		var checkUrlAnchor = function(){
 			$.consoleDebug( DEBUG, '- checkUrlAnchor Start');
-			if( href.indexOf( '#' ) > -1 ){
-				var split = href.split('#')
-				$('body').data( 'anchor', split[1] );
+			var url = $.getCleanUrl( href );
+			var comp = $.getCleanUrl( href, true );
+			
+			ANCHOR = $.getUrlAnchor( href );
+			PARAMS = $.getUrlParameters( href );
+
+			if( ANCHOR || PARAMS ){
+
+				if( ANCHOR )
+					$('body').data( 'anchor', ANCHOR );
 
 				if ( typeof window.history.replaceState == 'function' ) {
-					history.replaceState(null, null, split[0]);
-					//window.history.replaceState({}, '', location.href.slice(0, -1));
-				}else{
-					window.location.replace("#");
+					history.replaceState( null, null, url );
+				}else if( ANCHOR ){
+					window.location.replace( comp );
 				}
 			}
+
 			$.consoleDebug( DEBUG, '- checkUrlAnchor End');
 		}
 
@@ -215,25 +214,11 @@
 
 		var navEvents = function(){
 			$.consoleDebug( DEBUG, '- navEvents Start');
-			$navigation.off( 'toggledOn').on( 'toggledOn', function(e){
-
-				$elems = $( this ).find( '[data-toggle-button="on"]' );
-				$elems.css( 'transform', 'rotate(90deg)' );
-				$elems.animate( { transform: 'rotate(0deg)' }, 200, 'linear' );
-
-			} );
-
-			$navigation.off( 'toggledOff').on( 'toggledOff', function(e){
-
-				$elems = $( this ).find( '[data-toggle-button="off"]' );
-				$elems.css('transform', 'rotate(-90deg)');
-				$elems.animate( { transform: 'rotate(0deg)' }, 200, 'linear' );
-
-			} );
 
 			$body.on( 'resizing', function(e){ $( '.toggled' ).toggledOff(e); } );
 			$window.off( 'scroll').on( 'scroll', function(e){ $( '.toggled' ).toggledOff(e); } );
-			$body.off( 'switchOn').on( 'switchOn', '.toggle', function( e, state ){ $( this ).toggledOff( e, state ) } );
+			$body.off( 'switchOn').on( 'switchOn', '.navigation.toggle', function( e, state ){ $( this ).toggledOff( e, state ); $body.addClass('toggled-nav'); } );
+			$body.off( 'switchOff').on( 'switchOff', '.navigation[data-toggle="true"]', function( e, state ){ $body.removeClass('toggled-nav'); } );
 			$page.off( 'click').on( 'click', '.toggle-button', function(e){ $( this ).toggledIt(e); } );
 			$page.off( 'mousedown').on( 'mousedown', '*', function(e){ if( e.target == this ){ $( '.toggled' ).toggledOff(e); } } );
 			$.consoleDebug( DEBUG, '- navEvents End');
@@ -347,7 +332,6 @@
 			// Set tools
 			$body.eventLinks();
 			$body.eventTools();
-			$body.currentSection();
 			$body.checkCss();
 
 			// Load NivoSlider and trigger

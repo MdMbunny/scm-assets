@@ -3,6 +3,8 @@
 //	IE fixes
 //	Youtube Embed Fix
 //	Toggle Menu
+//	Affix It
+//	Sticky It
 //	Sticky Menu
 //	Smooth Scroll
 //	Current Link Class
@@ -27,6 +29,9 @@ var READYPAGE = function(){};
 ( function($){
 
 	var ARCHIVES = {};
+	var ANCHOR = '';
+	var PARAMS = {};
+	var $MAGIC = new $.ScrollMagic.Controller();
 
 // ******************************************************
 // ******************************************************
@@ -189,12 +194,12 @@ var READYPAGE = function(){};
 	// *****************************************************	
 
 	$.fn.eventTools = function( event ){
-		//Waypoint.destroyAll(); <-- questo andrà in scm.js per i Dynamic Content Load
 		this.find( '[data-content-fade]' ).fadeContent();
 		this.find( '[data-tooltip]' ).setTooltip();
 		this.find( '[data-cursor]' ).setCursor();
 		this.find( '[data-popup]' ).setFancybox();
 		this.find( '[data-slider]' ).initSlider();
+		this.find( '[data-current-view]' ).currentView();
 		this.find( '[data-current-link]' ).currentLink();
 		this.find( 'iframe[src*="youtube.com"]' ).youtubeFix();
 	}
@@ -653,9 +658,6 @@ var READYPAGE = function(){};
 		} );
 	}
 
-// +++ todo: plugin
-
-
 	$.fn.switchByData = function( data, name, classes, hide ) {
 
 		if( !name )
@@ -673,8 +675,7 @@ var READYPAGE = function(){};
 
 			if( act && act != '' ){
 
-				if( act.indexOf( data ) >= 0 ){ // toccato
-				//if( act == data ){
+				if( act.indexOf( data ) >= 0 ){
 					if( !classes ){
 						$this.show();
 						$this.siblings( switchWith ).hide();
@@ -702,49 +703,24 @@ var READYPAGE = function(){};
 	}
 
 	// *****************************************************
-	// *      STICKY IT
+	// *      AFFIX IT
 	// *****************************************************
-	
-	$.fn.stickyIt = function(){
+
+	$.fn.affixIt = function(off,aff){
 
 		return this.each(function() {
 
-			var $this 			= $( this ),
-				sticky 			= $this.data('sticky-type'),
-				offset 			= ( $this.data('sticky-offset') ? $this.data('sticky-offset') : 0 ),
-				attach 			= ( $this.data('sticky-attach') ? $this.data('sticky-attach') : 'top' ),
-				to 				= ( $this.data('sticky') ? $this.data('sticky') : '' ),
-				$to 			= $( to );
+			var $this 	= $( this ),
+				ref 	= ( aff ? aff : ( $this.attr( 'data-affix' ) ? $this.attr( 'data-affix' ) : 'top' ) ),
+				offset 	= ( off ? off : ( $this.attr( 'data-affix-offset' ) ? $this.attr( 'data-affix-offset' ) : 0 ) );
 
-			if( $to.length ){
-				if( attach == 'top'){
-					offset += $to.offset().top;
-				}else if( attach == 'bottom'){
-					offset += $to.offset().top + $to.outerHeight();
-				}
-				$to.addClass( sticky );
-			}
-
-			if( sticky == 'plus' ){
-				var sh = $this.getBoxShadow();
-				$this.css( 'top', -( $this.outerHeight() + parseFloat(sh.y) + parseFloat(sh.blur) + parseFloat(sh.exp) ) );
-			}
-			
-			$this
-				.attr( 'data-affix', attach )
-				.attr( 'data-affix-offset', offset );
-			
-			$this
-				.off( 'affixedOn' )
-				.on( 'affixedOn', function () {
-				    if( $to.length ) $to.addClass( 'affix-' + sticky );
-				});
-
-			$this
-				.off( 'affixedOff' )
-				.on( 'affixedOff', function () {
-				    if( $to.length ) $to.removeClass( 'affix-' + sticky);
-				});
+			new $.ScrollMagic.Scene({
+		        duration: 0,
+		        offset: offset
+		    })
+		    .setClassToggle( $this, 'affix')
+			//.addIndicators()
+		    .addTo( $MAGIC );
 
 		});
 
@@ -759,48 +735,42 @@ var READYPAGE = function(){};
 		return this.each(function() {
 
 			var $this 			= $( this ),
-				new_offset 		= 0,
 				sticky 			= $this.data('sticky-type'),
 				offset 			= $this.data('sticky-offset'),
+				new_offset 		= offset,
 				attach 			= $this.data('sticky-attach'),
+				anim 			= $this.data('sticky-anim'),
 				menu 			= $this.data('sticky'),
-				$menu 			= $( '#' + menu );
+				$menu 			= $( '#' + menu ).addClass( sticky );
 
-			if( !$menu.length )
-				return;
+			if( !$menu.length ) return;
 
-			if( attach == 'nav-top'){
-				new_offset = offset + $menu.offset().top;
-			}else if( attach == 'nav-bottom'){
+			if( attach == 'nav-bottom'){
 				new_offset = offset + $menu.offset().top + $menu.outerHeight();
+			}else if( attach == 'nav-top' || sticky == 'self' ){
+				new_offset = offset + $menu.offset().top;
 			}
 
 			if( sticky == 'plus' ){
 				
 				var sh = $this.getBoxShadow();
+				switch( anim ){
+					case 'opacity':
+						$this.css( 'opacity', 0 );
+					break;
+					case 'left':
+						$this.css( 'left', -( $this.outerWidth() + parseFloat(sh.x) + parseFloat(sh.blur) + parseFloat(sh.exp) ) );
+					break;
+					case 'right':
+						$this.css( 'right', -( $this.outerWidth() + parseFloat(sh.x) + parseFloat(sh.blur) + parseFloat(sh.exp) ) );
+					break;
+					default:
+						$this.css( 'top', -( $this.outerHeight() + parseFloat(sh.y) + parseFloat(sh.blur) + parseFloat(sh.exp) ) );
 
-				$this.css( 'top', -( $this.outerHeight() + parseFloat(sh.y) + parseFloat(sh.blur) + parseFloat(sh.exp) ) );
+				}
 			}
 
-			$menu.addClass( sticky );
-
-			// Affix
-
-			$this
-				.attr( 'data-affix', 'top' )
-				.attr( 'data-affix-offset', new_offset );
-			
-			$this
-				.off( 'affixedOn' )
-				.on( 'affixedOn', function () {
-				    $menu.addClass( 'affix-' + sticky );
-				});
-
-			$this
-				.off( 'affixedOff' )
-				.on( 'affixedOff', function () {
-				    $menu.removeClass( 'affix-' + sticky);
-				});
+			$this.affixIt( new_offset );
 
 		});
 
@@ -937,7 +907,7 @@ var READYPAGE = function(){};
 
 		return this.each(function() {
 
-			var $elem 			= $( this ),
+			/*var $elem 			= $( this ),
 				elem 			= this,
 				$body 			= $( 'body' ),
 				currentClass 	= $elem.data( 'current-link' ),
@@ -946,8 +916,58 @@ var READYPAGE = function(){};
 	            threshold 		= ( $elem.data( 'current-link-threshold' ) ? $elem.data( 'current-link-threshold' ) : 0 ),
 	            interval 		= ( $elem.data( 'current-link-interval' ) ? $elem.data( 'current-link-interval' ) : 250 ),
 	            filter 			= ( $elem.data( 'current-link-filter' ) ? $elem.data( 'current-link-filter' ) : '' ),
-	            $links 			= $( '[data-anchor]' ).filter( ':not([data-anchor="#top"])' ),
-	            //$links 			= $elem.find( '[data-href^="#"]), a[href^="#"], [data-anchor]' ).filter( ':not(.external) :not([data-href="#top"]) :not([href="#top"])' ),
+	            $links 			= $elem.find( '[data-anchor]' ).filter( ':not([data-anchor="#top"])' ),
+	            $last 			= $( '.page > .section.last' ).attr( 'id' ),
+	            $lasts 			= ( $last && $last.length ? $links.filter('[data-anchor="#' + $last + '"]') : $links ),
+	            anchors 		= '',
+	            $anchors 		= [],
+	            didScroll 		= true,
+	            timer 			= null;
+
+	        if ( units == 'em' ){
+	        	offset = $.EmToPx( Number(offset) )
+	        }
+
+            if ( filter )
+                $links = $links.filter( filter );
+
+            if( !$links.length )
+                return this;
+
+            for (var i = 0; i < $links.length; i++) {
+            	var link = $( $links[i] );
+            	anchors = anchors + link.attr('data-anchor');
+            	if( i < $links.length - 1 )
+            		anchors = anchors + ', ';
+            }
+
+            $anchors = $( anchors );
+
+            $anchors.each(function() {
+
+                var $anchor = $( this );
+                var $link = $links.filter('[data-anchor="#' + $anchor.attr('id') + '"]').parent();
+
+                new $.ScrollMagic.Scene({
+		        	triggerElement: $anchor,
+			        duration: function(e){ return Math.round( $anchor.outerHeight() ); },
+			    })
+			    .setClassToggle( $link, currentClass)
+				.addIndicators()
+			    .addTo( $MAGIC );
+
+            });*/
+
+	        var $elem 			= $( this ),
+				elem 			= this,
+				$body 			= $( 'body' ),
+				currentClass 	= $elem.data( 'current-link' ),
+	            offset 			= ( $elem.data( 'current-link-offset' ) ? $elem.data( 'current-link-offset' ) : 0 ),
+	            units 			= ( $elem.data( 'current-link-offset-units' ) ? $elem.data( 'current-link-offset-units' ) : 'px' ),
+	            threshold 		= ( $elem.data( 'current-link-threshold' ) ? $elem.data( 'current-link-threshold' ) : 0 ),
+	            interval 		= ( $elem.data( 'current-link-interval' ) ? $elem.data( 'current-link-interval' ) : 250 ),
+	            filter 			= ( $elem.data( 'current-link-filter' ) ? $elem.data( 'current-link-filter' ) : '' ),
+	            $links 			= $elem.find( '[data-anchor]' ).filter( ':not([data-anchor="#top"])' ),
 	            $last 			= $( '.page > .section.last' ).attr( 'id' ),
 	            $lasts 			= ( $last && $last.length ? $links.filter('[data-anchor="#' + $last + '"]') : $links ),
 	            anchors 		= '',
@@ -1048,190 +1068,35 @@ var READYPAGE = function(){};
 	// *      CURRENT SECTION CLASS
 	// *****************************************************
 
-	$.fn.currentSection = function( event, state ){
+	$.fn.currentView = function( offset ){
 
 		return this.each(function() {
 
-			var $elem 			= $( this ),
-				elem 			= this,
-				//$body 			= $( 'body' ),
-				current 		= 'current-',
-	            offset 			= 100,
-	            threshold 		= 0,
-	            interval 		= 500,
-	            $sections 		= $elem.find( '.scm-section' ),
-	            $hash 			= [],
-	            $anchors 		= [],
-	            didScroll 		= true,
-	            timer 			= null;
+			var $this = $( this );
 
-            if( !$sections.length )
-                return this;
+	        new $.ScrollMagic.Scene({
+	        	triggerElement: $this,
+		        duration: function(){ return Math.round( $this.outerHeight() ); },
+		    })
+		    .setClassToggle( $this, 'current-view-act')
+			//.addIndicators()
+		    .addTo( $MAGIC );
 
-            /*$sections.each( function(){
-                var hash, anchors;
-
-                hash = $( this ).attr( 'id' );
-                if( !hash )
-                    return this;
-                
-                anchors = $body.find( hash );
-
-                if( anchors.length ){
-                    $anchors.push( anchors );
-                    $hash.push( $( this ) );
-                }
-
-            } );*/
-
-            /*if( !$hash.length )
-            	return this;*/
-
-			        
-	        var setTimer = function() {
-	            
-	            $( window ).off('scroll.currentSection').on( 'scroll.currentSection', function() {
-	                didScroll = true;
-	            });
-	            
-	            setActiveClass();
-	            timer = setInterval( function() {
-
-	                if ( didScroll ) {
-	                    didScroll = false;
-	                    setActiveClass();
-	                }
-
-	            }, interval );
-	        };
-	        
-	        var clearTimer = function() {	          
-
-	            clearInterval( timer );
-	            $( window ).off( 'scroll.currentSection' );
-	            didScroll = false;
-
-	        };
-
-	        var removeActiveClasses = function(index, classNames) {
-				
-				var current_classes = classNames.split(" "), // change the list into an array
-					classes_to_remove = []; // array of classes which has to be removed
-
-				$.each(current_classes, function (index, class_name) {
-					// if the classname begins with current add it to the classes_to_remove array
-					if (/current-.*/.test(class_name)) {
-						classes_to_remove.push(class_name);
-					}
-				});
-				// turn the array back into a string
-				return classes_to_remove.join(" ");
-
-			}
-	        
-	        var setActiveClass = function() {
-	            //var i;
-
-	            var $win 		= $( window ),
-	            	$body 		= $( 'body' ),
-	            	scrollPos 	= $win.scrollTop(),
-	            	heightWin 	= $win.height(),
-	            	heightBody 	= $body.outerHeight(),
-	            	current 	= '';
-
-	            for( var i = 0; i < $sections.length; i++ ) {
-
-	                var $section = $( $sections[i] );
-	                var $next = $( $sections[i+1] );
-
-	                var coords = {
-	                    top: Math.round( $section.offset().top ) - offset,
-	                    bottom: Math.round( $section.offset().top + $section.outerHeight() ) - offset,
-	                };
-
-	                coords.middle = Math.round( coords.top + ( coords.bottom - coords.top ) * .5 );
-
-	                var add = 'current-' + $section.attr( 'id' );
-				
-	                if ( scrollPos >= coords.top - threshold && scrollPos < coords.bottom - threshold ){
-                		if( !$elem.hasClass( add ) ){
-                			
-
-                			//$elem.trigger( 'onCurrent', [ add ] );
-	                		$elem.removeClass( removeActiveClasses );
-		                	$elem.addClass( add );
-		                	$section.addClass( 'current-view' );
-		                	$section.addClass( 'current-view-act' );
-		                	$section.removeClass( 'current-view-pre' );
-		                }
-		                if( scrollPos >= coords.middle - threshold ){
-							if( !$elem.hasClass( 'current-half' ) ){
-								$elem.addClass( 'current-half' );
-								if( $next.length ){
-									$next.addClass( 'current-view' );
-									$next.addClass( 'current-view-pre' );
-								}
-							}
-		                }else{
-		                	if( $elem.hasClass( 'current-half' ) ){
-		                		$elem.removeClass( 'current-half' );
-		                		if( $next.length ){
-									$next.removeClass( 'current-view-pre' );
-								}
-							}
-		                }
-	                }else{
-	                	if( $elem.hasClass( add ) )
-	                		$elem.removeClass( removeActiveClasses );
-	                		if( !$section.hasClass( 'current-view-pre' ) )
-		                		$section.removeClass( 'current-view' );
-	                		$section.removeClass( 'current-view-act' );
-	                }
-	            }
-	        }
-
-	        didScroll = true;
-            setTimer();
+		    new $.ScrollMagic.Scene({
+	        	triggerElement: $this,
+		        duration: function(){ return $( window ).height() + Math.round( $this.outerHeight() ); },
+		        triggerHook: 1,
+		    })
+			.setClassToggle( $this, 'current-view')
+			.on( 'enter', function(e){
+		    	if( e.type == 'enter' && e.scrollDirection == 'FORWARD' )
+		    		$this.addClass( 'current-fade' )
+		    	else if( e.type == 'exit' && e.scrollDirection == 'REVERSE' )
+		    		$this.removeClass( 'current-fade' );
+		    } )
+			//.addIndicators()
+		    .addTo( $MAGIC );
 			    
-		});
-
-	}
-
-	// *****************************************************
-	// *      AFFIX IT
-	// *****************************************************
-
-	$.fn.affixIt = function(off,aff){
-
-		return this.each(function() {
-
-			var $this 	= $( this ),
-				ref 	= ( aff ? aff : ( $this.attr( 'data-affix' ) ? $this.attr( 'data-affix' ) : 'top' ) ),
-				offset 	= ( off ? off : ( $this.attr( 'data-affix-offset' ) ? $this.attr( 'data-affix-offset' ) : 0 ) );
-
-			$this.off('.affix');
-			$this
-			    .removeClass("affix affix-top affix-bottom")
-			    .removeData("bs.affix");
-			
-			switch( ref ){
-
-				case 'top': $this.affix( { offset: { top: parseInt( offset ) } }); break;
-				case 'bottom': $this.affix( { offset: { bottom: parseInt( offset ) } }); break;
-				default: return this; break;
-
-			}
-
-			$this
-				.off('affix.bs.affix')
-				.on( 'affix.bs.affix', function () {
-				    $this.trigger( 'affixedOn' );
-				} )
-				.off('affix-top.bs.affix affix-bottom.bs.affix')
-				.on( 'affix-top.bs.affix affix-bottom.bs.affix', function () {
-				    $this.trigger( 'affixedOff' );
-				} );
-
 		});
 
 	}
@@ -1251,16 +1116,19 @@ var READYPAGE = function(){};
 			if( !$cont.length )
 				return this;
 
-			$cont.css( { 'opacity': '0', 'top': '50px' } ).waypoint(function(direction) {
-				if (direction === 'down') {
-					$(this.element).animate({ opacity: 1, top: 0 }, 500)
-				}
-				else {
-					$(this.element).animate({ opacity: 0, top: 50 }, 500)
-				}
-			}, {
-				offset: offset
-			});
+			for (var i = 0; i < $cont.length; i++) {
+				
+				$content = $( $cont[i] );
+
+				new $.ScrollMagic.Scene({
+		        	triggerElement: $content,
+			        triggerHook: 1,
+			        offset: offset,
+			    })
+				.setClassToggle( $content, 'current-fade')
+				//.addIndicators()
+			    .addTo( $MAGIC );
+			};			
 
 		});
 	}
@@ -2265,7 +2133,8 @@ var READYPAGE = function(){};
 				id = ( $element.data( 'load-content' ) ? $element.data( 'load-content' ) : $this.data( 'load-content' ) ),
 				paged = ( $element.data( 'load-paged' ) ? $element.data( 'load-paged' ) : $this.data( 'load-paged' ) ),
 				offset = ( $element.data( 'load-offset' ) ? $element.data( 'load-offset' ) : $this.data( 'load-offset' ) ),
-				page = $.getUrlParameter( ( $element.data( 'load-page' ) ? $element.data( 'load-page' ) : $this.data( 'load-page' ) ), link ),
+				//page = $.getUrlParameter( ( $element.data( 'load-page' ) ? $element.data( 'load-page' ) : $this.data( 'load-page' ) ), link, 0 ),
+				page = $.getParameter( ( $element.data( 'load-page' ) ? $element.data( 'load-page' ) : $this.data( 'load-page' ) ), 0 ),
 				$container = $( id ),
 				c_height = $container.outerHeight(),
 				$parent = $container.parent(),
