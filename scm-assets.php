@@ -3,7 +3,7 @@
  * Plugin Name:         SCM Assets
  * Plugin URI:          http://studiocreativo-m.it/
  * Description:         SCM Javascript Integration
- * Version:             1.3.2
+ * Version:             1.3.3
  * Author:              Studio Creativo M
  * Author URI:          http://studiocreativo-m.it/
  * License:             http://www.gnu.org/licenses/gpl-3.0.html
@@ -94,7 +94,9 @@ define( 'SCM_ASSETS_FANCYBOX', 'https://cdnjs.cloudflare.com/ajax/libs/fancybox/
     add_action( 'admin_enqueue_scripts', 'scm_assets_admin_register' );
     add_action( 'login_enqueue_scripts', 'scm_assets_login_register' );
     add_action( 'wp_enqueue_scripts', 'scm_assets_register_styles' );
-    add_action( 'wp_enqueue_scripts', 'scm_assets_register_scripts' );  
+    add_action( 'wp_enqueue_scripts', 'scm_assets_register_scripts' );
+
+    add_action( 'wp_footer', 'scm_assets_inline_scripts_footer' );
 
     add_action( 'wp_enqueue_scripts', 'scm_assets_register_fontawesome' );
     add_action( 'admin_enqueue_scripts', 'scm_assets_register_fontawesome', 997 );
@@ -265,6 +267,19 @@ define( 'SCM_ASSETS_FANCYBOX', 'https://cdnjs.cloudflare.com/ajax/libs/fancybox/
             wp_register_script( 'jquery-scm', SCM_ASSETS_URI . 'scm.js', array( 'jquery-scm-child' ), null, true );
             wp_enqueue_script( 'jquery-scm' );
 
+            global $wp_query;
+            wp_localize_script( 'jquery-scm-tools', 'ajaxcall', array(
+                'url' => admin_url( 'admin-ajax.php' ),
+                'query_vars' => json_encode( $wp_query->query ),
+            ));
+        }
+    }
+
+    // inline footer
+    if ( ! function_exists( 'scm_assets_inline_scripts_footer' ) ) {
+        function scm_assets_inline_scripts_footer() {
+            global $SCM_archives;
+            echo '<script>var ARCHIVES = ' . json_encode( $SCM_archives ) . ';</script>';
         }
     }
 

@@ -19,7 +19,7 @@
 //*
 //*****************************************************
 
-var DEBUG = false;
+var DEBUG = 0;
 var ADVANCED = 'altKey';
 var INITPAGE = function(){};
 var INITCHILD = function(){};
@@ -28,22 +28,33 @@ var READYPAGE = function(){};
 
 ( function($){
 
-	var ARCHIVES = {};
-	var ANCHOR = '';
-	var PARAMS = {};
+	var CONTENTS = {};
 	var $MAGIC = new $.ScrollMagic.Controller();
 
-// ******************************************************
-// ******************************************************
-// *      jQuery INIT
-// ******************************************************
-// ******************************************************
+// *****************************************************
+// *      MAIN PLUGINS
+// *****************************************************
 
 	// *****************************************************
-	// *      RESPONSIVE
+	// *      SET EVENTS - Call these when dynamically attaching/loading contents
 	// *****************************************************
 
-	$.fn.responsiveClasses = function( event ) {
+	$.fn.eventsInit = function( links, tools, css, images, responsive ){
+		if( links !== undefined && links !== null )
+			this.eventLinks( links );
+		if( tools !== undefined && tools !== null )
+			this.eventTools( tools );
+		if( css !== undefined && css !== null )
+			this.eventCss( css );
+		if( images !== undefined && images !== null )
+			this.eventImages( images );
+		if( responsive !== undefined && responsive !== null )
+			this.eventResponsive( responsive );
+	}
+
+	// *****************************************************
+
+	$.fn.eventResponsive = function( option ) {
 
 		var w 			= $( window ).width();
 			a 			= '',
@@ -109,7 +120,7 @@ var READYPAGE = function(){};
 
 		}
 
-		if( event != 'init' ){
+		if( option != 'init' ){
 			this.removeClass( r );
 			this.addClass( a );
 
@@ -119,7 +130,7 @@ var READYPAGE = function(){};
 			if( w < sizes[ tocolumn ] ) this.addClass( 'tocolumn' );
 			else this.removeClass( 'tocolumn' );
 
-			if(event == 'force' || old != this.attr( 'class' )){
+			if( option == 'force' || old != this.attr( 'class' ) ){
 
 				if ( this.hasClass( 'smartmin' ) )		state = 'smartmin';
 				else if( this.hasClass( 'smart' ) )		state = 'smart';
@@ -130,57 +141,45 @@ var READYPAGE = function(){};
 				else if( this.hasClass( 'desktop' ) )	state = 'desktop';
 
 				this.trigger( 'responsive', [ state ] );
+
+				$( '[data-equal]' ).equalChildrenSize();
 			}
 		}else{
 			return a;
 		}
 	}
 
-	// *****************************************************
-	// *      ENABLE/DISABLE
-	// *****************************************************
+	$.fn.eventImages = function( bg ) {
+		$.consoleDebug( DEBUG, '-- images events');
+		var $this = this;
+		var bgs = ( !bg ? { background: '*' } : null );
+		$this.imagesLoaded( bgs )
+			.always( function( instance ) {
+				$this.trigger( 'imgsLoaded', instance );
+				$.consoleDebug( DEBUG, '- imgsLoaded' );
+			})
+			.done( function( instance ) {
+				$this.trigger( 'imgsDone', instance );
+				$.consoleDebug( DEBUG, '- imgsDone' );
+			})
+			.fail( function() {
+				$this.trigger( 'imgsFail' );
+				$.consoleDebug( DEBUG, '- imgsFail' );
+			})
+			.progress( function( instance, image ) {
+				var result = image.isLoaded ? 'loaded' : 'broken';
+				if( image.isLoaded ){
+					$this.trigger( 'imgLoaded', instance, image );
+					$.consoleDebug( DEBUG, '-- imgLoaded: ' + image.img.src );
+				}else{
+					$this.trigger( 'imgFailed', instance, image );
+					$.consoleDebug( DEBUG, '-- imgFailed: ' + image.img.src );
+				}					
+			});
+	}
 
-	$.fn.enableIt = function( event ){
-
-		$.consoleDebug( DEBUG, '-----------');
-		$.consoleDebug( DEBUG, 'enableIt');
-
-		return this.each(function() {
-
-		    var $this = $( this );
-
-		    $.consoleDebug( DEBUG, $this );
-
-		    $this.removeClass( 'disabled' );
-		    $this.addClass( 'enabled' );
-		    $this.trigger( 'enabled' );
-
-		});
-	};
-
-	$.fn.disableIt = function( event ){
-
-		$.consoleDebug( DEBUG, '-----------');
-		$.consoleDebug( DEBUG, 'disableIt');
-
-		return this.each(function() {
-
-		    var $this = $( this );
-
-		    $.consoleDebug( DEBUG, $this );
-
-		    $this.addClass( 'disabled' );
-			$this.removeClass( 'enabled' );
-			$this.trigger( 'disabled' );
-
-		});
-	};
-
-	// *****************************************************
-	// *      CSS
-	// *****************************************************
-
-	$.fn.checkCss = function( event ){
+	$.fn.eventCss = function(){
+		$.consoleDebug( DEBUG, '-- css events');
 		this.find( '[data-bg-color]' ).setCss( 'bg-color', 'background-color' );
 		this.find( '[data-zindex]' ).setCss( 'zindex', 'z-index' );
 		this.find( '[data-left]' ).setCss( 'left' );
@@ -189,11 +188,8 @@ var READYPAGE = function(){};
 		this.find( '[data-bottom]' ).setCss( 'bottom' );
 	}
 
-	// *****************************************************
-	// *      EVENTS - Call these when dynamically attaching/loading contents
-	// *****************************************************	
-
-	$.fn.eventTools = function( event ){
+	$.fn.eventTools = function(){
+		$.consoleDebug( DEBUG, '-- tools events');
 		this.find( '[data-content-fade]' ).fadeContent();
 		this.find( '[data-tooltip]' ).setTooltip();
 		this.find( '[data-cursor]' ).setCursor();
@@ -204,13 +200,19 @@ var READYPAGE = function(){};
 		this.find( 'iframe[src*="youtube.com"]' ).youtubeFix();
 	}
 
-	$.fn.eventLinks = function( event ){
+	$.fn.eventLinks = function(){
+
+		$.consoleDebug( DEBUG, '-- links events');
 
 		var $nav 	= this.find( 'a, .navigation' ).filter(':not(.nolinkit):not(.iubenda-embed)').filter(function( index ) { return $( this ).parents( '.ssba, .acf-form' ).length === 0; }),
 			$link 	= this.find( 'a, [data-href]' ).filter(':not(.nolinkit):not(.iubenda-embed)').filter(function( index ) { return $( this ).parents( '.ssba, .acf-form' ).length === 0; });
 
 		$link.filter( ':not([data-link-type])' ).linkIt();
-		$nav.off( 'mousedown' ).on( 'mousedown', function(e){ e.stopPropagation(); } );
+
+		$nav.off( 'mousedown' ).on( 'mousedown', function(e){
+			e.stopPropagation();
+		});
+		
 		$link.off( 'click' ).on( 'click', function(e){
 
 			var $this = $( this );
@@ -229,7 +231,7 @@ var READYPAGE = function(){};
 				e.preventDefault();
 				e.stopPropagation();
 				if( $toggled.length ){
-					$toggled.toggledOff( event );
+					$toggled.toggledOff();
 					setTimeout( function(){
 						$this.trigger( 'link' );
 					}, 400 );
@@ -237,16 +239,12 @@ var READYPAGE = function(){};
 					$this.trigger( 'link' );
 				}
 			}else{
-				$toggled.toggledOff(e);
+				$toggled.toggledOff();
 				e.preventDefault();
 			}
-		
 		});
 
 		$link.off( 'link' ).on( 'link', function( e ){
-
-			$.consoleDebug( DEBUG, '-----------');
-			$.consoleDebug( DEBUG, '[on link]');
 
 			var $this 	= $( this ),
 				$body 	= $( 'body' ),
@@ -254,33 +252,31 @@ var READYPAGE = function(){};
 				target 	= ( $this.attr('target') ? $this.attr('target') : $this.data('target') ),
 				state 	= $this.attr('data-link-type');
 
-				$.consoleDebug( DEBUG, 'state: ' + state);
+			$.consoleDebug( DEBUG, '-----------');
+			$.consoleDebug( DEBUG, '[link] > ' + state );
 
 			switch( state ){
 
 				case 'load':
-					$.consoleDebug( DEBUG, 'loading content');
-					$this.loadContent( event, href );
+					$.consoleDebug( DEBUG, '- loading content');
+					$this.loadContent( href );
 				break;
 
 				case 'page':
-					$.consoleDebug( DEBUG, 'scrolling');
-					$this.smoothScroll();
+					$.consoleDebug( DEBUG, '- scrolling');
+					$this.smoothScroll( 0, e.type == 'link');
 				break;
 
 				default:
-					$.consoleDebug( DEBUG, 'changing page');
+					$.consoleDebug( DEBUG, '- changing page');
 					$.bodyOut( href, target, state );
 				break;
 			}
-
-
-		} );
-
-	};
+		});
+	}
 
 	// *****************************************************
-	// *      LINK
+	// *      SET HREF and TARGET
 	// *****************************************************
 
 	$.fn.linkIt = function( event ){
@@ -361,11 +357,253 @@ var READYPAGE = function(){};
 			$this.attr( 'data-link-type', ( back ? 'back' : ( app ? app : state ) ) );
 
 		});
-		
 	}
 
 	// *****************************************************
-	// *      NAVIGATION
+	// *      URL
+	// *****************************************************
+
+	$.fn.setUrlData = function( href, hash, params, push ){
+		$.consoleDebug( DEBUG, '- setUrlData');
+		
+		return this.each( function() {
+
+			var $this = $( this );
+			var attr = {
+				hash: '#top',
+				params: '',
+			};
+		
+			if( hash && hash !== undefined && hash !== null ){
+				$this.attr( 'data-anchor', hash );
+				attr.hash = hash;
+			}
+
+			if( params && params !== undefined && params !== null ){
+				$this.attr( 'data-params', params );
+				attr.params = params;
+			}
+
+			if( !push )
+				$.replaceState( href, attr, null );
+			else if( push )
+				$.pushState( href, attr, null );
+
+		});
+	}
+
+	$.fn.setLocationData = function( location, push ){
+		return this.each( function() {
+
+			var $this = $( this );
+			$this.setUrlData( location.pathname, location.hash, location.search, push );
+		
+		});
+		$.consoleDebug( DEBUG, 'from location');
+	}
+
+	$.fn.setLinkData = function( link, push ){
+		return this.each( function() {
+
+			var $this = $( this );
+			$this.setUrlData( $.getCleanUrl( link ), $.getUrlHash( link ), $.getUrlSearch( link ), push );
+		
+		});
+		$.consoleDebug( DEBUG, 'from link');
+	}
+
+	// *****************************************************
+	// *      LOAD CONTENT
+	// *****************************************************
+
+	$.fn.loadContent = function( link, set_id, set_current ){
+		
+		var $body = $('body');
+		$body.disableIt();
+
+		return this.each( function() {
+
+			var $this 	= $( this ),
+				$element = ( $this.data( 'load-content' ) ? $this : $this.parent() ),
+				id = ( set_id ? set_id : $element.data( 'load-content' ) ),
+				current = ( set_current ? set_current : $element.data( 'load-page' ) ),
+				page = $.getUrlParameter( id, link, 0 ),
+				$container = $( '#' + id ),
+				c_height = $container.outerHeight(),
+				$parent = $container.parent(),
+				p_height = $parent.outerHeight(),
+				$loading = $( $.iconLoading() );
+
+    		$parent.css( 'overflow', 'hidden' );
+			$parent.css('height', p_height);
+
+			$body.trigger( 'loadContentBefore' );
+			
+			if( !CONTENTS[id] )
+				CONTENTS[id] = {};
+			CONTENTS[id][current] = $container.html();
+
+			var buildContent = function(){
+
+				$container.fadeOut('fast', function(){
+
+					if( CONTENTS[id] && CONTENTS[id][page] ){
+						$container.html( CONTENTS[id][page] );
+						$body.trigger( 'loadContent' );
+						adjustContent();
+
+					}else{
+
+						$container.css( 'height', c_height );
+						$container.html( '' );
+						$container.show();
+						$loading.appendTo( $container ).hide().fadeIn('slow');
+
+						var url = ajaxcall.url;
+						var vars = ajaxcall.query_vars;
+						var aj_data = {
+							action: 'load_content',
+							query_vars: vars,
+							archive: ARCHIVES[id],
+							name: id,
+						};
+
+						if( page )
+							aj_data[id] = page;
+	
+						$.ajax({
+							url: url,
+							type: 'post',
+							data: aj_data,
+							error: function(jqXHR, exception) {
+								var msg = 'Spiacenti, è stato riscontrato un errore.';
+					            if (jqXHR.status === 0) {
+					                msg = 'Not connect.\n Verify Network.';
+					            } else if (jqXHR.status == 404) {
+					                msg = 'Requested page not found. [404]';
+					            } else if (jqXHR.status == 500) {
+					                msg = 'Internal Server Error [500].';
+					            } else if (exception === 'parsererror') {
+					                msg = 'Requested JSON parse failed.';
+					            } else if (exception === 'timeout') {
+					                msg = 'Time out error.';
+					            } else if (exception === 'abort') {
+					                msg = 'Ajax request aborted.';
+					            } else {
+					                msg = 'Uncaught Error.\n' + jqXHR.responseText;
+					            }
+					            $loading.remove();
+					            $container.html( '<span class="scm-error error">' + msg + '</span>' );
+								adjustContent();
+					        },
+							success: function( html ) {
+								$body.trigger( 'loadContent' );
+								var $html = $(html).hide();
+								$container.prepend( $html );
+								$html.fadeIn( 'slow' );
+								$loading.fadeOut( 'slow', function(){ $loading.remove(); adjustContent(); } );
+							}
+						});
+					}
+				});
+			}
+
+			var adjustContent = function(){
+				$container.css( 'height', 'auto' );
+				$container.fadeIn('fast', function(){
+					
+					var new_height = $container.outerHeight();
+
+					if( c_height != new_height ){
+					
+						$parent.animate({ 'height' : p_height - ( c_height - new_height ) }, 'slow', function(){
+							enableContent();
+							$body.trigger( 'loadContentAfter' );
+						});
+
+					}else{
+						enableContent();
+						$body.trigger( 'loadContentAfter' );
+					}
+				});
+			}
+
+			var enableContent = function(){
+				$parent.css( 'height', 'auto' );
+				$parent.css( 'overflow', 'visible' );
+				$container.eventsInit( 1, 1, 1, null, 1 );
+				$container.smoothScroll();
+			}
+
+			buildContent();
+
+		});
+	}
+
+// *****************************************************
+// *      NAVIGATION UTILITIES
+// *****************************************************
+
+	// *****************************************************
+	// *      TRIGGER LINK
+	// *****************************************************
+
+	$.triggerAnchor = function( anchor ){
+		var $buttons = $( 'a[href="' + anchor + '"], *[data-href="' + anchor + '"]' );
+		if( $buttons.length ){
+			$( $buttons[0] ).trigger( 'link' );
+			return $( $buttons[0] );
+		}
+		return false;
+	}
+
+	// *****************************************************
+	// *      GO TO LINK
+	// *****************************************************
+
+	$.goToLink = function( link, target, state ){
+
+		$.consoleDebug( DEBUG, '-----------');
+		$.consoleDebug( DEBUG, 'goToLink:');
+
+		if( !link ){
+			$.consoleDebug( DEBUG, 'no link provided');
+			$.bodyIn();
+			return this;
+		}
+
+		$.consoleDebug( DEBUG, link);
+		$.consoleDebug( DEBUG, 'target: ' + target);
+
+		if( state == 'mail' ){
+			window.location = $.decodeEmail( link );
+			return this;
+		}
+
+		if( target != '_blank' ){
+
+			$.consoleDebug( DEBUG, 'loading same page');
+
+			window.location = link;
+			return this;
+
+		}else{
+
+			$.consoleDebug( DEBUG, 'opening new page');
+
+			window.open( link, 'See You!' );
+			return this;
+
+		}
+
+		$.consoleDebug( DEBUG, 'fallback');
+		
+		$.bodyIn();
+		return this;
+	}
+
+	// *****************************************************
+	// *      PAGE ENTER
 	// *****************************************************
 
 	$.bodyIn = function( event ){
@@ -382,9 +620,8 @@ var READYPAGE = function(){};
 			post 			= ( $body.data( 'smooth-post' ) ? $body.data( 'smooth-post' ) : 0 ),
 			offset 			= ( $body.data( 'smooth-offset' ) ? $body.data( 'smooth-offset') : '0' ),
 			units 			= ( $body.data( 'smooth-offset-units' ) ? $body.data( 'smooth-offset-units' ) : 'px' ),
-			anchor 			= $body.data( 'anchor' ),
-			$anchor 		= $( '#' + anchor ),
-			$button 		= $( 'a[href="#' + anchor + '"], *[data-href="#' + anchor + '"]' ),
+			anchor 			= ( $body.data( 'anchor' ) ? $body.data( 'anchor' ) : '' ),
+			$anchor 		= $( anchor ),
 			$doc 			= $( document );
 
 		if( $body.hasClass( 'bodyin' ) ) return;
@@ -400,11 +637,10 @@ var READYPAGE = function(){};
 		var pageScroll = function(){
 
 			if( post ){
-				if( $button.length ){
 
+				var $button = $.triggerAnchor( anchor );
+				if( $button ){
 					$.consoleDebug( DEBUG, 'scroll to anchor');
-					$( $button[0] ).trigger( 'link' );
-
 				}else{
 
 					$html.animate({
@@ -427,12 +663,11 @@ var READYPAGE = function(){};
 		var checkScroll	= function(){
 
 			if( anchor && anchor != 'none' ){
-
-				if( delay ){
+				if( delay )
 					setTimeout( pageScroll, delay * 1000 );
-				}else{
+				else
 					pageScroll();
-				}
+				
 				
 			}else{
 				
@@ -468,6 +703,10 @@ var READYPAGE = function(){};
         	checkScroll();
         }
 	}
+
+	// *****************************************************
+	// *      PAGE EXIT
+	// *****************************************************
 
 	$.bodyOut = function( link, target, state ){
 
@@ -513,269 +752,45 @@ var READYPAGE = function(){};
 			$.goToLink( link, target, state );
 
 		}
-
 	}
 
-
-	$.goToLink = function( link, target, state ){
-
-			$.consoleDebug( DEBUG, '-----------');
-			$.consoleDebug( DEBUG, 'goToLink:');
-
-			if( !link ){
-				$.consoleDebug( DEBUG, 'no link provided');
-				$.bodyIn();
-				return this;
-			}
-
-			$.consoleDebug( DEBUG, link);
-			$.consoleDebug( DEBUG, 'target: ' + target);
-
-			if( state == 'mail' ){
-				window.location = $.decodeEmail( link );
-				return this;
-			}
-
-			if( target != '_blank' ){
-
-				$.consoleDebug( DEBUG, 'loading same page');
-
-				// DYNAMIC LOADING CONTENT
-				// Check load page anchor issue
-				// Check Fancybox, Nivo, bxSlider, etc
-				// Update your LoadContent function
-				// Add in scm.js the "popstate" Event for History navigation
-
-				/*history.pushState(null, null, link);
-				$('<div>').load(link + ' #site-page', function() {
-				    $('#site-page').replaceWith( $(this).find('#site-page') );
-				    $.consoleDebug( DEBUG, 'Load startPage Call');
-				    INITCHILD();
-				    INITPAGE();
-				    READYCHILD();
-				    READYPAGE();
-				});*/
-				
-				window.location = link;
-				return this;
-
-			}else{
-
-				$.consoleDebug( DEBUG, 'opening new page');
-
-				window.open( link, 'See You!' );
-				return this;
-
-			}
-
-			$.consoleDebug( DEBUG, 'fallback');
-			
-			$.bodyIn();
-			return this;
-
-		};
+// *****************************************************
+// *      PLUGINS
+// *****************************************************
 
 	// *****************************************************
-	// *      TOGGLE
+	// *      ENABLE/DISABLE
 	// *****************************************************
 
-	$.fn.toggledIt = function( event, state ) {
-		
-		event.stopPropagation();
+	$.fn.enableIt = function( event ){
+
+		$.consoleDebug( DEBUG, '[' + this[0].localName + '] ENABLED');
 
 		return this.each(function() {
 
-			var $this = $( this );
+		    var $this = $( this );
 
-			if( !$this.hasClass( 'toggled' ) )
-				return $this.toggledOn( event );
-			else
-				return $this.toggledOff( event );
+		    $this.removeClass( 'disabled' );
+		    $this.addClass( 'enabled' );
+		    $this.trigger( 'enabled' );
 
 		});
-
 	}
 
-	$.fn.toggledOn = function( event, state ) {
+	$.fn.disableIt = function( event ){
+
+		$.consoleDebug( DEBUG, '[' + this[0].localName + '] DISABLED');
 
 		return this.each(function() {
 
-			var $this = $( this );
+		    var $this = $( this );
 
-	        if( !$this.hasClass( 'toggle' ) )
-	        	$this = $( this ).parents( '.toggle' );
-
-			$this.data( 'done', false );
-			
-			$this.find( '.toggle-button' ).children( '[data-toggle-button="off"]' ).hide();
-			$this.find( '.toggle-button' ).children( '[data-toggle-button="on"]' ).show();
-			if( !$this.hasClass( 'toggled' ) ){
-				$this.data( 'done', true );
-				$this.addClass( 'toggled' );
-				$this.removeClass( 'no-toggled' );
-				$this.trigger( 'toggledOn' );
-
-				// +++ todo: aggiungere qui animazione da this.data( 'toggle_in | toggle_out | toggle_in_time | toggle_out_time | toggle_in_ease | toggle_out_ease' )
-			}
-
-		} );
-
-	}
-
-	$.fn.toggledOff = function( event, state ) {
-
-		return this.each(function() {
-
-			var $this = $( this );
-
-	        if( !$this.hasClass( 'toggle' ) )
-	        	$this = $( this ).parents( '.toggle' );
-			
-			$this.data( 'done', false );
-			
-			$this.find( '.toggle-button' ).children( '[data-toggle-button="off"]' ).show();
-			$this.find( '.toggle-button' ).children( '[data-toggle-button="on"]' ).hide();
-			if( $this.hasClass( 'toggled' ) ){
-
-				$this
-					.data( 'done', true )
-					.trigger( 'toggledOff' )
-					.removeClass( 'toggled' )
-					.addClass( 'no-toggled' );
-				
-				// +++ todo: aggiungere qui animazione da this.data( 'toggle_in | toggle_out | toggle_in_time | toggle_out_time | toggle_in_ease | toggle_out_ease' )
-
-			}else if( !$this.hasClass( 'no-toggled' ) ){
-
-				$this
-					.addClass( 'no-toggled' )
-					.data( 'done', true )
-					.trigger( 'toggledOff' )
-					.removeClass( 'toggled' )
-					.addClass( 'no-toggled' );
-			}
-
-		} );
-	}
-
-	$.fn.switchByData = function( data, name, classes, hide ) {
-
-		if( !name )
-			name = ( classes ? name : 'switch' );
-
-		return this.each(function() {
-
-			var $this 	= $( this ),
-				act 	= $this.data( name ),
-				wit 	= $this.data( name + '-with' );
-				switchWith = ( wit ? wit : '[data-' + name + '=""]' );
-
-			if( $this.hasClass( 'hidden' ) )
-				return;
-
-			if( act && act != '' ){
-
-				if( act.indexOf( data ) >= 0 ){
-					if( !classes ){
-						$this.show();
-						$this.siblings( switchWith ).hide();
-					}else{
-						$this.addClass( classes );
-						if( hide )
-							$this.find( hide ).addClass( 'hidden' );
-					}
-					$this.trigger( 'switchOn' );
-				}else{
-					if( !classes ){
-						$this.hide();
-						$this.siblings( switchWith ).show();
-					}else{
-						$this.removeClass( classes );
-						if( hide )
-							$this.find( hide ).removeClass( 'hidden' );
-					}
-					$this.trigger( 'switchOff' );
-				}
-			}
-
-		} );
-
-	}
-
-	// *****************************************************
-	// *      AFFIX IT
-	// *****************************************************
-
-	$.fn.affixIt = function(off,aff){
-
-		return this.each(function() {
-
-			var $this 	= $( this ),
-				ref 	= ( aff ? aff : ( $this.attr( 'data-affix' ) ? $this.attr( 'data-affix' ) : 'top' ) ),
-				offset 	= ( off ? off : ( $this.attr( 'data-affix-offset' ) ? $this.attr( 'data-affix-offset' ) : 0 ) );
-
-			new $.ScrollMagic.Scene({
-		        duration: 0,
-		        offset: offset
-		    })
-		    .setClassToggle( $this, 'affix')
-			//.addIndicators()
-		    .addTo( $MAGIC );
+		    $this.addClass( 'disabled' );
+			$this.removeClass( 'enabled' );
+			$this.trigger( 'disabled' );
 
 		});
-
 	}
-
-	// *****************************************************
-	// *      STICKY MENU
-	// *****************************************************
-	
-	$.fn.stickyMenu = function(){
-
-		return this.each(function() {
-
-			var $this 			= $( this ),
-				sticky 			= $this.data('sticky-type'),
-				offset 			= $this.data('sticky-offset'),
-				new_offset 		= offset,
-				attach 			= $this.data('sticky-attach'),
-				anim 			= $this.data('sticky-anim'),
-				menu 			= $this.data('sticky'),
-				$menu 			= $( '#' + menu ).addClass( sticky );
-
-			if( !$menu.length ) return;
-
-			if( attach == 'nav-bottom'){
-				new_offset = offset + $menu.offset().top + $menu.outerHeight();
-			}else if( attach == 'nav-top' || sticky == 'self' ){
-				new_offset = offset + $menu.offset().top;
-			}
-
-			if( sticky == 'plus' ){
-				
-				var sh = $this.getBoxShadow();
-				switch( anim ){
-					case 'opacity':
-						$this.css( 'opacity', 0 );
-					break;
-					case 'left':
-						$this.css( 'left', -( $this.outerWidth() + parseFloat(sh.x) + parseFloat(sh.blur) + parseFloat(sh.exp) ) );
-					break;
-					case 'right':
-						$this.css( 'right', -( $this.outerWidth() + parseFloat(sh.x) + parseFloat(sh.blur) + parseFloat(sh.exp) ) );
-					break;
-					default:
-						$this.css( 'top', -( $this.outerHeight() + parseFloat(sh.y) + parseFloat(sh.blur) + parseFloat(sh.exp) ) );
-
-				}
-			}
-
-			$this.affixIt( new_offset );
-
-		});
-
-	}
-
 
 	// *****************************************************
 	// *      SMOOTH SCROLL
@@ -783,25 +798,20 @@ var READYPAGE = function(){};
 
 	$.fn.smoothScroll = function( off, onEnd ) {
 
-		var type 	= $.type( off ),
-			$body 	= $( 'body' );
+		$.consoleDebug( DEBUG, '- smoothScroll' );
 
-		if( type === 'function' ){
-			onEnd = off;
-			off = $body.data( 'smooth-offset' );
-		}
-
+		var $html = $( 'html' );
+		var $body = $( 'body' );
 		$body.disableIt();
 
 		return this.each(function(){
 
-
 			var $this 			= $( this ),
-				link 			= ( $this.data( 'href' ) ? $this.data( 'href' ) : ( $this.attr( 'href' ) ? $this.attr( 'href' ) : '#' ) ),
+				link 			= ( $this.data( 'anchor' ) ? $this.data( 'anchor' ) : ( $this.data( 'href' ) ? $this.data( 'href' ) : ( $this.attr( 'href' ) ? $this.attr( 'href' ) : ( $this.attr( 'id' ) ? '#' + $this.attr( 'id' ) : '#' ) ) ) ),
 
 				time 			= ( $body.data( 'smooth-duration' ) ? parseFloat( $body.data( 'smooth-duration' ) ) : 1 ),
 				offset 			= ( off ? off : ( $body.data( 'smooth-offset' ) ? $body.data( 'smooth-offset' ) : '0' ) ),
-				units 			= ( off ? off : ( $body.data( 'smooth-offset-units' ) ? $body.data( 'smooth-offset-units' ) : 'px' ) ),
+				units 			= ( off ? 'px' : ( $body.data( 'smooth-offset-units' ) ? $body.data( 'smooth-offset-units' ) : 'px' ) ),
 				ease 			= ( $body.data( 'smooth-ease' ) ? $body.data( 'smooth-ease' ) : 'swing' ),
 				delay 			= ( $body.data( 'smooth-delay' ) ? parseFloat( $body.data( 'smooth-delay' ) ): 0.1 ),
 
@@ -810,57 +820,49 @@ var READYPAGE = function(){};
 				position 		= $( document ).scrollTop(),
 
 				hash 			= ( link.indexOf( '#' ) === 0 ? link : ( link.indexOf( '#' ) > 0 ? this.hash : '' ) ),
-				target 			= ( hash ? $( hash ) : [] ),
+				$target 		= ( hash ? $( hash ) : {} ),
 				name 			= ( hash ? hash.slice( 1 ) : '' ),
+				
 				destination 	= 0,
 				difference 		= 0,
 				duration 		= 0;
 
-			type = $.type( offset );
-			if ( type == 'string' && offset.indexOf( '#' ) === 0 ){
-				hash = offset;
-				target = $( hash );
-				offset = $( 'body' ).data( 'smooth-offset' );
-			}
-
-			if( units == 'em' ){
+			if( units == 'em' )
 				offset = $.EmToPx( Number(offset) )
-			}
+
+			if( !$body.hasClass( 'loaded' ) && typeof onEnd === 'boolean' && onEnd )
+				$body.attr( 'data-premature-action', 'true' );
 
 			var pageEnable = function(){
-				if( onEnd )
+
+				/*if( typeof onEnd === 'boolean' && onEnd )
+					$body.setUrlData( window.location.pathname, hash, false, onEnd );*/
+				
+				if( typeof onEnd === 'function' )
 					onEnd();
 				else
 					$body.enableIt();
-
 			}
 
 			var pageScroll = function(){
 
-				$('html').animate( {
+				$html.animate( {
+					scrollTop: destination
+				}, parseFloat( duration ), ease );
 
-						scrollTop: destination
-
-					}, parseFloat( duration ), ease
-				);
-
-				$('body').animate( {
-
-						scrollTop: destination
-
-					}, parseFloat( duration ), ease, function() {
-						pageEnable();
-					}
-				);
+				$body.animate( {
+					scrollTop: destination
+				}, parseFloat( duration ), ease, function() {
+					pageEnable();
+				});
 			};
 
-			if( target.length ){
+			if( $target.length ){
 
-				destination = target.offset().top - parseInt( offset ) - $( '#site-navigation-sticky' ).getHighest() + 1;
+				destination = $target.offset().top - parseInt( offset ) - $( '#site-navigation-sticky' ).getHighest() - $( '#site-header.sticky' ).getHighest() + 1;
 
-				if( height - destination < win ){
+				if( height - destination < win )
 					destination = height - win;
-				}
 
 			}else if( name == 'top' ){
 
@@ -900,7 +902,7 @@ var READYPAGE = function(){};
 	}
 
 	// *****************************************************
-	// *      CURRENT LINK CLASS
+	// *      CURRENT LINK CLASS ( PERSONALE - PROVA A VEDERE DI NUOVO SE RIESCI A PASSARE DA MAGIC SCROLL, COME currentView() )
 	// *****************************************************
 
 	$.fn.currentLink = function( event, state ){
@@ -975,9 +977,10 @@ var READYPAGE = function(){};
 	            didScroll 		= true,
 	            timer 			= null;
 
-	        if ( units == 'em' ){
+	        if ( units == 'em' )
 	        	offset = $.EmToPx( Number(offset) )
-	        }
+
+	        offset = offset + $( '#site-navigation-sticky' ).getHighest() + $( '#site-header.sticky' ).getHighest() - 1;
 
             if ( filter )
                 $links = $links.filter( filter );
@@ -1061,7 +1064,6 @@ var READYPAGE = function(){};
             setTimer();
 			    
 		});
-
 	}
 
 	// *****************************************************
@@ -1098,11 +1100,10 @@ var READYPAGE = function(){};
 		    .addTo( $MAGIC );
 			    
 		});
-
 	}
 
 	// *****************************************************
-	// *      FADE CONTENT (WAYPOINTS)
+	// *      FADE CONTENT
 	// *****************************************************
 
 	$.fn.fadeContent = function(off,aff){
@@ -1134,9 +1135,237 @@ var READYPAGE = function(){};
 	}
 
 	// *****************************************************
-	// *      GOOGLE MAPS
+	// *      TOGGLE
 	// *****************************************************
 
+	$.fn.toggleSwipe = function() {
+		
+		return this.each(function() {
+
+			var $this = $( this );
+
+			if( $this.attr( 'data-toggle' ) == "true" ){
+
+				$this.swipe( {				
+
+			        swipeDown: function( e, direction, distance, duration, fingerCount ) {
+
+			        	var $elem = $( this );
+			        	if( $elem.hasClass( 'toggle' ) ? 1 : $elem.parents( 'toggle' ).length ){
+			        		e.stopPropagation();
+		        			$elem.toggledOn();
+		        		}
+			        },
+
+			        swipeUp: function( e, direction, distance, duration, fingerCount ) {
+
+			        	var $elem = $( this );
+			        	if(  $elem.hasClass( 'toggle' ) ? 1 : $elem.parents( 'toggle' ).length ){
+			        		e.stopPropagation();
+		        			$elem.toggledOff();
+		        		}
+			        },
+
+			        threshold: 10,
+			        excludedElements: '',
+			    });
+
+			    $.consoleDebug( DEBUG, '-- swipe event');
+			}
+		});
+	}
+
+	$.fn.toggledIt = function( event ) {
+		
+		event.stopPropagation();
+
+		return this.each(function() {
+
+			var $this = $( this );
+
+			if( !$this.hasClass( 'toggled' ) )
+				return $this.toggledOn();
+			else
+				return $this.toggledOff();
+
+		});
+	}
+
+	$.fn.toggledOn = function() {
+
+		return this.each(function() {
+
+			var $this = $( this );
+
+	        if( !$this.hasClass( 'toggle' ) )
+	        	$this = $( this ).parents( '.toggle' );
+
+			$this.data( 'done', false );
+			
+			$this.find( '.toggle-button' ).children( '[data-toggle-button="off"]' ).hide();
+			$this.find( '.toggle-button' ).children( '[data-toggle-button="on"]' ).show();
+			if( !$this.hasClass( 'toggled' ) ){
+				$this.data( 'done', true );
+				$this.addClass( 'toggled' );
+				$this.removeClass( 'no-toggled' );
+				$this.trigger( 'toggledOn' );
+
+				// +++ todo: aggiungere qui animazione da this.data( 'toggle_in | toggle_out | toggle_in_time | toggle_out_time | toggle_in_ease | toggle_out_ease' )
+			}
+
+		} );
+	}
+
+	$.fn.toggledOff = function() {
+
+		return this.each(function() {
+
+			var $this = $( this );
+
+	        if( !$this.hasClass( 'toggle' ) )
+	        	$this = $( this ).parents( '.toggle' );
+			
+			$this.data( 'done', false );
+			
+			$this.find( '.toggle-button' ).children( '[data-toggle-button="off"]' ).show();
+			$this.find( '.toggle-button' ).children( '[data-toggle-button="on"]' ).hide();
+			if( $this.hasClass( 'toggled' ) ){
+
+				$this
+					.data( 'done', true )
+					.trigger( 'toggledOff' )
+					.removeClass( 'toggled' )
+					.addClass( 'no-toggled' );
+				
+				// +++ todo: aggiungere qui animazione da this.data( 'toggle_in | toggle_out | toggle_in_time | toggle_out_time | toggle_in_ease | toggle_out_ease' )
+
+			}else if( !$this.hasClass( 'no-toggled' ) ){
+
+				$this
+					.addClass( 'no-toggled' )
+					.data( 'done', true )
+					.trigger( 'toggledOff' )
+					.removeClass( 'toggled' )
+					.addClass( 'no-toggled' );
+			}
+
+		} );
+	}
+
+	$.fn.switchByData = function( data, name, classes, hide ) {
+
+		if( !name )
+			name = ( classes ? name : 'switch' );
+
+		return this.each(function() {
+
+			var $this 	= $( this ),
+				act 	= $this.data( name ),
+				wit 	= $this.data( name + '-with' );
+				switchWith = ( wit ? wit : '[data-' + name + '=""]' );
+
+			if( $this.hasClass( 'hidden' ) )
+				return;
+
+			if( act && act != '' ){
+
+				if( act.indexOf( data ) >= 0 ){
+					if( !classes ){
+						$this.show();
+						$this.siblings( switchWith ).hide();
+					}else{
+						$this.addClass( classes );
+						if( hide )
+							$this.find( hide ).addClass( 'hidden' );
+					}
+					$this.trigger( 'switchOn' );
+				}else{
+					if( !classes ){
+						$this.hide();
+						$this.siblings( switchWith ).show();
+					}else{
+						$this.removeClass( classes );
+						if( hide )
+							$this.find( hide ).removeClass( 'hidden' );
+					}
+					$this.trigger( 'switchOff' );
+				}
+			}
+
+		} );
+	}
+
+	// *****************************************************
+	// *      AFFIX IT
+	// *****************************************************
+
+	$.fn.affixIt = function(off,aff){
+
+		return this.each(function() {
+
+			var $this 	= $( this ),
+				ref 	= ( aff ? aff : ( $this.attr( 'data-affix' ) ? $this.attr( 'data-affix' ) : 'top' ) ),
+				offset 	= ( off ? off : ( $this.attr( 'data-affix-offset' ) ? $this.attr( 'data-affix-offset' ) : 0 ) );
+
+			new $.ScrollMagic.Scene({
+		        duration: 0,
+		        offset: offset
+		    })
+		    .setClassToggle( $this, 'affix')
+			//.addIndicators()
+		    .addTo( $MAGIC );
+
+		});
+	}
+	
+	$.fn.stickyMenu = function(){
+
+		return this.each(function() {
+
+			var $this 			= $( this ),
+				sticky 			= $this.data('sticky-type'),
+				offset 			= $this.data('sticky-offset'),
+				new_offset 		= offset,
+				attach 			= $this.data('sticky-attach'),
+				anim 			= $this.data('sticky-anim'),
+				menu 			= $this.data('sticky'),
+				$menu 			= $( '#' + menu ).addClass( sticky );
+
+			if( !$menu.length ) return;
+
+			if( attach == 'nav-bottom'){
+				new_offset = offset + $menu.offset().top + $menu.outerHeight();
+			}else if( attach == 'nav-top' || sticky == 'self' ){
+				new_offset = offset + $menu.offset().top;
+			}
+
+			if( sticky == 'plus' ){
+				
+				var sh = $this.getBoxShadow();
+				switch( anim ){
+					case 'opacity':
+						$this.css( 'opacity', 0 );
+					break;
+					case 'left':
+						$this.css( 'left', -( $this.outerWidth() + parseFloat(sh.x) + parseFloat(sh.blur) + parseFloat(sh.exp) ) );
+					break;
+					case 'right':
+						$this.css( 'right', -( $this.outerWidth() + parseFloat(sh.x) + parseFloat(sh.blur) + parseFloat(sh.exp) ) );
+					break;
+					default:
+						$this.css( 'top', -( $this.outerHeight() + parseFloat(sh.y) + parseFloat(sh.blur) + parseFloat(sh.exp) ) );
+
+				}
+			}
+
+			$this.affixIt( new_offset );
+
+		});
+	}
+
+	// *****************************************************
+	// *      GOOGLE MAPS
+	// *****************************************************
 
 	$.fn.googleMap = function() {
 
@@ -1266,7 +1495,6 @@ var READYPAGE = function(){};
 				});
 
 			});
-		
 	}
 
 	$.fn.markerMap = function( map, infowindow, zoom, count, reg ) {
@@ -1421,15 +1649,8 @@ var READYPAGE = function(){};
 
 				var focusMarker = function(){
 
-					var elem = document.createElement( 'a' );
-					var $elem = $( '<a id="temp" href="#map-' + count + '"></a>' );
-					$elem.smoothScroll();
-					$elem.remove();
-
-					//map.panTo(latlng);
-					//google.maps.event.addListenerOnce( map, 'idle', function(){
-					    google.maps.event.trigger( marker, 'click' );
-					//});
+					$( '#map-' + count ).smoothScroll();
+				    google.maps.event.trigger( marker, 'click' );
 				}
 
 				var openInfoWindow = function( mark, location ){
@@ -1487,7 +1708,7 @@ var READYPAGE = function(){};
 	}
 	
 	// *****************************************************
-	// *      SLIDER CAPTION
+	// *      SLIDER
 	// *****************************************************
 
 	// +++ todo: passare data a figli (animazioni caption, più livelli, ecc)
@@ -1516,7 +1737,6 @@ var READYPAGE = function(){};
 				} );
 
 		});
-
 	}
 
 	$.fn.captionMoveOut = function( state, slider, speed ){
@@ -1541,12 +1761,7 @@ var READYPAGE = function(){};
 			} );
 
 		});
-
 	}
-
-	// *****************************************************
-	// *      SLIDER
-	// *****************************************************
 
 	$.fn.initSlider = function() {
 
@@ -1562,12 +1777,7 @@ var READYPAGE = function(){};
 			}
 
 		});
-
 	}
-
-	// *****************************************************
-	// *      NIVO SLIDER
-	// *****************************************************
 
 	$.fn.setNivoSlider = function(){
 
@@ -1733,7 +1943,6 @@ var READYPAGE = function(){};
 			}
 			
 		});
-
 	}
 
 	// *****************************************************
@@ -2084,7 +2293,7 @@ var READYPAGE = function(){};
 			});
 
 		});
-	};
+	}
 
 	// *****************************************************
 	// *      CURSOR
@@ -2115,114 +2324,6 @@ var READYPAGE = function(){};
 			$elems.awesomeCursor( icon, attr );
 
 		});
-	};
-
-		// *****************************************************
-	// *      LOAD CONTENT
-	// *****************************************************
-
-	$.fn.loadContent = function( event, link ){
-		
-		var $body = $('body');
-		$body.disableIt();
-
-		return this.each( function() {
-
-			var $this 	= $( this ),
-				$element = $this.parent(),
-				id = ( $element.data( 'load-content' ) ? $element.data( 'load-content' ) : $this.data( 'load-content' ) ),
-				paged = ( $element.data( 'load-paged' ) ? $element.data( 'load-paged' ) : $this.data( 'load-paged' ) ),
-				offset = ( $element.data( 'load-offset' ) ? $element.data( 'load-offset' ) : $this.data( 'load-offset' ) ),
-				//page = $.getUrlParameter( ( $element.data( 'load-page' ) ? $element.data( 'load-page' ) : $this.data( 'load-page' ) ), link, 0 ),
-				page = $.getParameter( ( $element.data( 'load-page' ) ? $element.data( 'load-page' ) : $this.data( 'load-page' ) ), 0 ),
-				$container = $( id ),
-				c_height = $container.outerHeight(),
-				$parent = $container.parent(),
-				p_height = $parent.outerHeight(),
-				elem = document.createElement( 'a' ),
-				loading = $.iconLoading(),
-				$loading;
-
-			elem.href = id;
-
-    		$parent.css( 'overflow', 'hidden' );
-			$parent.css('height', p_height);
-
-
-			$body.trigger( 'loadContentBefore' );
-
-			
-			if( !ARCHIVES[id] )
-				ARCHIVES[id] = {};
-			ARCHIVES[id][paged] = $container.html();
-
-			var buildContent = function(){
-
-				$( elem ).remove();
-
-				$container.fadeOut('fast', function(){
-
-					if( ARCHIVES[id] && ARCHIVES[id][page] ){
-
-						$container.html( ARCHIVES[id][page] );
-						$body.trigger( 'loadContent' );
-						adjustContent();
-
-					}else{
-
-						$loading = $( loading ).appendTo( $parent ).hide().fadeIn('slow');
-						
-						$container.html( '' );
-						// come secondo parametro puoi passare un oggetto con variabili POST
-						$container.load( link + ' ' + id + ' > *', function( response, status, xhr ) {
-							if ( status == 'error' ) {
-								var msg = 'Spiacenti, è stato riscontrato un errore: ';
-								$container.html( '<span class="scm-error error">' + msg + xhr.status + ' ' + xhr.statusText + '</span>' );
-							}else{
-								$body.trigger( 'loadContent' );
-								$loading.fadeOut('fast', function(){
-									$container = $(id);
-									$loading.remove();
-									adjustContent();
-
-								});
-							}
-						});
-					}
-				});
-			}
-
-			var adjustContent = function(){
-				$container.fadeIn('fast', function(){
-					
-					var new_height = $container.outerHeight();
-
-					if( c_height != new_height ){
-					
-						$parent.animate({ 'height' : p_height - ( c_height - new_height ) }, 'slow', function(){
-							enableContent();
-							$body.trigger( 'loadContentAfter' );
-						});
-
-					}else{
-						enableContent();
-						$body.trigger( 'loadContentAfter' );
-					}
-				});
-			}
-
-			var enableContent = function(){
-
-				$parent.css( 'height', 'auto' );
-				$parent.css( 'overflow', 'visible' );
-				$container.eventLinks();
-				$container.eventTools();
-				$( elem ).smoothScroll( offset );
-			}
-
-			$( elem ).smoothScroll( offset, buildContent );
-
-		});
 	}
 
 	// *****************************************************
@@ -2242,7 +2343,6 @@ var READYPAGE = function(){};
 			$this.css( attr, val );
 
 		});
-
 	}
 
 	// *****************************************************

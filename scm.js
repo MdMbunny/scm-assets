@@ -6,452 +6,383 @@
 // ******************************************************
 // ******************************************************
 
-		var GOOGLE_API_KEY;
+	var GOOGLE_API_KEY;
 
-		var $document;
-		var $window;
-		var $html;
-		var $head;
-		var $body;
-		var $location;
-		var $navigation;
-		var $page;
+	var $window;
+	var $body;
 
-		var href;
-		var start;
-		var touch;
-		var wait;
-		var touch;
+	var start;
+	var wait;
+	var touch;
 
+	// *****************************************************
+	// *      INIT
+	// *****************************************************
 
-		// *****************************************************
-		// *      INIT
-		// *****************************************************
+	var initPage = function(){
+		$.consoleDebug( DEBUG, 'initPage()');
 
-		var initPage = function(){
-			$.consoleDebug( DEBUG, '- initPage Start'),
-			GOOGLE_API_KEY = 'AIzaSyBZEApCxfzuavDWXdJ2DAVAftxbMjZWrVY',
+		GOOGLE_API_KEY = 'AIzaSyBZEApCxfzuavDWXdJ2DAVAftxbMjZWrVY',
 
-			$document 	= $( document ),
-			$window 	= $( window ),
-			$html 		= $( 'html' ),
-			$head 		= $( 'head' ),
-			$body 		= $( 'body' ),
-			$location 	= $( location ),
-			$navigation = $( '.navigation' ),
-			$page 		= $( '.site-page' ),
+		$window 	= $( window );
+		$body 		= $( 'body' );
 
-			href 		= $location.attr( 'href' ),
-			start 		= 'documentDone',
-			wait 		= $body.data( 'fade-wait' ),
-			touch 		= ( $body.hasClass('is-iphone') || $body.hasClass('is-tablet') || $body.hasClass('is-mobile') );
-			//touch 		= ( typeof Modernizr !== 'undefined' && Modernizr.touchevents ) && ( $body.hasClass('is-iphone') || $body.hasClass('is-tablet') || $body.hasClass('is-mobile') );
+		start 		= 'documentDone';
+		wait 		= $body.data( 'fade-wait' );
+		touch 		= ( $body.hasClass('is-iphone') || $body.hasClass('is-tablet') || $body.hasClass('is-mobile') );
 
-			$html.removeClass( 'no-js' );
+		$( 'html' ).removeClass( 'no-js' );
+		$body.setLocationData( window.location );
+		$body.disableIt();
+	}
 
-			$.consoleDebug( DEBUG, '- initPage End');
+	// *****************************************************
+	// *      DEBUG
+	// *****************************************************
+
+	var debugEvents = function(){
+		$.consoleDebug( DEBUG, 'debugEvents()');
+
+		if( DEBUG ){
+			$body.on( 'documentDone', function(e){ $.log('[on] document.done', touch); } );
+			$body.on( 'nivoLoaded', function(e){ $.log('[on] nivoLoaded', touch); } );
+			$body.on( 'mapLoaded', function(e){ $.log('[on] mapLoaded', touch); } );
+			$body.on( 'mapsLoaded', function(e){ $.log('[on] mapsLoaded', touch); } );
+			$body.on( 'documentReady', function(e){ $.log('[on] document.ready', touch); } );
+			$body.on( 'documentLoaded', function(e){ $.log('[on] document.loaded', touch); } );
+		}
+		$body.trigger( 'documentJquery' );
+		if( DEBUG ) $.log('[on] documentJquery', touch);
+	}
+
+	// *****************************************************
+	// *      TOUCH
+	// *****************************************************
+
+	var touchEvents = function(){
+		$.consoleDebug( DEBUG, 'touchEvents()');
+
+        if ( touch ) {
+            $body.addClass( 'touch' );
+            $body.removeClass( 'mouse' );
+            $.consoleDebug( DEBUG, '- is touch');
+
+            $( '.navigation' ).toggleSwipe();
+
+        }else{
+            $body.removeClass( 'touch' );
+            $body.addClass( 'mouse' );
+            $.consoleDebug( DEBUG, '- is not touch');
+        }
+	}
+
+	// *****************************************************
+	// *      START EVENTS
+	// *****************************************************
+
+	var startEvents = function(){
+		$.consoleDebug( DEBUG, 'startEvents()');
+		switch( wait ){
+			case 'images': case 'nobg':
+				start = 'imgsLoaded';
+			break;
+			case 'sliders':
+				if( $( '.nivoSlider' ).length ) start = 'nivoLoaded';
+				else start = 'imgsLoaded';
+			break;
+			case 'maps':
+				if( $( '.scm-map' ).length ) start = 'mapsLoaded';
+				else start = 'imgsLoaded';
+			break;
+			default:
+				start = 'documentDone';
+			break;
 		}
 
-		// *****************************************************
-		// *      DEBUG
-		// *****************************************************
+		$.consoleDebug( DEBUG, '- start event is: ' + start );
+		
+		var isready = false;
+		$body.on( start, function(e){
+			if( DEBUG ) $.log('[on] startEvent.' + start, touch);
+			isready = true;
+			$.bodyIn(e);
+		} );
 
-		var debugEvents = function(){
-			$.consoleDebug( DEBUG, '- debugEvents Start');
-
-			if( DEBUG ){
-				$body.on( 'documentDone', function(e){ $.log('document.done', touch); } );
-				//$body.on( 'imgsLoaded', function(e){ $.log('imgsLoaded', touch); } );
-				$body.on( 'nivoLoaded', function(e){ $.log('nivoLoaded', touch); } );
-				$body.on( 'mapLoaded', function(e){ $.log('mapLoaded', touch); } );
-				$body.on( 'mapsLoaded', function(e){ $.log('mapsLoaded', touch); } );
+		setTimeout(function() {
+			if( !isready ){
+				$.consoleDebug( DEBUG, '[WARNING] BodyIn FORCED START');
+				$.bodyIn();
 			}
-			$body.trigger( 'documentJquery' );
-			if( DEBUG ) $.log('documentJquery', touch);
-			
-			$.consoleDebug( DEBUG, '- debugEvents End');
-		}
+     	}, 5000);
+	}
 
-		// *****************************************************
-		// *      TOUCH
-		// *****************************************************
+	// *****************************************************
+	// *      LAYOUT EVENTS
+	// *****************************************************
 
-		var touchEvents = function(){
-			$.consoleDebug( DEBUG, '- touchEvents Start');
+	var layoutEvents = function(){
+		$.consoleDebug( DEBUG, 'layoutEvents()');
 
-	        if ( touch ) {
-	            $body.addClass( 'touch' );
-	            $body.removeClass( 'mouse' );
-	        }else{
-	            $body.removeClass( 'touch' );
-	            $body.addClass( 'mouse' );
-	        }
-
-	        if( touch ){
-
-				if( $navigation.attr( 'data-toggle' ) == "true" ){
-
-					$navigation.swipe( {				
-
-				        swipeDown: function( e, direction, distance, duration, fingerCount ) {
-
-				        	var $this = $( this );
-				        	if( $this.hasClass( 'toggle' ) ? 1 : $this.parents( 'toggle' ).length ){
-				        		e.stopPropagation();
-			        			$this.toggledOn( e );
-			        		}
-				        },
-
-				        swipeUp: function( e, direction, distance, duration, fingerCount ) {
-
-				        	var $this = $( this );
-				        	if(  $this.hasClass( 'toggle' ) ? 1 : $this.parents( 'toggle' ).length ){
-				        		e.stopPropagation();
-			        			$this.toggledOff( e );
-			        		}
-				        },
-
-				        threshold: 10,
-				        excludedElements: '',
-
-				    });
+		// WINDOW RESIZE event
+		var interval, resizing;
+		$window.off( 'resize' ).on( 'resize', function(e){
+			$body.trigger( 'resizing' );
+			resizing = true;
+			clearTimeout( interval );
+			interval = setTimeout( function(){
+				if ( resizing ){
+					resizing = false;
+					$body.trigger( 'resized' );
+					$.consoleDebug( DEBUG, '- resized' );
+					clearInterval( interval );
 				}
+			}, 250 );
+		} );
+		
+		// BODY RESIZING and RESIZED event
+		$body.off('resizing resized').on( 'resizing resized', function(e){
+			$body.eventResponsive( e );		
+		} );
+
+		// BODY RESPONSIVE event
+		$body.off('responsive').on( 'responsive', function( e, state ) {
+			$( '[data-switch-toggle]' ).switchByData( state, 'switch-toggle', 'toggle', '.toggle-image, .toggle-home' );
+			$( '[data-switch]' ).switchByData( state, 'switch' );
+			$( '[data-sticky]' ).stickyMenu();
+			$( '[data-affix]' ).affixIt();
+		} );
+	}
+
+	// *****************************************************
+	// *      TOGGLE MENU EVENTS
+	// *****************************************************
+
+	var navEvents = function(){
+		$.consoleDebug( DEBUG, 'navEvents()');
+
+		$window.off( 'scroll').on( 'scroll', function(e){ $( '.toggled' ).toggledOff(); } );
+		
+		$body.on( 'resizing', function(e){ $( '.toggled' ).toggledOff(); } );
+		$body.off( 'switchOn').on( 'switchOn', '.navigation.toggle', function( e, state ){ $( this ).toggledOff(); $body.addClass('toggled-nav'); } );
+		$body.off( 'switchOff').on( 'switchOff', '.navigation[data-toggle="true"]', function( e, state ){ $body.removeClass('toggled-nav'); } );
+		
+		$page = $( '.site-page' );
+		$page.off( 'click').on( 'click', '.toggle-button', function(e){ $( this ).toggledIt(e); } );
+		$page.off( 'mousedown').on( 'mousedown', '*', function(e){ if( e.target == this ){ $( '.toggled' ).toggledOff(); } } );
+	}
+
+	// *****************************************************
+	// *      ACF FORMS EVENTS
+	// *****************************************************
+
+	var formEvents = function(){
+
+		$.consoleDebug( DEBUG, 'formEvents()');
+
+		/*$document = $( document );
+		$document.keydown( function(e){
+			if( e.key == 'Alt' ){
+				$body.addClass( 'form-active' );
 			}
-			$.consoleDebug( DEBUG, '- touchEvents End');
-		}
-
-		// *****************************************************
-		// *      CHECK URL ANCHOR
-		// *****************************************************
-
-		var checkUrlAnchor = function(){
-			$.consoleDebug( DEBUG, '- checkUrlAnchor Start');
-			var url = $.getCleanUrl( href );
-			var comp = $.getCleanUrl( href, true );
-			
-			ANCHOR = $.getUrlAnchor( href );
-			PARAMS = $.getUrlParameters( href );
-
-			if( ANCHOR || PARAMS ){
-
-				if( ANCHOR )
-					$('body').data( 'anchor', ANCHOR );
-
-				if ( typeof window.history.replaceState == 'function' ) {
-					history.replaceState( null, null, url );
-				}else if( ANCHOR ){
-					window.location.replace( comp );
-				}
+		} );
+		$document.keyup( function(e){
+			if( e.key == 'Alt' ){
+				$body.removeClass( 'form-active' );
 			}
+		} );*/
 
-			$.consoleDebug( DEBUG, '- checkUrlAnchor End');
-		}
+		$forms = $( '#scm-forms' );
 
-		// *****************************************************
-		// *      START EVENTS
-		// *****************************************************
+		if( $forms.length ){
 
-		var startEvents = function(){
-			$.consoleDebug( DEBUG, '- startEvents Start');
-			switch( wait ){
-				case 'images': case 'nobg':
-					start = 'imgsLoaded';
-				break;
-				case 'sliders':
-					if( $( '.nivoSlider' ).length ) start = 'nivoLoaded';
-					else start = 'imgsLoaded';
-				break;
-				case 'maps':
-					if( $( '.scm-map' ).length ) start = 'mapsLoaded';
-					else start = 'imgsLoaded';
-				break;
-				default:
-					start = 'documentDone';
-				break;
-			}
+			//$( '.acf-gallery-add' ).click( function(e){
+				/*e.preventDefault;
+				e.stopPropagation();
 
-			var isready = false;
-
-			$body.on( start, function(e){ isready = true; $.bodyIn(e); } );
-			setTimeout(function() {
-				if( !isready ){
-					$.consoleDebug( DEBUG, 'BodyIn FORCED START');
-					$.bodyIn();
-				}
-         	}, 5000);
-
-			$.consoleDebug( DEBUG, '- startEvents End');
-		}
-
-		// *****************************************************
-		// *      LAYOUT EVENTS
-		// *****************************************************
-
-		var layoutEvents = function(){
-			$.consoleDebug( DEBUG, '- layoutEvents Start');
-			$body.off('resizing resized').on( 'resizing resized imgsLoaded', function(e){
-			
-				$body.responsiveClasses( e );
-				$( '[data-equal]' ).equalChildrenSize();
-			
-			} );
-
-			
-			$body.off('responsive').on( 'responsive', function( e, state ) {
-				$( '[data-switch-toggle]' ).switchByData( state, 'switch-toggle', 'toggle', '.toggle-image, .toggle-home' );
-				$( '[data-switch]' ).switchByData( state, 'switch' );
-				$( '[data-sticky]' ).stickyMenu();
-				$( '[data-affix]' ).affixIt();
-
-			} );
-
-			$.consoleDebug( DEBUG, '- layoutEvents End');
-		}
-
-		// *****************************************************
-		// *      TOGGLE MENU EVENTS
-		// *****************************************************
-
-		var navEvents = function(){
-			$.consoleDebug( DEBUG, '- navEvents Start');
-
-			$body.on( 'resizing', function(e){ $( '.toggled' ).toggledOff(e); } );
-			$window.off( 'scroll').on( 'scroll', function(e){ $( '.toggled' ).toggledOff(e); } );
-			$body.off( 'switchOn').on( 'switchOn', '.navigation.toggle', function( e, state ){ $( this ).toggledOff( e, state ); $body.addClass('toggled-nav'); } );
-			$body.off( 'switchOff').on( 'switchOff', '.navigation[data-toggle="true"]', function( e, state ){ $body.removeClass('toggled-nav'); } );
-			$page.off( 'click').on( 'click', '.toggle-button', function(e){ $( this ).toggledIt(e); } );
-			$page.off( 'mousedown').on( 'mousedown', '*', function(e){ if( e.target == this ){ $( '.toggled' ).toggledOff(e); } } );
-			$.consoleDebug( DEBUG, '- navEvents End');
-		}
-
-		// *****************************************************
-		// *      ACF FORMS EVENTS
-		// *****************************************************
-
-		var formEvents = function(){
-			/*$document.keydown( function(e){
-				if( e.key == 'Alt' ){
-					$body.addClass( 'form-active' );
-				}
-			} );
-			$document.keyup( function(e){
-				if( e.key == 'Alt' ){
-					$body.removeClass( 'form-active' );
-				}
-			} );*/
-
-			$forms = $( '#scm-forms' );
-
-			if( $forms.length ){
-
-				//$( '.acf-gallery-add' ).click( function(e){
-					/*e.preventDefault;
-					e.stopPropagation();
-
-					var media = wp.media({
-						title: 'Select or Upload Media Of Your Chosen Persuasion',
-      					button: { text: 'Use this media' },
-	    				multiple: true,
-	    				frame: 'post'
-    				})
-    				media.view.settings.post.id = $this.data( 'id' );
-    				media.open();*/
-				//} );
-			
-				$( '.post[data-id]' ).click( function(e){
-					
-					if( e[ADVANCED] && !$forms.hasClass( 'show' ) ){
-						e.preventDefault;
-						e.stopPropagation();
-						window.ontouchmove  = function(e) {
-							e = e || window.event;
-							if (e.preventDefault)
-								e.preventDefault();
-							e.returnValue = false;  
-						}
-						$body.addClass( 'no-scroll' );
-						$this = $( this );
-
-
-						if( wp.media ){
-							wp.media.view.settings.post.id = $this.data( 'id' );
-							/*wp.media.events.on( 'editor:frame-create', function( arguments ) {
-							});*/
-						}
-						
-						$form = $( '#form-' + $this.data( 'id' ) );
-						$forms.addClass( 'show' );
-						if( $form.length )
-							$form.addClass( 'show' );
-					}
-				} );
-
-				$( '#scm-close-forms' ).click( function(e){
+				var media = wp.media({
+					title: 'Select or Upload Media Of Your Chosen Persuasion',
+  					button: { text: 'Use this media' },
+    				multiple: true,
+    				frame: 'post'
+				})
+				media.view.settings.post.id = $this.data( 'id' );
+				media.open();*/
+			//} );
+		
+			$( '.post[data-id]' ).click( function(e){
+				
+				if( e[ADVANCED] && !$forms.hasClass( 'show' ) ){
 					e.preventDefault;
 					e.stopPropagation();
-					window.ontouchmove = null;
-					$body.removeClass( 'no-scroll' );
-					$forms.removeClass( 'show' );
-					$( '.acf-form' ).removeClass( 'show' );
-				});
-
-			}
-		}
-
-		// *****************************************************
-		// *      TRIGGERS
-		// *****************************************************
-
-		var triggerEvents = function(){
-			$.consoleDebug( DEBUG, '- triggerEvents Start');
-			// Trigger WINDOW RESIZED event
-			var interval, resizing;
-			$window.resize( function(e){
-
-				$body.trigger( 'resizing' );
-								
-				resizing = true;
-
-				clearTimeout( interval );
-				interval = setTimeout( function(){
-					if ( resizing ){
-						resizing = false;
-						$body.trigger( 'resized' );
-						$.consoleDebug( DEBUG, 'resized' );
-						clearInterval( interval );
+					window.ontouchmove  = function(e) {
+						e = e || window.event;
+						if (e.preventDefault)
+							e.preventDefault();
+						e.returnValue = false;  
 					}
-				}, 250 );
-
-			} );
-			
-			// Trigger DOCUMENT READY event
-			$body.trigger( 'documentDone' );
-			//$.consoleDebug( DEBUG, 'document.done' );
-			$body.addClass('ready');
-
-			// Set tools
-			$body.eventLinks();
-			$body.eventTools();
-			$body.checkCss();
-
-			// Load NivoSlider and trigger
-			// Call EqualChildrenSize function
-			// Load GoogleMaps and trigger
-
-			/*var $fancy = $( '[data-popup]' );
-			if( $fancy.length ){
-
-				var path = 'https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/';
-
-				$head.append( '<link type="text/css" href="' + path + 'jquery.fancybox.min.css" rel="stylesheet" media="all">' );
-				$head.append( '<link type="text/css" href="' + path + 'helpers/jquery.fancybox-thumbs.css" rel="stylesheet" media="all">' );
-				$head.append( '<link type="text/css" href="' + path + 'helpers/jquery.fancybox-buttons.css" rel="stylesheet" media="all">' );
-            
-				$body.append( '<script type="text/javascript" src="' + path + 'jquery.fancybox.pack.js">' );
-				$body.append( '<script type="text/javascript" src="' + path + 'helpers/jquery.fancybox-thumbs.js" async defer>' );
-				$body.append( '<script type="text/javascript" src="' + path + 'helpers/jquery.fancybox-buttons.js" async defer>' );
-				$body.append( '<script type="text/javascript" src="' + path + 'helpers/jquery.fancybox-media.js" async defer>' );
-
-				$fancy.setFancybox();
-			}*/
+					$body.addClass( 'no-scroll' );
+					$this = $( this );
 
 
-			$body.on( 'imgsLoaded', function( instance ) {
-			    
-			    $( '[data-slider="nivo"]' ).setNivoSlider();
-			    
-			    $( '[data-equal]' ).equalChildrenSize();
-
-			    var script;
-			    var $maps = $( '.scm-map' );
-
-			    if( $maps.length ){
-
-			    	window.initialize = function() {
-					    script = document.createElement('script');
-						script.type = 'text/javascript';
-						script.src = 'https://cdn.rawgit.com/googlemaps/v3-utility-library/master/markerwithlabel/src/markerwithlabel.js';
-						//script.src = 'http://google-maps-utility-library-v3.googlecode.com/svn/trunk/markerwithlabel/src/markerwithlabel.js';
-						// dovesse dar problemi, getScript markerwithlabel, on done ...
-						document.body.appendChild( script );
-						$maps.googleMap();
+					if( wp.media ){
+						wp.media.view.settings.post.id = $this.data( 'id' );
+						/*wp.media.events.on( 'editor:frame-create', function( arguments ) {
+						});*/
 					}
-			    	    			    	
-					var script = document.createElement('script');
-					script.type = 'text/javascript';
-					script.src = 'https://maps.googleapis.com/maps/api/js?key=' + GOOGLE_API_KEY + '&callback=initialize';
-					script.async = 'async';
-					script.defer = 'defer';		
-
-					document.body.appendChild( script );
-								
+					
+					$form = $( '#form-' + $this.data( 'id' ) );
+					$forms.addClass( 'show' );
+					if( $form.length )
+						$form.addClass( 'show' );
 				}
+			} );
 
+			$( '#scm-close-forms' ).click( function(e){
+				e.preventDefault;
+				e.stopPropagation();
+				window.ontouchmove = null;
+				$body.removeClass( 'no-scroll' );
+				$forms.removeClass( 'show' );
+				$( '.acf-form' ).removeClass( 'show' );
 			});
 
-			var bgs = {};
-
-			if( wait != 'nobg')
-				bgs = { background: true };
-
-			$html.imagesLoaded( bgs )
-				.always( function( instance ) {
-					$body.trigger( 'imgsLoaded', instance );
-					$.consoleDebug( DEBUG, 'imgsLoaded' );
-				})
-				.done( function( instance ) {
-					$body.trigger( 'imgsDone', instance );
-					$.consoleDebug( DEBUG, 'imgsDone' );
-				})
-				.fail( function() {
-					$body.trigger( 'imgsFail' );
-					$.consoleDebug( DEBUG, 'imgsFail' );
-				})
-				.progress( function( instance, image ) {
-					var result = image.isLoaded ? 'loaded' : 'broken';
-					if( image.isLoaded ){
-						$body.trigger( 'imgLoaded', instance, image );
-						$.consoleDebug( DEBUG, 'imgLoaded: ' + image.img.src );
-					}else{
-						$body.trigger( 'imgFailed', instance, image );
-						$.consoleDebug( DEBUG, 'imgFailed: ' + image.img.src );
-					}					
-				});
-
-			$body.responsiveClasses('force');
-			$.consoleDebug( DEBUG, '- triggerEvents End');
-
+			$.consoleDebug( DEBUG, '- form events');
 		}
 
-		// *****************************************************
-		// *      START
-		// *****************************************************
+		$.consoleDebug( DEBUG, '- no form events');
+	}
 
-		INITPAGE = function(){
-			$.consoleDebug( DEBUG, '--- startPage Start');
-			initPage();
+	// *****************************************************
+	// *      POPSTATE
+	// *****************************************************
+
+	var popstateEvents = function(){
+		$.consoleDebug( DEBUG, 'popstateEvents()');
+
+		/*window.onpopstate = function(event) {
+			if( event.state ){
+				if( event.state.params )
+					$.triggerAnchor( event.state.hash );
+			}
+		}*/
+	}
+
+	// *****************************************************
+	// *      LOAD EVENTS
+	// *****************************************************
+
+	var loadEvents = function(){
+		$.consoleDebug( DEBUG, 'loadEvents()');
+
+		/*var $fancy = $( '[data-popup]' );
+		if( $fancy.length ){
+
+			var $head = $( 'head' );
+
+			var path = 'https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/';
+
+			$head.append( '<link type="text/css" href="' + path + 'jquery.fancybox.min.css" rel="stylesheet" media="all">' );
+			$head.append( '<link type="text/css" href="' + path + 'helpers/jquery.fancybox-thumbs.css" rel="stylesheet" media="all">' );
+			$head.append( '<link type="text/css" href="' + path + 'helpers/jquery.fancybox-buttons.css" rel="stylesheet" media="all">' );
+        
+			$body.append( '<script type="text/javascript" src="' + path + 'jquery.fancybox.pack.js">' );
+			$body.append( '<script type="text/javascript" src="' + path + 'helpers/jquery.fancybox-thumbs.js" async defer>' );
+			$body.append( '<script type="text/javascript" src="' + path + 'helpers/jquery.fancybox-buttons.js" async defer>' );
+			$body.append( '<script type="text/javascript" src="' + path + 'helpers/jquery.fancybox-media.js" async defer>' );
+
+			$fancy.setFancybox();
+		}*/
+
+		// BODY IMAGES LOADED event
+		$body.on( 'imgsLoaded', function( e ) {
+		    
+		    $( '[data-slider="nivo"]' ).setNivoSlider();
+		    
+		    $body.eventResponsive( e );
+		    
+		    var $maps = $( '.scm-map' );
+		    if( $maps.length ){
+
+		    	//window.initialize = function() {
+		    	$window.initialize = function(e){
+				    var scr_marker = document.createElement('script');
+					scr_marker.type = 'text/javascript';
+					scr_marker.src = 'https://cdn.rawgit.com/googlemaps/v3-utility-library/master/markerwithlabel/src/markerwithlabel.js';
+					document.body.appendChild( scr_marker );
+					$maps.googleMap();
+				};
+		    	    			    	
+				var scr_maps = document.createElement('script');
+				scr_maps.type = 'text/javascript';
+				scr_maps.src = 'https://maps.googleapis.com/maps/api/js?key=' + GOOGLE_API_KEY + '&callback=initialize';
+				scr_maps.async = 'async';
+				scr_maps.defer = 'defer';
+				document.body.appendChild( scr_maps );
+
+				$.consoleDebug( DEBUG, '- maps events');
+			}else{
+				$.consoleDebug( DEBUG, '- no maps events');
+			}
+		});
+
+		// WINDOW LOADED event
+		$window.on( 'load', function(e){
+			if( $body.attr( 'data-premature-action' ) ){
+				window.location.hash = '#content-loaded';
+				setTimeout(function(){
+					$body.removeAttr( 'data-premature-action' );
+					$body.setUrlData( window.location.pathname, $body.attr( 'data-anchor' ), $body.attr( 'data-params' ) );
+				}, 500);
+			}
+			$body.trigger( 'documentLoaded' );
+			$body.addClass('loaded');
+		} );
+	}
+
+	// *****************************************************
+	// *      SETUP PAGE
+	// *****************************************************
+
+	var setupPage = function(){
+		$.consoleDebug( DEBUG, 'setupPage()');
+		
+		// Trigger DOCUMENT READY event
+		$body.trigger( 'documentDone' );
+		$body.addClass('ready');
+
+		// Set TOOLS
+		$body.eventsInit( 1, 1, 1, wait != 'nobg', 'force');
+	}
+
+	// *****************************************************
+	// *      START
+	// *****************************************************
+
+	INITPAGE = function(){
+		$.consoleDebug( DEBUG, '[ INITPAGE Start ]');
+
+		initPage();
 			debugEvents();
 			touchEvents();
-			checkUrlAnchor();
 			startEvents();
 			layoutEvents();
 			navEvents();
-			triggerEvents();
 			formEvents();
-			$.consoleDebug( DEBUG, '--- startPage Done');
-		}
+			popstateEvents();
+			loadEvents();
+		setupPage();
 
-		INITPAGE();
+		$.consoleDebug( DEBUG, '[ INITPAGE Done ]');
+	}
+	INITPAGE();
 
-		READYPAGE = function(){
-			// Safari Fix **************************************
-			window.onpageshow = function(event) {
-			    if (event.persisted && $body.hasClass('safari')) {
-			    	$.bodyIn(event);
-			        //window.location.reload()
-			    }
-			};
-		}
+	READYPAGE = function(){
+		// Safari Fix **************************************
+		window.onpageshow = function(event) {
+		    if (event.persisted && $body.hasClass('safari')) 
+		    	$.bodyIn(event);
+		};
+	}
 
 	// *****************************************************
 	// *****************************************************
@@ -460,8 +391,10 @@
 	jQuery(function($){
 
 		READYCHILD();
-		READYPAGE();		
+		READYPAGE();	
 
+		// Trigger DOCUMENT READY event
+		$body.trigger( 'documentReady' );
 	});
 
 } )( jQuery );

@@ -316,9 +316,8 @@
 
 	$.log = function( message, touch ) {
 		if ( !touch && window.console ) {
-			console.log( new Date().getTime() - performance.timing.navigationStart + 'ms' );
-			console.log( message );
-			console.log('---');
+			var time = new Date().getTime() - performance.timing.navigationStart;
+			console.log( message + ' > ' + time + 'ms' );
 		}
 	} 
 
@@ -340,6 +339,16 @@
 
 	}
 
+	$.replaceState = function( url, state, title ) {
+		if ( typeof window.history.replaceState == 'function' )
+			history.replaceState( state, title, url );
+	}
+
+	$.pushState = function( url, state, title ) {
+		if ( typeof window.history.pushState == 'function' )
+			history.pushState( state, title, url );
+	}
+
 	$.getUrlData = function( str ) {
 
 	    str = str.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
@@ -354,7 +363,7 @@
 	$.getCleanUrl = function( url, just ) {
 
 		if( !url )
-	    	url = window.location.search.substring( 1 );
+	    	url = window.location.href;
 
 		var anchor = url.indexOf('#');
 		if( anchor != -1 )
@@ -369,10 +378,25 @@
 		return url;
 	}
 
+	$.getUrlHash = function( url, fallback ) {
+
+		if( !url )
+	    	url = window.location.href;
+
+	    if( typeof fallback === 'undefined' )
+	    	fallback = '';
+
+	    var split = url.split('#');
+		if( split.length > 1 )
+			return '#' + split[1];
+
+		return fallback;		
+	}
+
 	$.getUrlAnchor = function( url, fallback ) {
 
 		if( !url )
-	    	url = window.location.search.substring( 1 );
+	    	url = window.location.href;
 
 	    if( typeof fallback === 'undefined' )
 	    	fallback = '';
@@ -384,13 +408,43 @@
 		return fallback;		
 	}
 
-	$.getUrlParameters = function( name, url, fallback ) {
-		
+	$.urlSearch = function( url, fallback ) {
 		if( !url )
-	    	url = window.location.search.substring( 1 );
+	    	url = window.location.href;
+
+	    if( typeof fallback === 'undefined' )
+	    	fallback = '';
+		
+		url = url.split( '?' );
+		if( url.length > 1 )
+			return '?' + url[1];
+
+		return fallback;
+	}
+
+	$.urlParameters = function( url, fallback ) {
+		if( !url )
+	    	url = window.location.href;
+
+	    if( typeof fallback === 'undefined' )
+	    	fallback = '';
+		
+		url = url.split( '?' );
+		if( url.length > 1 )
+			return url[1];
+
+		return fallback;
+	}
+
+	$.getUrlParameters = function( url, fallback ) {
+
+		if( !url )
+	    	url = window.location.href;
 
 	    if( typeof fallback === 'undefined' )
 	    	fallback = {};
+
+	    url = $.urlParameters( url, '' );
 
 		return url?JSON.parse('{"' + url.replace(/&/g, '","').replace(/=/g,'":"') + '"}', function(key, value) { return key===""?value:decodeURIComponent(value) }):{};
 	}
@@ -398,39 +452,20 @@
 	$.getUrlParameter = function( name, url, fallback ) {
 
 		if( !url )
-	    	url = window.location.search.substring( 1 );
+	    	url = window.location.href;
 
 	    if( typeof fallback === 'undefined' )
 	    	fallback = '';
-	    
-	    url = url.split( '?' );
 
-	    for ( var i = 1; i < url.length; i++ ) {
-
-	        var param = url[i].split( '=' );
-
-	        var key = param[0];
-	        var value = param[1].split( '#' )[0];
-
-	        if ( key == name ) {
-
-	            return value;
-
-	        }
-	    }
-
-	    return fallback;
-	}
-
-	$.getUrlParameter = function( name, fallback ) {
-		
-		if( !url )
+	    if( !name )
 			return fallback;
 
-		if( typeof PARAMS[name] === 'undefined' )
-			return PARAMS[name];
+		var params = $.getUrlParameters( $.getCleanUrl( url, 1 ) );
+		if( typeof params[name] !== 'undefined' )
+			return params[name];
 		
 		return fallback;
+
 	}
 
 	$.getScripts = function(arr, path) {
@@ -457,11 +492,14 @@
 
 	$.iconLoading = function( dimension, classes, icon ) {
 
-		dimension = ( dimension ? dimension : 'quadruple' );
-		classes = ( classes ? classes : 'relative middle' );
-		icon = ( icon ? icon : 'spinner' );
+		dimension = ( dimension ? dimension : 'double' );
+		//classes = ( classes ? classes : 'relative middle' );
+		classes = ( classes ? classes : 'absolute middle full-width' );
+		icon = ( icon ? icon : 'tasks' );
 
-		return '<div class="scm-loading loading ' + dimension + ' ' + classes + '""><i class="fa fa-spin fa-' + icon + '""></i></div>';
+		//return '<div class="scm-loading loading ' + dimension + ' ' + classes + '""><i class="fa fa-spin fa-' + icon + '""></i></div>';
+		//return '<div class="scm-loading loading ' + dimension + ' ' + classes + '""><i class="fa fa-spin fa-' + icon + ' absolute middle"></i></div>';
+		return '<div class="scm-loading loading ' + dimension + ' ' + classes + '""></div>';
 
 	}
 
