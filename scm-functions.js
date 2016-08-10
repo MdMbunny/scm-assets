@@ -489,18 +489,43 @@
 *	3.0 PRESETS
 *****************************************************
 */
+	
+	$.barLoading = function( args ) {
 
-	$.iconLoading = function( dimension, classes, icon ) {
+		args = $.extend(
+			{
+				classes: 'absolute middle full-width',
+			},
+			( args ? args : {} )
+		);
+		
+		return '<div class="scm-loading loading-bar ' + args.classes + '""></div>';
+	}
 
-		dimension = ( dimension ? dimension : 'double' );
-		//classes = ( classes ? classes : 'relative middle' );
-		classes = ( classes ? classes : 'absolute middle full-width' );
-		icon = ( icon ? icon : 'tasks' );
+	$.iconLoading = function( args ) {
 
-		//return '<div class="scm-loading loading ' + dimension + ' ' + classes + '""><i class="fa fa-spin fa-' + icon + '""></i></div>';
-		//return '<div class="scm-loading loading ' + dimension + ' ' + classes + '""><i class="fa fa-spin fa-' + icon + ' absolute middle"></i></div>';
-		return '<div class="scm-loading loading ' + dimension + ' ' + classes + '""></div>';
+		args = $.extend(
+			{
+				classes: 'absolute middle double',
+				icon: 'circle',
+			},
+			( args ? args : {} )
+		);
 
+		return '<div class="scm-loading loading-icon ' + args.classes + '""><i class="fa fa-spin fa-' + args.icon + '""></i></div>';
+	}
+
+	$.circleLoading = function( args ) {
+
+		args = $.extend(
+			{
+				classes: 'absolute middle double',
+				icon: 'spinner',
+			},
+			( args ? args : {} )
+		);
+
+		return '<div class="scm-loading loading-circle ' + args.classes + '""><i class="fa fa-spin fa-' + args.icon + ' absolute middle"></i></div>';
 	}
 
 })( jQuery );

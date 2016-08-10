@@ -262,7 +262,6 @@
 		/*window.onpopstate = function(event) {
 			if( event.state ){
 				if( event.state.params )
-					$.triggerAnchor( event.state.hash );
 			}
 		}*/
 	}
@@ -345,13 +344,14 @@
 
 	var setupPage = function(){
 		$.consoleDebug( DEBUG, 'setupPage()');
+
+		// Set TOOLS
+		$body.eventsInit( 1, 1, 1, wait != 'nobg', 'force');
 		
 		// Trigger DOCUMENT READY event
 		$body.trigger( 'documentDone' );
 		$body.addClass('ready');
-
-		// Set TOOLS
-		$body.eventsInit( 1, 1, 1, wait != 'nobg', 'force');
+		
 	}
 
 	// *****************************************************

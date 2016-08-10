@@ -50,6 +50,7 @@ var READYPAGE = function(){};
 			this.eventImages( images );
 		if( responsive !== undefined && responsive !== null )
 			this.eventResponsive( responsive );
+		return this;
 	}
 
 	// *****************************************************
@@ -144,9 +145,9 @@ var READYPAGE = function(){};
 
 				$( '[data-equal]' ).equalChildrenSize();
 			}
-		}else{
-			return a;
+			
 		}
+		return this;
 	}
 
 	$.fn.eventImages = function( bg ) {
@@ -176,6 +177,8 @@ var READYPAGE = function(){};
 					$.consoleDebug( DEBUG, '-- imgFailed: ' + image.img.src );
 				}					
 			});
+
+		return this;
 	}
 
 	$.fn.eventCss = function(){
@@ -186,6 +189,8 @@ var READYPAGE = function(){};
 		this.find( '[data-top]' ).setCss( 'top' );
 		this.find( '[data-right]' ).setCss( 'right' );
 		this.find( '[data-bottom]' ).setCss( 'bottom' );
+
+		return this;
 	}
 
 	$.fn.eventTools = function(){
@@ -198,6 +203,8 @@ var READYPAGE = function(){};
 		this.find( '[data-current-view]' ).currentView();
 		this.find( '[data-current-link]' ).currentLink();
 		this.find( 'iframe[src*="youtube.com"]' ).youtubeFix();
+
+		return this;
 	}
 
 	$.fn.eventLinks = function(){
@@ -244,12 +251,13 @@ var READYPAGE = function(){};
 			}
 		});
 
-		$link.off( 'link' ).on( 'link', function( e ){
+		$link.off( 'link anchor' ).on( 'link anchor', function( e ){
 
 			var $this 	= $( this ),
 				$body 	= $( 'body' ),
 				href 	= ( $this.attr('href') ? $this.attr('href') : $this.data('href') ),
 				target 	= ( $this.attr('target') ? $this.attr('target') : $this.data('target') ),
+				anchor 	= ( $this.attr('anchor') ? $this.attr('anchor') : $this.data('anchor') ),
 				state 	= $this.attr('data-link-type');
 
 			$.consoleDebug( DEBUG, '-----------');
@@ -264,7 +272,7 @@ var READYPAGE = function(){};
 
 				case 'page':
 					$.consoleDebug( DEBUG, '- scrolling');
-					$this.smoothScroll( 0, e.type == 'link');
+					$this.smoothAnchor( anchor );
 				break;
 
 				default:
@@ -273,6 +281,8 @@ var READYPAGE = function(){};
 				break;
 			}
 		});
+
+		return this;
 	}
 
 	// *****************************************************
@@ -416,146 +426,180 @@ var READYPAGE = function(){};
 	// *      LOAD CONTENT
 	// *****************************************************
 
-	$.fn.loadContent = function( link, set_id, set_current ){
+	$.fn.getAnchor = function(){
+		return ( this.data( 'anchor' ) ? this.data( 'anchor' ) : this.getLink() );
+	}
+
+	$.fn.getLink = function(){
+		return ( this.attr( 'href' ) ? this.attr( 'href' ) : ( this.data( 'href' ) ? this.data( 'href' ) : '' ) );
+	}
+
+	$.getLoading = function( type, args ){
+		switch( type ){
+			case 'icon':
+				return $( $.iconLoading( args ) );
+			break;
+
+			case 'circle':
+				return $( $.circleLoading( args ) );
+			break;
+
+			default:
+				return $( $.barLoading( args ) );
+			break;
+		}
+	}
+
+	$.fn.loadIt = function( args, complete, loading, loading_args ){
+
+		if( typeof complete !== 'function' )
+			return this;
+
+		var aj_data = $.extend(
+			{ action: 'load_content', query_vars: ajaxcall.query_vars },
+			args
+		);
+
+		var $loading = $.getLoading( loading, loading_args ).appendTo( this ).hide().fadeIn( 'slow' );
+
+		$.ajax({
+			url: ajaxcall.url,
+			type: 'post',
+			data: aj_data,
+			error: function(jqXHR, exception) {
+				var msg = 'Spiacenti, è stato riscontrato un errore.';
+	            if (jqXHR.status === 0) {
+	                msg = 'Not connect.\n Verify Network.';
+	            } else if (jqXHR.status == 404) {
+	                msg = 'Requested page not found. [404]';
+	            } else if (jqXHR.status == 500) {
+	                msg = 'Internal Server Error [500].';
+	            } else if (exception === 'parsererror') {
+	                msg = 'Requested JSON parse failed.';
+	            } else if (exception === 'timeout') {
+	                msg = 'Time out error.';
+	            } else if (exception === 'abort') {
+	                msg = 'Ajax request aborted.';
+	            } else {
+	                msg = 'Uncaught Error.\n' + jqXHR.responseText;
+	            }
+	            
+				complete( '<span class="scm-error error">' + msg + '</span>' );
+	        },
+			success: function( html ) {
+				
+				$loading.fadeOut( 'slow', function(){
+					
+					complete( html );
+				} );
+			}
+		});
+		
+		return this;
+	}
+
+	$.fn.loadContent = function( set_link, set_id, set_current, set_type ){
 		
 		var $body = $('body');
 		$body.disableIt();
+		$body.trigger( 'loadContentBefore' );
 
 		return this.each( function() {
 
-			var $this 	= $( this ),
-				$element = ( $this.data( 'load-content' ) ? $this : $this.parent() ),
-				id = ( set_id ? set_id : $element.data( 'load-content' ) ),
-				current = ( set_current ? set_current : $element.data( 'load-page' ) ),
-				page = $.getUrlParameter( id, link, 0 ),
-				$container = $( '#' + id ),
-				c_height = $container.outerHeight(),
-				$parent = $container.parent(),
-				p_height = $parent.outerHeight(),
-				$loading = $( $.iconLoading() );
+			var link = ( set_link ? set_link : $( this ).getLink() );
 
-    		$parent.css( 'overflow', 'hidden' );
-			$parent.css('height', p_height);
+			var $this = ( set_id ? $( this ) : $( this ).closest( '[data-load-content]' ) );
+			if( !$this.length )
+				$this = $( this );
 
-			$body.trigger( 'loadContentBefore' );
-			
-			if( !CONTENTS[id] )
-				CONTENTS[id] = {};
-			CONTENTS[id][current] = $container.html();
+			var id = ( set_id ? set_id : ( $this.data( 'load-content' ) ? $this.data( 'load-content' ) : $this.attr( 'id' ) ) ),
+				$container = $( '#' + id );
+			if( !$container.length )
+				return this;
+				
+			var	c_height = $container.outerHeight(),
+				w_height = $( window ).height();
 
-			var buildContent = function(){
+			var	type = ( set_type ? set_type : ( $this.data( 'load-type' ) ? $this.data( 'load-type' ) : 'replace' ) ),
+				$parent = $container.wrap( '<div class="load-' + type + ' relative inline-block"></div>' ).parent();
 
-				$container.fadeOut('fast', function(){
+			var	current = parseFloat( set_current ? set_current : ( $this.data( 'load-current' ) ? $this.data( 'load-current' ) : 1 ) ),
+				next = $.getUrlParameter( id, link, 0 );
 
-					if( CONTENTS[id] && CONTENTS[id][page] ){
-						$container.html( CONTENTS[id][page] );
-						$body.trigger( 'loadContent' );
-						adjustContent();
-
-					}else{
-
-						$container.css( 'height', c_height );
-						$container.html( '' );
-						$container.show();
-						$loading.appendTo( $container ).hide().fadeIn('slow');
-
-						var url = ajaxcall.url;
-						var vars = ajaxcall.query_vars;
-						var aj_data = {
-							action: 'load_content',
-							query_vars: vars,
-							archive: ARCHIVES[id],
-							name: id,
-						};
-
-						if( page )
-							aj_data[id] = page;
-	
-						$.ajax({
-							url: url,
-							type: 'post',
-							data: aj_data,
-							error: function(jqXHR, exception) {
-								var msg = 'Spiacenti, è stato riscontrato un errore.';
-					            if (jqXHR.status === 0) {
-					                msg = 'Not connect.\n Verify Network.';
-					            } else if (jqXHR.status == 404) {
-					                msg = 'Requested page not found. [404]';
-					            } else if (jqXHR.status == 500) {
-					                msg = 'Internal Server Error [500].';
-					            } else if (exception === 'parsererror') {
-					                msg = 'Requested JSON parse failed.';
-					            } else if (exception === 'timeout') {
-					                msg = 'Time out error.';
-					            } else if (exception === 'abort') {
-					                msg = 'Ajax request aborted.';
-					            } else {
-					                msg = 'Uncaught Error.\n' + jqXHR.responseText;
-					            }
-					            $loading.remove();
-					            $container.html( '<span class="scm-error error">' + msg + '</span>' );
-								adjustContent();
-					        },
-							success: function( html ) {
-								$body.trigger( 'loadContent' );
-								var $html = $(html).hide();
-								$container.prepend( $html );
-								$html.fadeIn( 'slow' );
-								$loading.fadeOut( 'slow', function(){ $loading.remove(); adjustContent(); } );
-							}
-						});
-					}
-				});
-			}
-
-			var adjustContent = function(){
-				$container.css( 'height', 'auto' );
-				$container.fadeIn('fast', function(){
-					
-					var new_height = $container.outerHeight();
-
-					if( c_height != new_height ){
-					
-						$parent.animate({ 'height' : p_height - ( c_height - new_height ) }, 'slow', function(){
-							enableContent();
-							$body.trigger( 'loadContentAfter' );
-						});
-
-					}else{
-						enableContent();
-						$body.trigger( 'loadContentAfter' );
-					}
-				});
-			}
+			var aj_data = { name: id, archive: ARCHIVES[id] };
+			if( next ) aj_data[id] = next;
 
 			var enableContent = function(){
-				$parent.css( 'height', 'auto' );
-				$parent.css( 'overflow', 'visible' );
-				$container.eventsInit( 1, 1, 1, null, 1 );
-				$container.smoothScroll();
+				$body.trigger( 'loadContent' );
+				var new_height = $container.outerHeight();
+				$parent.animate( { 'height' :new_height }, ( c_height == new_height ? .1 : 'slow' ), function(){
+					$parent.css( 'height', 'auto' ).css( 'overflow', 'visible' );
+					$container.unwrap().eventsInit( 1, 1, 1, null, 1 );
+					$body.enableIt();
+					$body.trigger( 'loadContentAfter' );
+				} );
 			}
 
-			buildContent();
+			var replaceContent = function( html ){
+				$container.hide().html( html ).fadeIn('fast', enableContent );
+			}
 
+			var moreContent = function( html ){
+				$children = $( html ).hide();
+				$first = $children.first();
+				$container.append( $children );
+				$children.fadeIn( 'fast' );
+				$children.not( '.scm-pagination' ).last().addClass( 'last' );
+				$first.smoothScroll( { complete: true } );
+				enableContent();
+			}
+
+			if( !CONTENTS[id] )
+				CONTENTS[id] = { replace: {} };
+
+			$parent.css( 'overflow', 'hidden' ).css( 'height', c_height );
+
+			switch( type ){
+				case 'replace':
+
+					CONTENTS[id].replace[current] = $container.html();
+
+					$container.smoothAnchor( '', { complete: true } ).fadeOut('fast', function(){
+
+						if( CONTENTS[id].replace[next] ){
+							replaceContent( CONTENTS[id].replace[next] );
+
+						}else{
+
+							$container.html( '' );
+							$container.show();
+							if( c_height > w_height )
+								$parent.animate({ 'height': w_height - $.getStickyHeight() }, 'fast' );
+
+							$parent.loadIt( aj_data, replaceContent, 'bar', { classes: 'absolute middle full-width double' } );
+						}
+					});
+				break;
+
+				case 'more':
+					
+					$container.children().last().fadeOut( 'fast', function(){
+						this.remove();
+						$last = $container.children().last();
+						$last.removeClass( 'last' );
+						aj_data[id + '-more'] = { counter: $last.data( 'counter' ), current: $last.data( 'current' ), total: $last.data( 'total' ), odd: $last.data( 'odd' ) };
+						$parent.loadIt( aj_data, moreContent, 'bar', { classes: 'relative full-width double' } );
+					} );
+					
+
+				break;
+			}
 		});
 	}
 
 // *****************************************************
 // *      NAVIGATION UTILITIES
 // *****************************************************
-
-	// *****************************************************
-	// *      TRIGGER LINK
-	// *****************************************************
-
-	$.triggerAnchor = function( anchor ){
-		var $buttons = $( 'a[href="' + anchor + '"], *[data-href="' + anchor + '"]' );
-		if( $buttons.length ){
-			$( $buttons[0] ).trigger( 'link' );
-			return $( $buttons[0] );
-		}
-		return false;
-	}
 
 	// *****************************************************
 	// *      GO TO LINK
@@ -569,7 +613,7 @@ var READYPAGE = function(){};
 		if( !link ){
 			$.consoleDebug( DEBUG, 'no link provided');
 			$.bodyIn();
-			return this;
+			return;
 		}
 
 		$.consoleDebug( DEBUG, link);
@@ -577,7 +621,7 @@ var READYPAGE = function(){};
 
 		if( state == 'mail' ){
 			window.location = $.decodeEmail( link );
-			return this;
+			return;
 		}
 
 		if( target != '_blank' ){
@@ -585,21 +629,21 @@ var READYPAGE = function(){};
 			$.consoleDebug( DEBUG, 'loading same page');
 
 			window.location = link;
-			return this;
+			return;
 
 		}else{
 
 			$.consoleDebug( DEBUG, 'opening new page');
 
 			window.open( link, 'See You!' );
-			return this;
+			return;
 
 		}
 
 		$.consoleDebug( DEBUG, 'fallback');
 		
 		$.bodyIn();
-		return this;
+		return;
 	}
 
 	// *****************************************************
@@ -609,98 +653,49 @@ var READYPAGE = function(){};
 	$.bodyIn = function( event ){
 
 		$.consoleDebug( DEBUG, '-----------');
-		$.consoleDebug( DEBUG, 'bodyIn:');
 
 		var $body 			= $( 'body' ),
 			$html 			= $( 'html' ),
 			$navigation 	= $( '.navigation' ),
-			opacity 		= ( $body.data( 'fade-opacity' ) ? parseFloat( $body.data( 'fade-opacity' ) / 10 ) : 0 ),
-			duration 		= ( $body.data( 'fade-in' ) ? parseFloat( $body.data( 'fade-in' ) ) : 0 ),
-			delay 			= ( $body.data( 'smooth-new' ) ? parseFloat( $body.data( 'smooth-new' ) ): 0 ),
-			post 			= ( $body.data( 'smooth-post' ) ? $body.data( 'smooth-post' ) : 0 ),
-			offset 			= ( $body.data( 'smooth-offset' ) ? $body.data( 'smooth-offset') : '0' ),
-			units 			= ( $body.data( 'smooth-offset-units' ) ? $body.data( 'smooth-offset-units' ) : 'px' ),
+			opacity 		= parseFloat( $body.data( 'fade-opacity' ) ? $body.data( 'fade-opacity' ) : 0 ) / 10,
+			duration 		= parseFloat( $body.data( 'fade-in' ) ? $body.data( 'fade-in' ) : 0 ),
+			delay 			= parseFloat( $body.data( 'smooth-new' ) ? $body.data( 'smooth-new' ) : 0 ),
+			page 			= ( $body.data( 'smooth-page' ) ? $body.data( 'smooth-page' ) : false ),
 			anchor 			= ( $body.data( 'anchor' ) ? $body.data( 'anchor' ) : '' ),
-			$anchor 		= $( anchor ),
-			$doc 			= $( document );
+			$anchor 		= $( anchor );
 
 		if( $body.hasClass( 'bodyin' ) ) return;
 
 		$body.addClass( 'bodyin' );
 		$body.removeClass( 'bodyout' );
 		$body.css( 'opacity', opacity );
-		$navigation.css( 'opacity', 1 );
+		$navigation.css( 'opacity', 1 );		
 
-		if( $anchor.length === 0 )
-			$anchor = $body;
-			
-		var pageScroll = function(){
+		var scroll	= function(){
 
-			if( post ){
-
-				var $button = $.triggerAnchor( anchor );
-				if( $button ){
-					$.consoleDebug( DEBUG, 'scroll to anchor');
-				}else{
-
-					$html.animate({
-						scrollTop: $anchor.offset().top
-					}, 1000 );
-
-					$body.animate({
-						scrollTop: $anchor.offset().top
-					}, 1000, function() {
-						$body.enableIt();
-					});
-
-				}
+			if( page && $anchor.length ){
+				$.consoleDebug( DEBUG, 'scroll to anchor');
+				$anchor.smoothScroll( { delay: delay*1000 } );
 			}else{
-				$body.enableIt();
-			}
-
-		};
-
-		var checkScroll	= function(){
-
-			if( anchor && anchor != 'none' ){
-				if( delay )
-					setTimeout( pageScroll, delay * 1000 );
-				else
-					pageScroll();
-				
-				
-			}else{
-				
 				$body.enableIt();
 			}
     	};
 
-    	if( !post ){
+    	if( !page && $anchor.length ){
 			$.consoleDebug( DEBUG, 'jump to anchor');
-
-			if( units == 'em' ){
-				offset = $.EmToPx( Number(offset) )
-			}
-
-			$doc.scrollTop( $anchor.offset().top - parseInt( offset ) + $( '#site-navigation-sticky' ).getHighest() + 1 );
+			$anchor.smoothScroll( { time: 0 } );
 		}
 
-    	if( duration > 0 ){
-    		
-    		$.consoleDebug( DEBUG, 'with animation');
-
-        	$html.animate( {
-        		opacity: 1
-        	}, duration * 1000 );
-
+    	if( duration ){
+    		$.consoleDebug( DEBUG, 'bodyIn: with animation');
         	$body.animate( {
         		opacity: 1
-        	}, duration * 1000, checkScroll );
+        	}, duration * 1000, scroll );
 
         }else{
-        	$.consoleDebug( DEBUG, 'without animation');
+        	$.consoleDebug( DEBUG, 'bodyIn: without animation');
         	$body.css( 'opacity', 1 );
-        	checkScroll();
+        	scroll();
         }
 	}
 
@@ -796,105 +791,118 @@ var READYPAGE = function(){};
 	// *      SMOOTH SCROLL
 	// *****************************************************
 
-	$.fn.smoothScroll = function( off, onEnd ) {
+	$.scrollTo = function( destination, duration, ease, delay, complete ){
 
-		$.consoleDebug( DEBUG, '- smoothScroll' );
-
-		var $html = $( 'html' );
 		var $body = $( 'body' );
 		$body.disableIt();
+		var scroll = function(){
+			$body.animate( {
+				scrollTop: parseFloat( destination )
+			}, parseFloat( duration ), ease, function() {
+				if( typeof complete === 'function' )
+					complete();
+				else if( !complete )
+					$body.enableIt();
+			});
+		}
+		if( delay )
+			setTimeout( scroll, delay );
+		else
+			scroll();
+	}
 
+	$.getSmoothData = function() {
+		var $body = $( 'body' );
+		var args = {
+			time : 		parseFloat( $body.data( 'smooth-duration' ) ? $body.data( 'smooth-duration' ) : 1 ),
+			delay : 	parseFloat( $body.data( 'smooth-delay' ) ? $body.data( 'smooth-delay' ) : 0.1 ),
+			offset : 	parseFloat( $body.data( 'smooth-offset' ) ? $body.data( 'smooth-offset' ) : 0 ),
+			units : 	( $body.data( 'smooth-offset-units' ) ? $body.data( 'smooth-offset-units' ) : 'px' ),
+			ease : 		( $body.data( 'smooth-ease' ) ? $body.data( 'smooth-ease' ) : 'swing' ),
+		}
+		return args;
+	}
+
+	$.getSmoothDestination = function( obj, off, uni) {
+
+		var win 			= $( window ).height(),
+			body 			= $( 'body' ).height(),
+			height 			= obj.offset().top,
+			offset 			= parseFloat( off ),
+			units 			= ( uni ? uni : 'px' ),
+			destination 	= 0;
+		
+		if( units == 'em' )
+			offset = $.EmToPx( offset )
+
+		destination = height - offset - $.getStickyHeight();
+
+		if( body - destination < win )
+			destination = body - win;
+
+		return destination;
+	}
+
+	$.fn.smoothAnchor = function( anc, args ) {
+
+		$.consoleDebug( DEBUG, '- smoothAnchor' );
+
+		var $body = $( 'body' );
+		
 		return this.each(function(){
 
 			var $this 			= $( this ),
-				link 			= ( $this.data( 'anchor' ) ? $this.data( 'anchor' ) : ( $this.data( 'href' ) ? $this.data( 'href' ) : ( $this.attr( 'href' ) ? $this.attr( 'href' ) : ( $this.attr( 'id' ) ? '#' + $this.attr( 'id' ) : '#' ) ) ) ),
+				anchor 			= $.getUrlHash( anc ? anc : ( $this.data( 'anchor' ) ? $this.data( 'anchor' ) : ( $this.data( 'href' ) ? $this.data( 'href' ) : ( $this.attr( 'href' ) ? $this.attr( 'href' ) : ( $this.attr( 'id' ) ? '#' + $this.attr( 'id' ) : '' ) ) ) ) ),
+				$target 		= ( !anchor || anchor == '#' ? $this : $( anchor ) );
 
-				time 			= ( $body.data( 'smooth-duration' ) ? parseFloat( $body.data( 'smooth-duration' ) ) : 1 ),
-				offset 			= ( off ? off : ( $body.data( 'smooth-offset' ) ? $body.data( 'smooth-offset' ) : '0' ) ),
-				units 			= ( off ? 'px' : ( $body.data( 'smooth-offset-units' ) ? $body.data( 'smooth-offset-units' ) : 'px' ) ),
-				ease 			= ( $body.data( 'smooth-ease' ) ? $body.data( 'smooth-ease' ) : 'swing' ),
-				delay 			= ( $body.data( 'smooth-delay' ) ? parseFloat( $body.data( 'smooth-delay' ) ): 0.1 ),
+			if( !$body.hasClass( 'loaded' ) )
+				$body.attr( 'data-premature-action', 'true' );
 
-				win 			= $( window ).height(),
-				height 			= $body.height(),
+			if( $target.length )
+				$target.smoothScroll( args );
+			else
+				$body.smoothScroll( args );
+		});
+	}
+
+	$.fn.smoothScroll = function( args ) {
+
+		$.consoleDebug( DEBUG, '- smoothScroll' );
+
+		var $body = $( 'body' );
+
+		var a = $.extend(
+			{ time:1, delay:0.1, offset:0, units:'px', ease:'swing', complete:false },
+			$.getSmoothData(),
+			args
+		);
+		
+		return this.each(function(){
+
+			var $this 			= $( this ),
+
+				time 			= a.time,
+				offset 			= a.offset,
+				units 			= a.units,
+				ease 			= a.ease,
+				delay 			= a.delay,
+				complete 		= a.complete,
+
 				position 		= $( document ).scrollTop(),
-
-				hash 			= ( link.indexOf( '#' ) === 0 ? link : ( link.indexOf( '#' ) > 0 ? this.hash : '' ) ),
-				$target 		= ( hash ? $( hash ) : {} ),
-				name 			= ( hash ? hash.slice( 1 ) : '' ),
-				
 				destination 	= 0,
 				difference 		= 0,
 				duration 		= 0;
 
-			if( units == 'em' )
-				offset = $.EmToPx( Number(offset) )
-
-			if( !$body.hasClass( 'loaded' ) && typeof onEnd === 'boolean' && onEnd )
-				$body.attr( 'data-premature-action', 'true' );
-
-			var pageEnable = function(){
-
-				/*if( typeof onEnd === 'boolean' && onEnd )
-					$body.setUrlData( window.location.pathname, hash, false, onEnd );*/
-				
-				if( typeof onEnd === 'function' )
-					onEnd();
-				else
-					$body.enableIt();
-			}
-
-			var pageScroll = function(){
-
-				$html.animate( {
-					scrollTop: destination
-				}, parseFloat( duration ), ease );
-
-				$body.animate( {
-					scrollTop: destination
-				}, parseFloat( duration ), ease, function() {
-					pageEnable();
-				});
-			};
-
-			if( $target.length ){
-
-				destination = $target.offset().top - parseInt( offset ) - $( '#site-navigation-sticky' ).getHighest() - $( '#site-header.sticky' ).getHighest() + 1;
-
-				if( height - destination < win )
-					destination = height - win;
-
-			}else if( name == 'top' ){
-
-				destination = 0;
-
-			}else{
-
-				pageEnable();
-				return this;
-
-			}
-
+			destination = $.getSmoothDestination( $this, offset, units );
 			difference = Math.abs( destination - position );
+			duration = Math.max( time * Math.min( difference, 6000 ), 500 );
 
-			if( !difference ){
-				pageEnable();
-				return this;
-			}
-
-			$this.data('done', false);
-			//$body.css( 'pointer-events', 'none' );
-
-			duration = time * ( difference < 6000 ? difference : 6000 );
-
-			duration = ( duration < 500 ? 500 : duration );
-
-			if( delay )
-				setTimeout( pageScroll, delay );
+			if( time === 0 )
+				$body.scrollTop( destination );
+			else if( !difference )
+				$body.enableIt();
 			else
-				pageScroll();	
-
-			$this.data('done', true);
+				$.scrollTo( destination, duration, ease, delay, complete );
 
 			return this;
 
@@ -964,10 +972,10 @@ var READYPAGE = function(){};
 				elem 			= this,
 				$body 			= $( 'body' ),
 				currentClass 	= $elem.data( 'current-link' ),
-	            offset 			= ( $elem.data( 'current-link-offset' ) ? $elem.data( 'current-link-offset' ) : 0 ),
+	            offset 			= parseFloat( $elem.data( 'current-link-offset' ) ? $elem.data( 'current-link-offset' ) : 0 ),
 	            units 			= ( $elem.data( 'current-link-offset-units' ) ? $elem.data( 'current-link-offset-units' ) : 'px' ),
-	            threshold 		= ( $elem.data( 'current-link-threshold' ) ? $elem.data( 'current-link-threshold' ) : 0 ),
-	            interval 		= ( $elem.data( 'current-link-interval' ) ? $elem.data( 'current-link-interval' ) : 250 ),
+	            threshold 		= parseFloat( $elem.data( 'current-link-threshold' ) ? $elem.data( 'current-link-threshold' ) : 0 ),
+	            interval 		= parseFloat( $elem.data( 'current-link-interval' ) ? $elem.data( 'current-link-interval' ) : 250 ),
 	            filter 			= ( $elem.data( 'current-link-filter' ) ? $elem.data( 'current-link-filter' ) : '' ),
 	            $links 			= $elem.find( '[data-anchor]' ).filter( ':not([data-anchor="#top"])' ),
 	            $last 			= $( '.page > .section.last' ).attr( 'id' ),
@@ -978,9 +986,7 @@ var READYPAGE = function(){};
 	            timer 			= null;
 
 	        if ( units == 'em' )
-	        	offset = $.EmToPx( Number(offset) )
-
-	        offset = offset + $( '#site-navigation-sticky' ).getHighest() + $( '#site-header.sticky' ).getHighest() - 1;
+	        	offset = $.EmToPx( offset )
 
             if ( filter )
                 $links = $links.filter( filter );
@@ -1025,12 +1031,12 @@ var READYPAGE = function(){};
 	        var setActiveClass = function() {
 
 	            var $win 		= $( window ),
-	            	$body 		= $( 'body' ),
 	            	heightWin 	= $win.height(),
-	            	heightBody 	= $body.outerHeight(),
+	            	heightBody 	= $( 'body' ).outerHeight(),
 	            	scrollPos 	= $win.scrollTop(),
 	            	pageEnd 	= scrollPos + heightWin >= heightBody,
-	            	current 	= '';
+	            	current 	= '',
+	            	off 		= $.getStickyHeight() + offset;
 
 	            if ( pageEnd && $last && $last.length ){
 	            	
@@ -1042,10 +1048,11 @@ var READYPAGE = function(){};
 		            for( var i = 0; i < $anchors.length; i++ ) {
 
 		                var $anchor = $( $anchors[i] );
+		                
 
 		                var coords = {
-		                    top: Math.round( $anchor.offset().top ) - offset,
-		                    bottom: Math.round( $anchor.offset().top + $anchor.outerHeight() ) - offset
+		                    top: Math.round( $anchor.offset().top ) - off,
+		                    bottom: Math.round( $anchor.offset().top + $anchor.outerHeight() ) - off
 		                };
 
 		                var $link = $links.filter('[data-anchor="#' + $anchor.attr('id') + '"]').parent();
@@ -1299,6 +1306,10 @@ var READYPAGE = function(){};
 	// *      AFFIX IT
 	// *****************************************************
 
+	$.getStickyHeight = function( off ){
+		return $( '#site-navigation-sticky' ).getHighest() + $( '#site-header.sticky' ).getHighest() - ( off ? off : 1 );
+	}
+
 	$.fn.affixIt = function(off,aff){
 
 		return this.each(function() {
@@ -1369,132 +1380,132 @@ var READYPAGE = function(){};
 
 	$.fn.googleMap = function() {
 
-			var $body = $( 'body' );
-			var countMaps = 0;
-			var totMaps = this.length;
+		var $body = $( 'body' );
+		var countMaps = 0;
+		var totMaps = this.length;
 
-			return this.each(function() {
+		return this.each(function() {
 
-				var $this 		= $( this ),
-					markers 	= $this.children( '.marker' ),
-					zoom 		= parseFloat( $this.data( 'zoom' ) ),
-					style 		= [],
-					args 		= [],
-					map 		= [];
+			var $this 		= $( this ),
+				markers 	= $this.children( '.marker' ),
+				zoom 		= parseFloat( $this.data( 'zoom' ) ),
+				style 		= [],
+				args 		= [],
+				map 		= [];
 
-				$this.attr('id', 'map-' + countMaps);
+			$this.attr('id', 'map-' + countMaps);
 
-				style = [
-					{
-						featureType: 'all',
-						elementType: 'all',
-						stylers: [
-							{ saturation: -30 },
-							{ visibility: 'simplified' }
-						]
-					},
-					{
-						featureType: 'all',
-						elementType: 'labels.icon',
-						stylers: [
-						  { visibility: 'off' }
-						]
-					},
-					{
-						featureType: 'administrative.province',
-						elementType: 'all',
-						stylers: [
-							{ visibility: 'off' }
-						]
-					},
-					{
-						featureType: 'administrative.country',
-						elementType: 'labels',
-						stylers: [
-						  { visibility: 'off' },
-						]
-					},
-					{
-						featureType: 'administrative.neighborhood',
-						elementType: 'labels',
-						stylers: [
-						  { visibility: 'off' },
-						]
-					},
-					{
-						featureType: 'administrative.locality',
-						elementType: 'labels',
-						stylers: [
-						  { visibility: 'on' },
-							{ weight: 1 },
-							{ saturation: -100 },
-							{ lightness: 30 },
-						]
-					},
-					{
-						featureType: 'administrative.land_parcel',
-						elementType: 'labels',
-						stylers: [
-						  { visibility: 'off' },
-						]
-					},
-					{
-						featureType: 'road',
-						elementType: 'geometry',
-						stylers: [
-							{ weight: 1 },
-							{ saturation: -100 },
-							{ lightness: 50 },
-						]
-					},
-		        ];
+			style = [
+				{
+					featureType: 'all',
+					elementType: 'all',
+					stylers: [
+						{ saturation: -30 },
+						{ visibility: 'simplified' }
+					]
+				},
+				{
+					featureType: 'all',
+					elementType: 'labels.icon',
+					stylers: [
+					  { visibility: 'off' }
+					]
+				},
+				{
+					featureType: 'administrative.province',
+					elementType: 'all',
+					stylers: [
+						{ visibility: 'off' }
+					]
+				},
+				{
+					featureType: 'administrative.country',
+					elementType: 'labels',
+					stylers: [
+					  { visibility: 'off' },
+					]
+				},
+				{
+					featureType: 'administrative.neighborhood',
+					elementType: 'labels',
+					stylers: [
+					  { visibility: 'off' },
+					]
+				},
+				{
+					featureType: 'administrative.locality',
+					elementType: 'labels',
+					stylers: [
+					  { visibility: 'on' },
+						{ weight: 1 },
+						{ saturation: -100 },
+						{ lightness: 30 },
+					]
+				},
+				{
+					featureType: 'administrative.land_parcel',
+					elementType: 'labels',
+					stylers: [
+					  { visibility: 'off' },
+					]
+				},
+				{
+					featureType: 'road',
+					elementType: 'geometry',
+					stylers: [
+						{ weight: 1 },
+						{ saturation: -100 },
+						{ lightness: 50 },
+					]
+				},
+	        ];
 
-		        args = {
-		        	center: new google.maps.LatLng(0, 0),
-					zoom: zoom,
-					disableDefaultUI: true,
-					draggableCursor : 'crosshair',
-				    draggingCursor  : 'crosshair',
-				    styles                : style,
-				    panControl            : false,
-				    zoomControl           : true,
-				    mapTypeControl        : false,
-				    scaleControl          : false,
-				    streetViewControl     : true,
-				    overviewMapControl    : true,
-				    rotateControl         : true,
-				    scrollwheel           : false,
-				    zoomControlOptions    : {
-				        style    : google.maps.ZoomControlStyle.SMALL,
-				        position : google.maps.ControlPosition.LEFT_CENTER
-				      },							
-		        };
-				
-				map = new google.maps.Map( this, args );
+	        args = {
+	        	center: new google.maps.LatLng(0, 0),
+				zoom: zoom,
+				disableDefaultUI: true,
+				draggableCursor : 'crosshair',
+			    draggingCursor  : 'crosshair',
+			    styles                : style,
+			    panControl            : false,
+			    zoomControl           : true,
+			    mapTypeControl        : false,
+			    scaleControl          : false,
+			    streetViewControl     : true,
+			    overviewMapControl    : true,
+			    rotateControl         : true,
+			    scrollwheel           : false,
+			    zoomControlOptions    : {
+			        style    : google.maps.ZoomControlStyle.SMALL,
+			        position : google.maps.ControlPosition.LEFT_CENTER
+			      },							
+	        };
+			
+			map = new google.maps.Map( this, args );
 
-				infowindow = new google.maps.InfoWindow({
-					content		: '',
-					maxWidth	: 500
-				});
+			infowindow = new google.maps.InfoWindow({
+				content		: '',
+				maxWidth	: 500
+			});
 
-				map.markers = [];
-				
-				$( markers ).markerMap( map, infowindow, zoom, countMaps );
+			map.markers = [];
+			
+			$( markers ).markerMap( map, infowindow, zoom, countMaps );
 
-				//$this.centerMap( map, zoom );
-				
-				var tilesloaded = google.maps.event.addListener( map, 'tilesloaded', function() {
+			//$.centerMap( map, zoom );
+			
+			var tilesloaded = google.maps.event.addListener( map, 'tilesloaded', function() {
 
-					$body.trigger( 'mapLoaded' );
-					countMaps++;
-					if( countMaps >= totMaps ){
-						$body.trigger( 'mapsLoaded', [ totMaps ] );
-						google.maps.event.removeListener( tilesloaded );
-					}
-
-				});
+				$body.trigger( 'mapLoaded' );
+				countMaps++;
+				if( countMaps >= totMaps ){
+					$body.trigger( 'mapsLoaded', [ totMaps ] );
+					google.maps.event.removeListener( tilesloaded );
+				}
 
 			});
+
+		});
 	}
 
 	$.fn.markerMap = function( map, infowindow, zoom, count, reg ) {
@@ -1648,8 +1659,7 @@ var READYPAGE = function(){};
 				}
 
 				var focusMarker = function(){
-
-					$( '#map-' + count ).smoothScroll();
+					$( '#map-' + count ).smoothAnchor();
 				    google.maps.event.trigger( marker, 'click' );
 				}
 
@@ -1662,13 +1672,13 @@ var READYPAGE = function(){};
 						location.addClass( 'infowindow' );
 				}
 
-				$this.centerMap( map, zoom );
+				$.centerMap( map, zoom );
 
 			};
 		});
 	}
 
-	$.fn.centerMap = function( map, zoom ) {
+	$.centerMap = function( map, zoom ) {
 
 		var bounds = new google.maps.LatLngBounds();
 
