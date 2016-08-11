@@ -40,6 +40,9 @@ var READYPAGE = function(){};
 	// *****************************************************
 
 	$.fn.eventsInit = function( links, tools, css, images, responsive ){
+		
+		$MAGIC.update();
+		
 		if( links !== undefined && links !== null )
 			this.eventLinks( links );
 		if( tools !== undefined && tools !== null )
@@ -1083,6 +1086,9 @@ var READYPAGE = function(){};
 
 			var $this = $( this );
 
+			if( $this.attr( 'data-magic' ) ) return this;
+			$this.attr( 'data-magic', 1 );
+
 	        new $.ScrollMagic.Scene({
 	        	triggerElement: $this,
 		        duration: function(){ return Math.round( $this.outerHeight() ); },
@@ -1119,7 +1125,10 @@ var READYPAGE = function(){};
 
 			var $this 	= $( this ),
 				$cont = $this.find( $this.attr( 'data-content-fade' ) ),
-				offset = $this.attr( 'data-content-fade-offset' );
+				offset = parseFloat( ( $this.attr( 'data-content-fade-offset' ) ? $this.attr( 'data-content-fade-offset' ) : 1 )*.01 );
+
+			if( $this.attr( 'data-magic' ) ) return this;
+			$this.attr( 'data-magic', 1 );
 
 			if( !$cont.length )
 				return this;
@@ -1130,8 +1139,7 @@ var READYPAGE = function(){};
 
 				new $.ScrollMagic.Scene({
 		        	triggerElement: $content,
-			        triggerHook: 1,
-			        offset: offset,
+			        triggerHook: offset,
 			    })
 				.setClassToggle( $content, 'current-fade')
 				//.addIndicators()
@@ -1310,17 +1318,22 @@ var READYPAGE = function(){};
 		return $( '#site-navigation-sticky' ).getHighest() + $( '#site-header.sticky' ).getHighest() - ( off ? off : 1 );
 	}
 
-	$.fn.affixIt = function(off,aff){
+	$.fn.affixIt = function(off,tri,sel){
 
 		return this.each(function() {
 
 			var $this 	= $( this ),
-				ref 	= ( aff ? aff : ( $this.attr( 'data-affix' ) ? $this.attr( 'data-affix' ) : 'top' ) ),
+				trig 	= ( tri ? tri : ( $this.attr( 'data-affix' ) ? $this.attr( 'data-affix' ) : 'top' ) ),
+				selector 	= ( sel ? sel : ( $this.attr( 'data-affix-selector' ) ? $this.attr( 'data-affix-selector' ) : null ) ),
 				offset 	= ( off ? off : ( $this.attr( 'data-affix-offset' ) ? $this.attr( 'data-affix-offset' ) : 0 ) );
 
+			if( $this.attr( 'data-magic' ) ) return this;
+			$this.attr( 'data-magic', 1 );
+
 			new $.ScrollMagic.Scene({
-		        duration: 0,
-		        offset: offset
+				triggerElement: selector,
+		        triggerHook: ( trig == 'bottom' ? 1 : ( trig == 'middle' || trig == 'center' ? .5 : ( trig == 'top' ? 0 : parseFloat( trig ) ) ) ),
+		        offset: offset,
 		    })
 		    .setClassToggle( $this, 'affix')
 			//.addIndicators()
@@ -1335,20 +1348,14 @@ var READYPAGE = function(){};
 
 			var $this 			= $( this ),
 				sticky 			= $this.data('sticky-type'),
-				offset 			= $this.data('sticky-offset'),
-				new_offset 		= offset,
 				attach 			= $this.data('sticky-attach'),
+				offset 			= parseFloat( $this.data('sticky-offset') ),
 				anim 			= $this.data('sticky-anim'),
 				menu 			= $this.data('sticky'),
-				$menu 			= $( '#' + menu ).addClass( sticky );
+				$menu 			= $( '#' + menu ).addClass( sticky ),
+				$trig 			= ( sticky != 'plus' ? $menu : ( attach == 'nav-bottom' ? $this.findNext() : ( attach == 'nav-top' ? $menu : null ) ) );
 
 			if( !$menu.length ) return;
-
-			if( attach == 'nav-bottom'){
-				new_offset = offset + $menu.offset().top + $menu.outerHeight();
-			}else if( attach == 'nav-top' || sticky == 'self' ){
-				new_offset = offset + $menu.offset().top;
-			}
 
 			if( sticky == 'plus' ){
 				
@@ -1365,11 +1372,10 @@ var READYPAGE = function(){};
 					break;
 					default:
 						$this.css( 'top', -( $this.outerHeight() + parseFloat(sh.y) + parseFloat(sh.blur) + parseFloat(sh.exp) ) );
-
 				}
 			}
 
-			$this.affixIt( new_offset );
+			$this.affixIt( offset, 0, $trig );
 
 		});
 	}

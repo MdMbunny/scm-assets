@@ -245,29 +245,22 @@
 
 	}
 
-	if ( !$.fn.closestChild ) {
-
-		// Get Nearest Child
-		$.fn.closestChild = function( filter ) {
-
-	        var $found = $(),
-	            $currentSet = this;
-
-	        while ($currentSet.length) {
-	            $found = $currentSet.filter(filter);
-	            if ($found.length) break;
-	            
-	            $currentSet = $currentSet.children();
-	        }
-
-	        return $found.first();
-	    };
-
-	}
-
 //Back Page Link
 	if ( !$.fn.goBack ) {
 		$.fn.goBack = function( e ) { window.history.back(); };
+	}
+
+//Find next selector, inside or aoutside parent
+	if ( !$.fn.findNext ) {
+		$.fn.findNext = function( selector ) {
+			var $next = this.next( selector );
+			if( $next.length )
+				return $next;
+			var $parent = this.parent();
+			if( !$parent.length )
+				return {};
+			return $parent.findNext( selector );
+		};
 	}
 
 /*
