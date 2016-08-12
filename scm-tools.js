@@ -828,6 +828,8 @@ var READYPAGE = function(){};
 
 	$.getSmoothDestination = function( obj, off, uni) {
 
+		if( obj.is( 'body' ) ) return 0;
+
 		var win 			= $( window ).height(),
 			body 			= $( 'body' ).height(),
 			height 			= obj.offset().top,
@@ -1197,6 +1199,8 @@ var READYPAGE = function(){};
 		return this.each(function() {
 
 			var $this = $( this );
+			if( !$this.hasClass( 'toggle' ) )
+	        	$this = $( this ).parents( '.toggle' );
 
 			if( !$this.hasClass( 'toggled' ) )
 				return $this.toggledOn();
@@ -1211,9 +1215,6 @@ var READYPAGE = function(){};
 		return this.each(function() {
 
 			var $this = $( this );
-
-	        if( !$this.hasClass( 'toggle' ) )
-	        	$this = $( this ).parents( '.toggle' );
 
 			$this.data( 'done', false );
 			

@@ -302,8 +302,7 @@
 		    var $maps = $( '.scm-map' );
 		    if( $maps.length ){
 
-		    	//window.initialize = function() {
-		    	$window.initialize = function(e){
+		    	window.initialize = function(e){
 				    var scr_marker = document.createElement('script');
 					scr_marker.type = 'text/javascript';
 					scr_marker.src = 'https://cdn.rawgit.com/googlemaps/v3-utility-library/master/markerwithlabel/src/markerwithlabel.js';
