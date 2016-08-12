@@ -4,20 +4,23 @@
 
 		// ADMIN MENU
 
-		jQuery( jQuery( '#adminmenu > .wp-has-current-submenu' ).prevAll('.scm-separator')[0] ).addClass('current').addClass('active').nextUntil( '.scm-separator' ).addClass('active');
+		if( $body.hasClass( 'scm-edit' ) ){
 
-		jQuery( '#adminmenu' ).on( 'click', '.scm-separator', function(e){
-			var $this = jQuery( this );
-			//if( $this.hasClass('acf-fc-layout-handle') ){
-			if( $this.hasClass( 'active' ) ){
-				$this.removeClass( 'active' );
-				$this.nextUntil( '.scm-separator' ).removeClass( 'active' );
-			}else{
-				$this.siblings().removeClass( 'active' );
-				$this.addClass('active');
-				$this.nextUntil( '.scm-separator' ).addClass('active');
-			}
-		} );
+			jQuery( jQuery( '#adminmenu > .wp-has-current-submenu' ).prevAll('.scm-separator')[0] ).addClass('current').addClass('active').nextUntil( '.scm-separator' ).addClass('active');
+
+			jQuery( '#adminmenu' ).on( 'click', '.scm-separator', function(e){
+				var $this = jQuery( this );
+				//if( $this.hasClass('acf-fc-layout-handle') ){
+				if( $this.hasClass( 'active' ) ){
+					$this.removeClass( 'active' );
+					$this.nextUntil( '.scm-separator' ).removeClass( 'active' );
+				}else{
+					$this.siblings().removeClass( 'active' );
+					$this.addClass('active');
+					$this.nextUntil( '.scm-separator' ).addClass('active');
+				}
+			} );
+		}
 
 		// COLLAPSE LAYOUTS
 

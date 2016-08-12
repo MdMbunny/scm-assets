@@ -25,11 +25,12 @@ var INITPAGE = function(){};
 var INITCHILD = function(){};
 var READYCHILD = function(){};
 var READYPAGE = function(){};
+var $MAGIC;
 
 ( function($){
 
 	var CONTENTS = {};
-	var $MAGIC = new $.ScrollMagic.Controller();
+	$MAGIC = new $.ScrollMagic.Controller();
 
 // *****************************************************
 // *      MAIN PLUGINS
@@ -678,7 +679,7 @@ var READYPAGE = function(){};
 
 			if( page && $anchor.length ){
 				$.consoleDebug( DEBUG, 'scroll to anchor');
-				$anchor.smoothScroll( { delay: delay*1000 } );
+				$anchor.smoothScroll( { delay: delay } );
 			}else{
 				$body.enableIt();
 			}
@@ -808,8 +809,9 @@ var READYPAGE = function(){};
 					$body.enableIt();
 			});
 		}
+
 		if( delay )
-			setTimeout( scroll, delay );
+			setTimeout( scroll, delay*1000 );
 		else
 			scroll();
 	}
@@ -820,13 +822,14 @@ var READYPAGE = function(){};
 			time : 		parseFloat( $body.data( 'smooth-duration' ) ? $body.data( 'smooth-duration' ) : 1 ),
 			delay : 	parseFloat( $body.data( 'smooth-delay' ) ? $body.data( 'smooth-delay' ) : 0.1 ),
 			offset : 	parseFloat( $body.data( 'smooth-offset' ) ? $body.data( 'smooth-offset' ) : 0 ),
+			head : 		parseFloat( $body.data( 'smooth-head' ) ? $body.data( 'smooth-head' ) : 0 ),
 			units : 	( $body.data( 'smooth-offset-units' ) ? $body.data( 'smooth-offset-units' ) : 'px' ),
 			ease : 		( $body.data( 'smooth-ease' ) ? $body.data( 'smooth-ease' ) : 'swing' ),
 		}
 		return args;
 	}
 
-	$.getSmoothDestination = function( obj, off, uni) {
+	$.getSmoothDestination = function( obj, off, uni, head ) {
 
 		if( obj.is( 'body' ) ) return 0;
 
@@ -834,13 +837,14 @@ var READYPAGE = function(){};
 			body 			= $( 'body' ).height(),
 			height 			= obj.offset().top,
 			offset 			= parseFloat( off ),
+			head 			= ( head ? $.getStickyHeight() : 0 ),
 			units 			= ( uni ? uni : 'px' ),
 			destination 	= 0;
 		
 		if( units == 'em' )
 			offset = $.EmToPx( offset )
 
-		destination = height - offset - $.getStickyHeight();
+		destination = height - offset - head;
 
 		if( body - destination < win )
 			destination = body - win;
@@ -877,7 +881,7 @@ var READYPAGE = function(){};
 		var $body = $( 'body' );
 
 		var a = $.extend(
-			{ time:1, delay:0.1, offset:0, units:'px', ease:'swing', complete:false },
+			{ time:1, delay:0.1, offset:0, head:0, units:'px', ease:'swing', complete:false },
 			$.getSmoothData(),
 			args
 		);
@@ -889,6 +893,7 @@ var READYPAGE = function(){};
 				time 			= a.time,
 				offset 			= a.offset,
 				units 			= a.units,
+				head 			= a.head,
 				ease 			= a.ease,
 				delay 			= a.delay,
 				complete 		= a.complete,
@@ -898,7 +903,7 @@ var READYPAGE = function(){};
 				difference 		= 0,
 				duration 		= 0;
 
-			destination = $.getSmoothDestination( $this, offset, units );
+			destination = $.getSmoothDestination( $this, offset, units, head );
 			difference = Math.abs( destination - position );
 			duration = Math.max( time * Math.min( difference, 6000 ), 500 );
 
@@ -982,7 +987,7 @@ var READYPAGE = function(){};
 	            threshold 		= parseFloat( $elem.data( 'current-link-threshold' ) ? $elem.data( 'current-link-threshold' ) : 0 ),
 	            interval 		= parseFloat( $elem.data( 'current-link-interval' ) ? $elem.data( 'current-link-interval' ) : 250 ),
 	            filter 			= ( $elem.data( 'current-link-filter' ) ? $elem.data( 'current-link-filter' ) : '' ),
-	            $links 			= $elem.find( '[data-anchor]' ).filter( ':not([data-anchor="#top"])' ),
+	            $links 			= $elem.find( '[data-anchor]' ).not( '[data-anchor="#top"], [data-anchor="#"]' ),
 	            $last 			= $( '.page > .section.last' ).attr( 'id' ),
 	            $lasts 			= ( $last && $last.length ? $links.filter('[data-anchor="#' + $last + '"]') : $links ),
 	            anchors 		= '',
