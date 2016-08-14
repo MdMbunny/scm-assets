@@ -140,8 +140,9 @@
 		} );
 		
 		// BODY RESIZING and RESIZED event
-		$body.off('resizing resized').on( 'resizing resized', function(e){
-			$body.eventResponsive( e );		
+		$body.off('resizing resized').on( 'resizing resized imgsLoaded', function(e){
+			$body.eventResponsive( e );
+			$( '[data-equal]' ).equalChildrenSize();
 		} );
 
 		// BODY RESPONSIVE event
@@ -297,7 +298,7 @@
 		    
 		    $( '[data-slider="nivo"]' ).setNivoSlider();
 		    
-		    $body.eventResponsive( e );
+		    $( '[data-equal]' ).equalChildrenSize();
 		    
 		    var $maps = $( '.scm-map' );
 		    if( $maps.length ){

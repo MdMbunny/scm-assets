@@ -146,11 +146,9 @@ var $MAGIC;
 				else if( this.hasClass( 'desktop' ) )	state = 'desktop';
 
 				this.trigger( 'responsive', [ state ] );
-
-				$( '[data-equal]' ).equalChildrenSize();
-			}
-			
+			}			
 		}
+		
 		return this;
 	}
 
@@ -440,6 +438,10 @@ var $MAGIC;
 
 	$.getLoading = function( type, args ){
 		switch( type ){
+			/*case 'progress-bar':
+				return $( $.progressBarLoading( args ) );
+			break;*/
+
 			case 'icon':
 				return $( $.iconLoading( args ) );
 			break;
@@ -580,6 +582,7 @@ var $MAGIC;
 							if( c_height > w_height )
 								$parent.animate({ 'height': w_height - $.getStickyHeight() }, 'fast' );
 
+
 							$parent.loadIt( aj_data, replaceContent, 'bar', { classes: 'absolute middle full-width double' } );
 						}
 					});
@@ -592,6 +595,7 @@ var $MAGIC;
 						$last = $container.children().last();
 						$last.removeClass( 'last' );
 						aj_data[id + '-more'] = { counter: $last.data( 'counter' ), current: $last.data( 'current' ), total: $last.data( 'total' ), odd: $last.data( 'odd' ) };
+
 						$parent.loadIt( aj_data, moreContent, 'bar', { classes: 'relative full-width double' } );
 					} );
 					
@@ -822,11 +826,13 @@ var $MAGIC;
 			time : 		parseFloat( $body.data( 'smooth-duration' ) ? $body.data( 'smooth-duration' ) : 1 ),
 			delay : 	parseFloat( $body.data( 'smooth-delay' ) ? $body.data( 'smooth-delay' ) : 0.1 ),
 			offset : 	parseFloat( $body.data( 'smooth-offset' ) ? $body.data( 'smooth-offset' ) : 0 ),
-			head : 		parseFloat( $body.data( 'smooth-head' ) ? $body.data( 'smooth-head' ) : 0 ),
+			head : 		$body.data( 'smooth-head' ) ? $body.data( 'smooth-head' ) : 0,
 			units : 	( $body.data( 'smooth-offset-units' ) ? $body.data( 'smooth-offset-units' ) : 'px' ),
 			ease : 		( $body.data( 'smooth-ease' ) ? $body.data( 'smooth-ease' ) : 'swing' ),
 		}
+
 		return args;
+
 	}
 
 	$.getSmoothDestination = function( obj, off, uni, head ) {
@@ -840,6 +846,8 @@ var $MAGIC;
 			head 			= ( head ? $.getStickyHeight() : 0 ),
 			units 			= ( uni ? uni : 'px' ),
 			destination 	= 0;
+
+
 		
 		if( units == 'em' )
 			offset = $.EmToPx( offset )

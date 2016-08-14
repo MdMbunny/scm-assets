@@ -482,7 +482,27 @@
 *	3.0 PRESETS
 *****************************************************
 */
-	
+
+	/*$.progressBar = function( element, percent, html, time ) {
+	    element.find('div')
+	    	.animate( {
+	    		width: parseFloat(percent) * element.width() / 100
+	    	}, time ? time : 500 )
+	    	.html( html ? percent + '% ' : '' );
+	}
+
+	$.progressBarLoading = function( args ) {
+
+		args = $.extend(
+			{
+				classes: 'absolute middle full-width',
+			},
+			( args ? args : {} )
+		);
+		
+		return '<div class="scm-loading loading-bar ' + args.classes + '""></div>';
+	}*/
+
 	$.barLoading = function( args ) {
 
 		args = $.extend(
