@@ -405,23 +405,23 @@ var $MAGIC;
 	}
 
 	$.fn.setLocationData = function( location, push ){
+		$.consoleDebug( DEBUG, 'from location');
 		return this.each( function() {
 
 			var $this = $( this );
 			$this.setUrlData( location.pathname, location.hash, location.search, push );
 		
 		});
-		$.consoleDebug( DEBUG, 'from location');
 	}
 
 	$.fn.setLinkData = function( link, push ){
+		$.consoleDebug( DEBUG, 'from link');
 		return this.each( function() {
 
 			var $this = $( this );
 			$this.setUrlData( $.getCleanUrl( link ), $.getUrlHash( link ), $.getUrlSearch( link ), push );
 		
 		});
-		$.consoleDebug( DEBUG, 'from link');
 	}
 
 	// *****************************************************
@@ -804,6 +804,9 @@ var $MAGIC;
 		var $body = $( 'body' );
 		$body.disableIt();
 		var scroll = function(){
+			$('html').animate( {
+				scrollTop: parseFloat( destination )
+			}, parseFloat( duration ), ease );
 			$body.animate( {
 				scrollTop: parseFloat( destination )
 			}, parseFloat( duration ), ease, function() {

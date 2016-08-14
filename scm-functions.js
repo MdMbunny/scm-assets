@@ -401,7 +401,7 @@
 		return fallback;		
 	}
 
-	$.urlSearch = function( url, fallback ) {
+	$.getUrlSearch = function( url, fallback ) {
 		if( !url )
 	    	url = window.location.href;
 
