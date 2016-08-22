@@ -32,7 +32,12 @@
 		$body.on('click', function(e){
 			var $this = jQuery( e.target );
 			if( $this.hasClass('acf-fc-layout-handle') ){
-				$this.parent('.layout').siblings('.layout').addClass('-collapsed');
+				e.stopPropagation();
+				e.preventDefault();
+				if( $this.parent('.layout').hasClass('-collapsed') )
+					$this.parent('.layout').removeClass('-collapsed').siblings('.layout').addClass('-collapsed');
+				else
+					$this.parent('.layout').addClass('-collapsed');
 			}else if( $this.parents('.layout').length == 0 ){
 				$body.find('.layout').addClass('-collapsed');
 			}
