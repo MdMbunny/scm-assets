@@ -34,16 +34,26 @@ Supports Thumbs: true
 
 .theme-scm .nivo-controlNav a {
 	display:inline-block;
-	width:22px;
-	height:22px;
-	background:url(bullets.png) no-repeat;
+	width:1.5em;
+	height:1.5em;
+	background-image: none;
 	text-indent:-9999px;
 	border:0;
-	margin: 0 2px;
+	margin: 0 .5em;
+	border-radius: 50%;
+	background-color: #ddd;
+	-webkit-transition: background-color .5s;
+	transition: background-color .5s;
+}
+
+.touch .theme-scm .nivo-controlNav a {
+	display:inline-block;
+	width:2em;
+	height:2em;
 }
 
 .theme-scm .nivo-controlNav a.active {
-	background-position:0 -22px;
+	background-color: #000;
 }
 
 /*** THUMB NAV ***/

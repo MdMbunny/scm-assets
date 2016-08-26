@@ -22,14 +22,14 @@
 	var initPage = function(){
 		$.consoleDebug( DEBUG, 'initPage()');
 
-		GOOGLE_API_KEY = 'AIzaSyBZEApCxfzuavDWXdJ2DAVAftxbMjZWrVY',
-
 		$window 	= $( window );
 		$body 		= $( 'body' );
 
 		start 		= 'documentDone';
 		wait 		= $body.data( 'fade-wait' );
 		touch 		= ( $body.hasClass('is-iphone') || $body.hasClass('is-tablet') || $body.hasClass('is-mobile') );
+
+		GOOGLE_API_KEY = $body.attr( 'data-gmap' );
 
 		$( 'html' ).removeClass( 'no-js' );
 		$body.setLocationData( window.location );
@@ -302,6 +302,9 @@
 		    
 		    var $maps = $( '.scm-map' );
 		    if( $maps.length ){
+
+		    	if( !GOOGLE_API_KEY )
+					alert( 'Set Google Maps API Key' );
 
 		    	window.initialize = function(e){
 				    var scr_marker = document.createElement('script');
