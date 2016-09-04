@@ -3,7 +3,7 @@
  * Plugin Name:         SCM Assets
  * Plugin URI:          http://studiocreativo-m.it/
  * Description:         SCM Javascript Integration
- * Version:             1.4.2
+ * Version:             1.4.3
  * Author:              Studio Creativo M
  * Author URI:          http://studiocreativo-m.it/
  * License:             http://www.gnu.org/licenses/gpl-3.0.html
@@ -32,6 +32,7 @@
             $uri = plugin_dir_url( $file );
 
             // PLUGIN CONSTANTS
+            
             define( $const,                             $slug );
             define( $const . '_VERSION',                $version );
             define( $const . '_DIR',                    $dir );
@@ -159,7 +160,7 @@ define( 'SCM_ASSETS_FANCYBOX', 'https://cdnjs.cloudflare.com/ajax/libs/fancybox/
 
             // Awesome Cursor
             $cursor = apply_filters( 'scm_assets_filter_block_cursor', false );
-            if( !cursor && get_field( 'opt-tools-cursor', 'option' ) ){
+            if( !$cursor && get_field( 'opt-tools-cursor', 'option' ) ){
                 wp_register_script( 'awesome-cursor',  SCM_ASSETS_URI_ASSETS . 'awesome-cursor-0.3.0/dist/jquery.awesome-cursor.min.js', array( 'imagesloaded' ), null, true );
                 wp_enqueue_script( 'awesome-cursor' );
             }
