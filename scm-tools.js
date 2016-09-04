@@ -849,8 +849,6 @@ var $MAGIC;
 			head 			= ( head ? $.getStickyHeight() : 0 ),
 			units 			= ( uni ? uni : 'px' ),
 			destination 	= 0;
-
-
 		
 		if( units == 'em' )
 			offset = $.EmToPx( offset )

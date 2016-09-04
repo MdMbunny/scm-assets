@@ -27,7 +27,8 @@
 
 		start 		= 'documentDone';
 		wait 		= $body.data( 'fade-wait' );
-		touch 		= ( $body.hasClass('is-iphone') || $body.hasClass('is-tablet') || $body.hasClass('is-mobile') );
+		touch 		= $body.hasClass( 'touch' );
+		//touch 		= $body.hasClass('is-touch');
 
 		GOOGLE_API_KEY = $body.attr( 'data-gmap' );
 
@@ -63,17 +64,17 @@
 		$.consoleDebug( DEBUG, 'touchEvents()');
 
         if ( touch ) {
-            $body.addClass( 'touch' );
+            /*$body.addClass( 'touch' );
             $body.removeClass( 'mouse' );
-            $.consoleDebug( DEBUG, '- is touch');
+            $.consoleDebug( DEBUG, '- is touch');*/
 
             $( '.navigation' ).toggleSwipe();
 
-        }else{
+        }/*else{
             $body.removeClass( 'touch' );
             $body.addClass( 'mouse' );
             $.consoleDebug( DEBUG, '- is not touch');
-        }
+        }*/
 	}
 
 	// *****************************************************

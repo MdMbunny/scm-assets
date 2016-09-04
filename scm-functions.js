@@ -500,7 +500,7 @@
 			( args ? args : {} )
 		);
 		
-		return '<div class="scm-loading loading-bar ' + args.classes + '""></div>';
+		return '<div class="scm-loading loading-bar ' + args.classes + '"></div>';
 	}*/
 
 	$.barLoading = function( args ) {
@@ -512,7 +512,7 @@
 			( args ? args : {} )
 		);
 		
-		return '<div class="scm-loading loading-bar ' + args.classes + '""></div>';
+		return '<div class="scm-loading loading-bar ' + args.classes + '"></div>';
 	}
 
 	$.iconLoading = function( args ) {
@@ -525,7 +525,7 @@
 			( args ? args : {} )
 		);
 
-		return '<div class="scm-loading loading-icon ' + args.classes + '""><i class="fa fa-spin fa-' + args.icon + '""></i></div>';
+		return '<div class="scm-loading loading-icon ' + args.classes + '"><i class="fa fa-spin fa-' + args.icon + '"></i></div>';
 	}
 
 	$.circleLoading = function( args ) {
@@ -538,7 +538,7 @@
 			( args ? args : {} )
 		);
 
-		return '<div class="scm-loading loading-circle ' + args.classes + '""><i class="fa fa-spin fa-' + args.icon + ' absolute middle"></i></div>';
+		return '<div class="scm-loading loading-circle ' + args.classes + '"><i class="fa fa-spin fa-' + args.icon + ' absolute middle"></i></div>';
 	}
 
 })( jQuery );

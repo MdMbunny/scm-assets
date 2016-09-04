@@ -3,7 +3,7 @@
  * Plugin Name:         SCM Assets
  * Plugin URI:          http://studiocreativo-m.it/
  * Description:         SCM Javascript Integration
- * Version:             1.4.1
+ * Version:             1.4.2
  * Author:              Studio Creativo M
  * Author URI:          http://studiocreativo-m.it/
  * License:             http://www.gnu.org/licenses/gpl-3.0.html
@@ -15,50 +15,37 @@
 // *      0.0 INIT - [AUTOMATIC - DO NOT TOUCH]
 // *****************************************************
 
-    // Get Plugin Data
     if ( ! function_exists( 'scm_plugin_data' ) ) {
         function scm_plugin_data( $file ) {
             if ( ! function_exists( 'get_plugins' ) )
                 require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+
             $plugin_folder = get_plugins( '/' . plugin_basename( dirname( $file ) ) );
             $plugin_file = basename( ( $file ) );
-            return $plugin_folder[ $plugin_file ];
-        }
-        // Name
-        function scm_plugin_name( $file ) {
-            $plug = scm_plugin_data( $file );
-            return $plug[ 'Name' ];
-            //return scm_plugin_data( $file )[ 'Name' ];
-        }
-        // Version
-        function scm_plugin_version( $file ) {
-            $plug = scm_plugin_data( $file );
-            return $plug[ 'Version' ];
-            //return scm_plugin_data( $file )[ 'Version' ];
+            $plugin = $plugin_folder[ $plugin_file ];
+
+            $name = $plugin[ 'Name' ];
+            $version = $plugin[ 'Version' ];
+            $slug = sanitize_title( $name );
+            $const = strtoupper( str_replace( '-', '_', $slug ) );
+            $dir = dirname( $file ) . '/';
+            $uri = plugin_dir_url( $file );
+
+            // PLUGIN CONSTANTS
+            define( $const,                             $slug );
+            define( $const . '_VERSION',                $version );
+            define( $const . '_DIR',                    $dir );
+            define( $const . '_URI',                    $uri );
+            define( $const . '_DIR_ASSETS',             $dir . 'assets/' );
+            define( $const . '_URI_ASSETS',             $uri . 'assets/' );
+            define( $const . '_DIR_LANG',               $dir . 'lang/' );
+            define( $const . '_URI_LANG',               $uri . 'lang/' );
+
+            load_plugin_textdomain( $slug, false, $dir . 'lang/' );   
         }
     }
 
-    // Init Plugin
-            
-    $file = __FILE__;
-    $plugin = scm_plugin_name( $file );
-    $slug = sanitize_title( $plugin );
-    $name = strtoupper( str_replace( '-', '_', $slug ) );
-    $dir = dirname( $file ) . '/';
-    $uri = plugin_dir_url( $file );
-
-    // PLUGIN CONSTANTS
-    define( $name,                             $slug );
-    define( $name . '_VERSION',                scm_plugin_version( $file ) );
-    define( $name . '_DIR',                    $dir );
-    define( $name . '_URI',                    $uri );
-    define( $name . '_DIR_ASSETS',             $dir . 'assets/' );
-    define( $name . '_URI_ASSETS',             $uri . 'assets/' );
-    define( $name . '_DIR_LANG',               $dir . 'lang/' );
-    define( $name . '_URI_LANG',               $uri . 'lang/' );
-
-    // PLUGIN TEXTDOMAIN
-    load_plugin_textdomain( $slug, false, $dir . 'lang/' );        
+    scm_plugin_data( __FILE__ );   
 
 
 // ***************************************************************************************************************************************************************
@@ -141,7 +128,9 @@ define( 'SCM_ASSETS_FANCYBOX', 'https://cdnjs.cloudflare.com/ajax/libs/fancybox/
             wp_enqueue_script('jquery-effects-core');
             wp_enqueue_script('imagesloaded');
 
-            if( get_field( 'opt-tools-greensock', 'option' ) ){
+            // Greensock
+            $greensock = apply_filters( 'scm_assets_filter_block_greensock', false );
+            if( !$greensock && get_field( 'opt-tools-greensock', 'option' ) ){
                 wp_register_script( 'greensock',  SCM_ASSETS_URI_ASSETS . 'greensock-js-1.18.3/src/minified/TweenMax.min.js', array( 'jquery', 'imagesloaded' ), null, true );
                 wp_enqueue_script( 'greensock' );
                 wp_register_script( 'gsap',  SCM_ASSETS_URI_ASSETS . 'greensock-js-1.18.3/src/minified/jquery.gsap.min.js', array( 'greensock' ), null, true );
@@ -150,28 +139,34 @@ define( 'SCM_ASSETS_FANCYBOX', 'https://cdnjs.cloudflare.com/ajax/libs/fancybox/
                 wp_enqueue_script( 'greensock-scrollto' );*/
             }
 
-            wp_register_script( 'scroll-magic',  SCM_ASSETS_URI_ASSETS . 'scrollmagic-2.0.5/minified/ScrollMagic.min.js', array( 'jquery', 'imagesloaded' ), null, true );
-            wp_enqueue_script( 'scroll-magic' );
-            wp_register_script( 'scroll-magic-jquery',  SCM_ASSETS_URI_ASSETS . 'scrollmagic-2.0.5/minified/plugins/jquery.ScrollMagic.min.js', array( 'scroll-magic' ), null, true );
-            wp_enqueue_script( 'scroll-magic-jquery' );
-            wp_register_script( 'scroll-magic-debug',  SCM_ASSETS_URI_ASSETS . 'scrollmagic-2.0.5/minified/plugins/debug.addIndicators.min.js', array( 'scroll-magic-jquery' ), null, true );
-            wp_enqueue_script( 'scroll-magic-debug' );
+            // ScrollMagic
+            $magic = apply_filters( 'scm_assets_filter_block_magic', false );
+            if( !$magic ){
+                wp_register_script( 'scroll-magic',  SCM_ASSETS_URI_ASSETS . 'scrollmagic-2.0.5/minified/ScrollMagic.min.js', array( 'jquery', 'imagesloaded' ), null, true );
+                wp_enqueue_script( 'scroll-magic' );
+                wp_register_script( 'scroll-magic-jquery',  SCM_ASSETS_URI_ASSETS . 'scrollmagic-2.0.5/minified/plugins/jquery.ScrollMagic.min.js', array( 'scroll-magic' ), null, true );
+                wp_enqueue_script( 'scroll-magic-jquery' );
+                wp_register_script( 'scroll-magic-debug',  SCM_ASSETS_URI_ASSETS . 'scrollmagic-2.0.5/minified/plugins/debug.addIndicators.min.js', array( 'scroll-magic-jquery' ), null, true );
+                wp_enqueue_script( 'scroll-magic-debug' );
+            }
 
             // TouchSwipe
-
-            wp_register_script( 'jquery-touch-swipe', SCM_ASSETS_URI_ASSETS . 'touchSwipe-1.6.8/jquery.touchSwipe.min.js', array( 'imagesloaded' ), null, true );
-            wp_enqueue_script( 'jquery-touch-swipe' );
+            $touch = apply_filters( 'scm_assets_filter_block_touch', false );
+            if( !$touch ){
+                wp_register_script( 'jquery-touch-swipe', SCM_ASSETS_URI_ASSETS . 'touchSwipe-1.6.8/jquery.touchSwipe.min.js', array( 'imagesloaded' ), null, true );
+                wp_enqueue_script( 'jquery-touch-swipe' );
+            }
 
             // Awesome Cursor
-
-            if( get_field( 'opt-tools-cursor', 'option' ) ){
+            $cursor = apply_filters( 'scm_assets_filter_block_cursor', false );
+            if( !cursor && get_field( 'opt-tools-cursor', 'option' ) ){
                 wp_register_script( 'awesome-cursor',  SCM_ASSETS_URI_ASSETS . 'awesome-cursor-0.3.0/dist/jquery.awesome-cursor.min.js', array( 'imagesloaded' ), null, true );
                 wp_enqueue_script( 'awesome-cursor' );
             }
 
             // Fancybox --- You could replace it
-
-            if( get_field( 'opt-tools-fancybox', 'option' ) ){
+            $fancy = apply_filters( 'scm_assets_filter_block_fancybox', false );
+            if( !$fancy && get_field( 'opt-tools-fancybox', 'option' ) ){
                 
                 // CDN
                 /*wp_register_script( 'fancybox', SCM_ASSETS_FANCYBOX . 'jquery.fancybox.pack.js', array( 'jquery' ), null, true );
@@ -194,29 +189,29 @@ define( 'SCM_ASSETS_FANCYBOX', 'https://cdnjs.cloudflare.com/ajax/libs/fancybox/
             }
 
             // Nivo Slider --- You could replace it (probably with _ScrollMagic_)
-
-            if( get_field( 'main-slider-active', 'option' ) == 'nivo' || get_field( 'opt-tools-nivo', 'option' ) ){
+            $nivo = apply_filters( 'scm_assets_filter_block_nivo', false );
+            if( !$nivo && ( get_field( 'main-slider-active', 'option' ) == 'nivo' || get_field( 'opt-tools-nivo', 'option' ) ) ){
                 wp_register_script( 'nivo', SCM_ASSETS_URI_ASSETS . 'nivoSlider-3.2/jquery.nivo.slider.pack.js', array( 'imagesloaded' ), null, true );
                 wp_enqueue_script( 'nivo' );
             }
 
             // BX Slider --- You could replace it (probably with _ScrollMagic_)
-
-            if( get_field( 'main-slider-active', 'option' ) == 'bx' || get_field( 'opt-tools-bx', 'option' ) ){
+            $bx = apply_filters( 'scm_assets_filter_block_bx', false );
+            if( !$bx && ( get_field( 'main-slider-active', 'option' ) == 'bx' || get_field( 'opt-tools-bx', 'option' ) ) ){
                 wp_register_script( 'bx', SCM_ASSETS_URI_ASSETS . 'jquery.bxslider-4.1.2/jquery.bxslider.min.js', array( 'imagesloaded' ), null, true );
                 wp_enqueue_script( 'bx' );
             }
 
             // Tooltip --- You could replace it (probably with _ScrollMagic_)
-
-            if( get_field( 'opt-tools-tooltip', 'option' ) ){
+            $tooltip = apply_filters( 'scm_assets_filter_block_tooltip', false );
+            if( !$tooltip && get_field( 'opt-tools-tooltip', 'option' ) ){
                 wp_register_script( 'tooltip',  SCM_ASSETS_URI_ASSETS . 'jquery.powertip-1.2.0/jquery.powertip.min.js', array( 'imagesloaded' ), null, true );
                 wp_enqueue_script( 'tooltip' );
             }
 
             // Parallax Scrolling --- Will be substituted by _ScrollMagic_
-
-            if( get_field( 'opt-tools-parallax', 'option' ) ){
+            $parallax = apply_filters( 'scm_assets_filter_block_parallax', false );
+            if( !$parallax && get_field( 'opt-tools-parallax', 'option' ) ){
                 $old = apply_filters( 'scm_assets_filter_parallax_131', false );
                 if(!$old)
                     wp_register_script( 'parallax',  SCM_ASSETS_URI_ASSETS . 'parallax-1.4.2/parallax.min.js', array( 'imagesloaded' ), null, true );
