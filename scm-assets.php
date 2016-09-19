@@ -3,7 +3,7 @@
  * Plugin Name:         SCM Assets
  * Plugin URI:          http://studiocreativo-m.it/
  * Description:         SCM Javascript Integration
- * Version:             1.4.3
+ * Version:             1.4.4
  * Author:              Studio Creativo M
  * Author URI:          http://studiocreativo-m.it/
  * License:             http://www.gnu.org/licenses/gpl-3.0.html
@@ -90,7 +90,8 @@ define( 'SCM_ASSETS_FANCYBOX', 'https://cdnjs.cloudflare.com/ajax/libs/fancybox/
 
             // Fancybox
             
-            if( get_field( 'opt-tools-fancybox', 'option' ) ){
+            $fancy = apply_filters( 'scm_assets_filter_block_fancybox', false );
+            if( !$fancy && get_field( 'opt-tools-fancybox', 'option' ) ){
                 /*wp_register_style( 'fancybox-style', SCM_ASSETS_FANCYBOX . 'jquery.fancybox.min.css', false, null );
                 wp_register_style( 'fancybox-thumbs-style', SCM_ASSETS_FANCYBOX . 'helpers/jquery.fancybox-thumbs.css', false, null );
                 wp_register_style( 'fancybox-buttons-style', SCM_ASSETS_FANCYBOX . 'helpers/jquery.fancybox-buttons.css', false, null );*/
@@ -104,7 +105,8 @@ define( 'SCM_ASSETS_FANCYBOX', 'https://cdnjs.cloudflare.com/ajax/libs/fancybox/
 
             // Nivo Slider
 
-            if( get_field( 'main-slider-active', 'option' ) == 'nivo' || get_field( 'opt-tools-nivo', 'option' ) ){
+            $nivo = apply_filters( 'scm_assets_filter_block_nivo', false );
+            if( !$nivo && ( get_field( 'main-slider-active', 'option' ) == 'nivo' || get_field( 'opt-tools-nivo', 'option' ) ) ){
                 wp_register_style( 'nivo-style', SCM_ASSETS_URI_ASSETS . 'nivoSlider-3.2/nivo-slider.css', false, null );
                 wp_register_style( 'nivo-theme-style', SCM_ASSETS_URI_ASSETS . 'nivoSlider-3.2/themes/scm/scm.css', false, null );
                 wp_enqueue_style( 'nivo-style' );
@@ -113,7 +115,8 @@ define( 'SCM_ASSETS_FANCYBOX', 'https://cdnjs.cloudflare.com/ajax/libs/fancybox/
 
             // BX Slider
 
-            if( get_field( 'main-slider-active', 'option' ) == 'bx' || get_field( 'opt-tools-bx', 'option' ) ){
+            $bx = apply_filters( 'scm_assets_filter_block_bx', false );
+            if( !$bx && ( get_field( 'main-slider-active', 'option' ) == 'bx' || get_field( 'opt-tools-bx', 'option' ) ) ){
                 wp_register_style( 'bx-style', SCM_ASSETS_URI_ASSETS . 'jquery.bxslider-4.1.2/jquery.bxslider.css', false, null );
                 wp_enqueue_style( 'bx-style' );
             }
