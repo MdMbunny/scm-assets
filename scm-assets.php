@@ -3,7 +3,7 @@
  * Plugin Name:         SCM Assets
  * Plugin URI:          http://studiocreativo-m.it/
  * Description:         SCM Javascript Integration
- * Version:             1.4.5
+ * Version:             1.4.6
  * Author:              Studio Creativo M
  * Author URI:          http://studiocreativo-m.it/
  * License:             http://www.gnu.org/licenses/gpl-3.0.html
@@ -126,6 +126,8 @@ define( 'SCM_ASSETS_FANCYBOX', 'https://cdnjs.cloudflare.com/ajax/libs/fancybox/
     // scripts
     if ( ! function_exists( 'scm_assets_register_scripts' ) ) {
         function scm_assets_register_scripts() {
+
+            global $post;
             
             // jQuery Effects Core
 
@@ -224,6 +226,11 @@ define( 'SCM_ASSETS_FANCYBOX', 'https://cdnjs.cloudflare.com/ajax/libs/fancybox/
                 wp_enqueue_script( 'parallax' );
             }
 
+            // Table Sorter
+            //wp_register_script( 'tablesorter',  SCM_ASSETS_URI_ASSETS . 'tablesorter/jquery.tablesorter.js', array( 'jquery' ), null, true );
+            //wp_enqueue_script( 'tablesorter' );
+
+
             // SCM Stuff
 
             // MIN
@@ -232,6 +239,8 @@ define( 'SCM_ASSETS_FANCYBOX', 'https://cdnjs.cloudflare.com/ajax/libs/fancybox/
             // FULL
             wp_register_script( 'jquery-scm-functions', SCM_ASSETS_URI . 'scm-functions.js', array( 'imagesloaded' ), null, true );
             wp_enqueue_script( 'jquery-scm-functions' );
+            wp_register_script( 'jquery-scm-tables', SCM_ASSETS_URI . 'scm-tables.js', array( 'imagesloaded' ), null, true );
+            wp_enqueue_script( 'jquery-scm-tables' );
             wp_register_script( 'jquery-scm-tools', SCM_ASSETS_URI . 'scm-tools.js', array( 'jquery-scm-functions' ), null, true );
             wp_enqueue_script( 'jquery-scm-tools' );
 
@@ -251,6 +260,7 @@ define( 'SCM_ASSETS_FANCYBOX', 'https://cdnjs.cloudflare.com/ajax/libs/fancybox/
             global $wp_query;
             wp_localize_script( 'jquery-scm-tools', 'ajaxcall', array(
                 'url' => admin_url( 'admin-ajax.php' ),
+                'post_id' => $post->ID,
                 'query_vars' => json_encode( $wp_query->query ),
             ));
         }

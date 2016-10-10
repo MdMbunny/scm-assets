@@ -250,7 +250,7 @@
 		$.fn.goBack = function( e ) { window.history.back(); };
 	}
 
-//Find next selector, inside or aoutside parent
+//Find next selector, inside or outside parent
 	if ( !$.fn.findNext ) {
 		$.fn.findNext = function( selector ) {
 			var $next = this.next( selector );
@@ -290,6 +290,51 @@
 	$.PxToEm = function( input ) {
 	    var emSize = parseFloat($("body").css("font-size"));
 	    return (input / emSize);
+	}
+
+	// ARRAY
+
+	$.getByValue = function( arr, val ) {
+		for (var i = 0; i < arr.length; i++) {
+			if( val === arr[i] ) return i;
+		};
+		return -1;
+	}
+
+	$.objSize = function(obj) {
+	    var size = 0, key;
+	    for (key in obj) {
+	        if (obj.hasOwnProperty(key)) size++;
+	    }
+	    return size;
+	};
+
+	// OBJECT
+
+	$.sortKeys = function( obj ) {
+	    var keys = []; for(var key in obj) keys.push(key);
+	    return keys.sort(function(a,b){return obj[a]-obj[b]});
+	}
+
+	$.rsortKeys = function( obj ) {
+	    var keys = []; for(var key in obj) keys.push(key);
+	    return keys.sort(function(a,b){return obj[b]-obj[a]});
+	}
+
+	// NUMBER
+
+	$.stringDecimal = function( num ) {
+		if( typeof num == 'string' && $.isNumeric( parseFloat( num ) ) )
+			return num.replace(',','.');
+	    return num;
+	}
+
+	$.isNumeric = function( num ) {
+	    return !isNaN( $.stringDecimal(num) );
+	}
+
+	$.Numeric = function( num ) {
+	    return ( $.isNumeric( num ) ? +$.stringDecimal(num) : false );
 	}
 
 	// STRING

@@ -14,6 +14,7 @@
 //  Nivo Slider
 //	Fancybox
 //  Tooltip
+//  Editable Table
 //
 //	Change Page
 //*
@@ -456,20 +457,15 @@ var $MAGIC;
 		}
 	}
 
-	$.fn.loadIt = function( args, complete, loading, loading_args ){
+	$.fn.ajaxPost = function( url, aj_data, complete, loading, loading_args ){
 
 		if( typeof complete !== 'function' )
 			return this;
 
-		var aj_data = $.extend(
-			{ action: 'load_content', query_vars: ajaxcall.query_vars },
-			args
-		);
-
 		var $loading = $.getLoading( loading, loading_args ).appendTo( this ).hide().fadeIn( 'slow' );
 
 		$.ajax({
-			url: ajaxcall.url,
+			url: url,
 			type: 'post',
 			data: aj_data,
 			error: function(jqXHR, exception) {
@@ -490,13 +486,13 @@ var $MAGIC;
 	                msg = 'Uncaught Error.\n' + jqXHR.responseText;
 	            }
 	            
-				complete( '<span class="scm-error error">' + msg + '</span>' );
+				if( typeof complete === 'function' ) complete( '<span class="scm-error error">' + msg + '</span>', exception );
 	        },
 			success: function( html ) {
 				
 				$loading.fadeOut( 'slow', function(){
-					
-					complete( html );
+					$loading.remove();
+					if( typeof complete === 'function' ) complete( html );
 				} );
 			}
 		});
@@ -532,7 +528,13 @@ var $MAGIC;
 			var	current = parseFloat( set_current ? set_current : ( $this.data( 'load-current' ) ? $this.data( 'load-current' ) : 1 ) ),
 				next = $.getUrlParameter( id, link, 0 );
 
-			var aj_data = { name: id, archive: ARCHIVES[id] };
+			var aj_data = {
+				action: 'load_content',
+				name: id,
+				archive: ARCHIVES[id],
+				query_vars: ajaxcall.query_vars,
+			};
+
 			if( next ) aj_data[id] = next;
 
 			var enableContent = function(){
@@ -546,11 +548,11 @@ var $MAGIC;
 				} );
 			}
 
-			var replaceContent = function( html ){
+			var replaceContent = function( html, err ){
 				$container.hide().html( html ).fadeIn('fast', enableContent );
 			}
 
-			var moreContent = function( html ){
+			var moreContent = function( html, err ){
 				$children = $( html ).hide();
 				$first = $children.first();
 				$container.append( $children );
@@ -583,7 +585,7 @@ var $MAGIC;
 								$parent.animate({ 'height': w_height - $.getStickyHeight() }, 'fast' );
 
 
-							$parent.loadIt( aj_data, replaceContent, 'bar', { classes: 'absolute middle full-width double' } );
+							$parent.ajaxPost( ajaxcall.url, aj_data, replaceContent, 'bar', { classes: 'absolute middle full-width double' } );
 						}
 					});
 				break;
@@ -596,7 +598,7 @@ var $MAGIC;
 						$last.removeClass( 'last' );
 						aj_data[id + '-more'] = { counter: $last.data( 'counter' ), current: $last.data( 'current' ), total: $last.data( 'total' ), odd: $last.data( 'odd' ) };
 
-						$parent.loadIt( aj_data, moreContent, 'bar', { classes: 'relative full-width double' } );
+						$parent.ajaxPost( ajaxcall.url, aj_data, moreContent, 'bar', { classes: 'relative full-width double' } );
 					} );
 					
 
