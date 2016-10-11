@@ -13,10 +13,12 @@
 *****************************************************
 */
 
-$.getTable = function( opt ){
+$.fn.addTable = function( opt ){
+
+	
 
 	var defaults = {
-		id: '',
+		id: 'scm-table',
 		classes: '',
 		css: {},
 		sortable: false,
@@ -24,31 +26,47 @@ $.getTable = function( opt ){
 		editable: false,
 		noedit: [],
 		auto: [],
-		formats: [ 'string', 'string', 'string' ],
-		decimals: [ 0, 0, 0 ],
+		formats: [],
+		decimals: [],
+		autocomplete: false,
+		noauto: [],
 		head: 1,
-		header: [['A','B','C']],
+		header: [],
 		foot: 0,
 		footer: [],
 		columns: 3,
 		rows: 3,
-		prepend: [],
-		append: []
+		prepend: false,
 	};
 	var options = $.extend( defaults, opt ),
-		$table = $( '<table class="scm-table"></table>' ).attr( 'id', options.id ).addClass( options.classes ).css( options.css ),
-		$thead,
+		$this = this;
+		$table = $( '<table class="scm-table"></table>' ).attr( 'id', options.id ).addClass( options.classes ).css( options.css );
+
+	if( options.prepend )
+		$this.prepend( $table );
+	else
+		$this.append( $table );
+
+	var	$thead,
 		$tbody,
 		$tfoot,
 		classes = [];
 
-	var HeadFoot = function( elem, rows, cont, tag ){
+	var HeadFoot = function( elem ){
+		
+		var $elem = $( '<t' + elem + '></t' + elem + '>' ).appendTo( $table ),
+			rows = options[elem],
+			cont = options[elem+'er'],
+			tag = ( elem == 'head' ? 'th' : 'td' );
 		for (var i = 0; i < rows; i++) {
-			var rowclass = ( i == rows-1 ? 'class="row-head" ' : '' );
-			var $row = $( '<tr ' + rowclass + 'data-table-row="' + i + '"></tr>' ).appendTo( elem );
+			var rowclass = ( i == rows-1 ? 'class="row-' + elem + '" ' : '' );
+			var $row = $( '<tr ' + rowclass + 'data-table-row="' + i + '"></tr>' ).appendTo( $elem );
 			var j = 0;
 			if( cont[i] ){
+
 				$.each( cont[i], function( k, value ) {
+					var format = ( options.formats[k] ? options.formats[k] : 'string' );
+					var decimal = ( options.decimals[k] ? options.decimals[k] : 0 );
 					var nosort, noedit = '';
 					if( rowclass ){
 						classes[j] = k;
@@ -62,37 +80,34 @@ $.getTable = function( opt ){
 						cls = cls + ' ' + icon.classes;
 						value = icon.value + ' ' + value;
 					}
-					if( rowclass )
-						cls = cls + ( nosort ? ' no-sort' : ' sort' ) + ( noedit ? ' no-edit' : ' edit' );
-					$row.append( '<' + tag + ( cls ? ' class="' + cls + '"' : '' ) + ' data-column-format="' + ( options.formats[k] ? options.formats[k] : 'string' ) + '"' + ' data-column-decimal="' + ( options.decimals[k] ? options.decimals[k] : 0 ) + '"' + ' data-column-sort="' + ( nosort ? false : true ) + '"' + ' data-column-edit="' + ( noedit ? false : true ) + '"' + ' data-cell="' + i*j + '" data-cell-row="' + i + '" data-cell-column="' + j + '" >' + value + '</th>' );
+
+					if( rowclass ) cls = cls + ( nosort ? ' no-sort' : ' sort' ) + ( noedit ? ' no-edit' : ' edit' );
+					var auto = ( options.autocomplete && !options.noauto[k] && elem == 'head' && rowclass && format == 'string' );
+					//if( options.datalist && !options.nolist[k] && elem == 'head' && rowclass && format == 'string' ) $this.prepend( '<datalist id="list-' + k + '"></datalist>' );
+					$row.append( '<' + tag + ( cls ? ' class="' + cls + '"' : '' ) + ( auto ? ' data-auto-complete="true"' : '' ) + ' data-column-name="' + k + '" data-column-format="' + format + '"' + ' data-column-decimal="' + decimal + '"' + ' data-column-sort="' + ( nosort ? false : true ) + '"' + ' data-column-edit="' + ( noedit ? false : true ) + '"' + ' data-cell="' + (i+1)*j + '" data-cell-row="' + i + '" data-cell-column="' + j + '" >' + value + '</th>' );
 					j++;
 				});
 			}
 		}
 	}
 
-	if( options.head && options.header ){
-		$thead = $( '<thead></thead>' ).appendTo( $table );
-		HeadFoot( $thead, options.head, options.header, 'th' );
-	}
-	if( options.foot && options.footer ){
-		$tfoot = $( '<tfoot></tfoot>' ).appendTo( $table );
-		HeadFoot( $tfoot, options.foot, options.footer );
-	}
-	$tbody = $( '<tbody></tbody>' ).appendTo( $table );
-	for (var i = 0; i < options.rows; i++) {
-		//$table.addRow( i, options, classes );
-		var $row = $( '<tr data-table-row="' + i + '"></tr>' ).appendTo( $tbody );
-		for (var j = 0; j < options.columns; j++) {
-			var ind = classes[j];
-			var cls = ( $.isNumeric( ind ) ? '' : ind );
-			var noedit = ( options.noedit.length && options.noedit[ind] );
-			$row.append( '<td class="cell' + ( cls ? ' ' + cls : '' ) + ( noedit ? ' no-edit' : '' ) + '" data-cell="' + (i+1)*j + '" data-cell-row="' + i + '" data-cell-column="' + j + '" data-cell-format="' + ( options.formats[ind] ? options.formats[ind] : 'string' ) + '" data-cell-decimal="' + ( options.decimals[ind] ? options.decimals[ind] : 0 ) + ' data-cell-auto="' + ( options.auto[ind] ? options.auto[ind] : '' ) + '"></th>' );
+	var Body = function(){
+		$tbody = $( '<tbody></tbody>' ).appendTo( $table );
+		for (var i = 0; i < options.rows; i++) {
+			//$table.addRow( i, options, classes );
+			var $row = $( '<tr data-table-row="' + i + '"></tr>' ).appendTo( $tbody );
+			for (var j = 0; j < options.columns; j++) {
+				var ind = classes[j];
+				var cls = ( $.isNumeric( ind ) ? '' : ind );
+				var noedit = ( options.noedit.length && options.noedit[ind] );
+				$row.append( '<td class="cell' + ( cls ? ' ' + cls : '' ) + ( noedit ? ' no-edit' : '' ) + '" data-column-name="' + ind + '" data-cell="' + (i+1)*j + '" data-cell-row="' + i + '" data-cell-column="' + j + '" data-cell-format="' + ( options.formats[ind] ? options.formats[ind] : 'string' ) + '" data-cell-decimal="' + ( options.decimals[ind] ? options.decimals[ind] : 0 ) + ' data-cell-auto="' + ( options.auto[ind] ? options.auto[ind] : '' ) + '"></th>' );
+			}
 		}
-	}
+	}	
 
-	if( options.prepend.length )
-		options.prepend.prepend( $table );
+	if( options.head && options.header ) HeadFoot( 'head' );
+	if( options.foot && options.footer ) HeadFoot( 'foot' );
+	Body();
 
 	if( options.sortable ) $table.addClass( 'sortable' ).sortTable();
 	if( options.editable ) $table.addClass( 'editable' ).editTable({
@@ -303,44 +318,67 @@ $.fn.getRow = function( row, body ){
 			
 			var ARROW_LEFT = 37, ARROW_UP = 38, ARROW_RIGHT = 39, ARROW_DOWN = 40, ENTER = 13, ESC = 27, TAB = 9;
 
-			var $this = $(this),				
-				$input = options.editor.css( 'position', 'absolute' ).hide().appendTo( $this.parent() ),
+			var $this = $(this),
+				$parent = $this.parent(),
+				$input = options.editor.css( 'position', 'absolute' ).hide().appendTo( $parent ),
 				offset = options.offset,
 				width = ( 'width' in offset ? offset.width : 0 ),
 				height = ( 'height' in offset ? offset.height : 0 ),
-				$cell;
+				$cell,
+				cmdKey = false;
 
 			var showEditor = function( select ) {
 					$cell = $this.find( 'td.edit:focus' );
 					if( $cell.length ){
 						$cell.removeClass('error');
+						var name = $cell.data( 'column-name' );
+						//var $list = $( 'datalist#list-' + name );
+						var list = $this.find( 'th[data-column-name="' + name + '"]' ).data( 'auto-complete' );
 
 						$input.val( $cell.text() )
 							.show()
 							.offset( $cell.offset() )
 							.css( $cell.css( options.props ) )
 							.width( $cell.width() + width )
-							.height( $cell.height() + height )
-							.focus();
+							.height( $cell.height() + height );
+
+						if( list ){
+							
+							//$list.empty();
+							var $cells = $this.find( 'td[data-column-name="' + name + '"]' ).not( $cell );
+							var arr = [];
+						    $cells.each(function() {
+						        if ($.inArray($(this).text(), arr) == -1)
+						            arr.push($(this).text());
+						    });
+
+						    /*for (var i = 0; i < arr.length; i++) {
+						        $( '<option value="' + arr[i] + '">' ).appendTo( $list );
+						    }
+						    $input.attr( 'list', 'list-' + name );*/
+						    $input.autocomplete( {
+						    	source: arr,
+						    	appendTo: $parent,
+							});
+						}
+
+						$input.focus();
 
 						if( select )
 							$input.select();
 					}
 				},
-				setActiveText = function( set ){
-					$cell.editCell( $input.val() );
-				},
 				checkCell = function( cell, keycode ){
 					var arr = [];
 					if( keycode ){
 						if( keycode === ARROW_RIGHT )
-							arr = cell.nextAll( 'td.edit:first' );
+							arr = ( !cmdKey ? cell.nextAll( 'td.edit:first' ) : cell.nextAll( 'td.edit:last' ) );
 						else if(keycode === ARROW_LEFT)
-							arr = cell.prevAll( 'td.edit:first' );
+							arr = ( !cmdKey ? cell.prevAll( 'td.edit:first' ) : cell.prevAll( 'td.edit:last' ) );
 						else if(keycode === ARROW_UP)
-							arr = cell.parent().prev().children().eq( cell.index() );
+							arr = ( !cmdKey ? cell.parent().prev().children().eq( cell.index() ) : cell.parent().prevAll( 'tr:last' ).children().eq( cell.index() ) );
 						else if(keycode === ARROW_DOWN)
-							arr = cell.parent().next().children().eq( cell.index() );
+							arr = ( !cmdKey ? cell.parent().next().children().eq( cell.index() ) : cell.parent().nextAll( 'tr:last' ).children().eq( cell.index() ) );
 						else if(keycode === true)
 							arr = cell.filter( '.edit' );
 						else
@@ -352,11 +390,11 @@ $.fn.getRow = function( row, body ){
 				};
 
 			$input.blur( function(){
-				setActiveText();
+				$cell.editCell( $input.val() );
 				$input.hide();
 			}).keydown( function( e ){
 				if( e.which === ENTER ){
-					setActiveText();
+					$cell.editCell( $input.val() );
 					$input.hide();
 					$cell.focus();
 					e.preventDefault();
@@ -369,14 +407,14 @@ $.fn.getRow = function( row, body ){
 					$cell.focus();
 				}else if( e.which === TAB ){
 					$cell.focus();
-				}else if( this.selectionEnd - this.selectionStart === this.value.length ){
+				}/*else if( this.selectionEnd - this.selectionStart === this.value.length ){
 					var check = checkCell( $cell, e.which );
 					if( check.length > 0 ){
 						check.focus();
 						e.preventDefault();
 						e.stopPropagation();
 					}
-				}
+				}*/
 			})
 			.on( 'input paste', function(){
 				$cell.validCell( $input.val() );
@@ -386,25 +424,28 @@ $.fn.getRow = function( row, body ){
 			//$this.find( '[data-cell-edit="false"]' ).removeClass('edit');
 			$this.find( '.no-edit' ).removeClass('edit');
 			$this.on( 'click keypress dblclick', function( e ){
-				showEditor();
+				showEditor( true );
 			})
 			.keydown( function( e ){
+				if( e.which == 93 ) cmdKey = true;
 				var prevent = true,
 					check = checkCell( $( e.target ), e.which );
 				if( check.length > 0 ){
 					check.focus();
 				}else if( e.which === ENTER ){
 					showEditor( true );
-				}else if( e.which === 17 || e.which === 91 || e.which === 93 ){
+				}/*else if( e.which === 17 || e.which === 91 || e.which === 93 ){
 					showEditor( true );
 					prevent = false;
-				}else{
+				}*/else{
 					prevent = false;
 				}
 				if( prevent ){
 					e.stopPropagation();
 					e.preventDefault();
 				}
+			}).keyup( function( e ){
+				if( e.which == 93 ) cmdKey = false;
 			});
 
 			$( window ).on( 'resize', function () {

@@ -3,7 +3,7 @@
  * Plugin Name:         SCM Assets
  * Plugin URI:          http://studiocreativo-m.it/
  * Description:         SCM Javascript Integration
- * Version:             1.4.7
+ * Version:             1.4.8
  * Author:              Studio Creativo M
  * Author URI:          http://studiocreativo-m.it/
  * License:             http://www.gnu.org/licenses/gpl-3.0.html
@@ -132,6 +132,7 @@ define( 'SCM_ASSETS_FANCYBOX', 'https://cdnjs.cloudflare.com/ajax/libs/fancybox/
             // jQuery Effects Core
 
             wp_enqueue_script('jquery-effects-core');
+            wp_enqueue_script('jquery-ui-autocomplete');
             wp_enqueue_script('imagesloaded');
 
             // Greensock
