@@ -13,7 +13,7 @@
 *****************************************************
 */
 
-$.scmTable = function( opt ){
+$.getTable = function( opt ){
 
 	var defaults = {
 		id: '',
@@ -58,7 +58,7 @@ $.scmTable = function( opt ){
 
 					var cls = ( $.isNumeric( k ) ? '' : k );
 					if( cls ){
-						var icon = $.scmTableIcon( cls );
+						var icon = $.getTableIcon( cls );
 						cls = cls + ' ' + icon.classes;
 						value = icon.value + ' ' + value;
 					}
@@ -81,6 +81,7 @@ $.scmTable = function( opt ){
 	}
 	$tbody = $( '<tbody></tbody>' ).appendTo( $table );
 	for (var i = 0; i < options.rows; i++) {
+		//$table.addRow( i, options, classes );
 		var $row = $( '<tr data-table-row="' + i + '"></tr>' ).appendTo( $tbody );
 		for (var j = 0; j < options.columns; j++) {
 			var ind = classes[j];
@@ -106,14 +107,48 @@ $.scmTable = function( opt ){
 // *	CELLS
 // *****************************************************
 
-$.fn.scmCell = function( col, row, body ){
+$.fn.getCell = function( col, row, body ){
 	var cls = '.cell' + ( undefined === row || row === false || $.isNumeric( row ) ? '' : '.' + row ) + ( undefined === col || col === false || $.isNumeric( col ) ? '' : '.' + col );
 	var data = ( $.isNumeric( row ) ? '[data-cell-row="' + row + '"]' : '') + ( $.isNumeric( col ) ? '[data-cell-column="' + col + '"]' : '');
 
 	return $( $(this).find( ( body ? body : 'tbody ' ) + cls + data ) );
 }
 
-$.fn.scmRow = function( row, body ){
+$.fn.pushRow = function( row ){
+	var $tbody = this.find( 'tbody' ),
+		$rows = $tbody.find('tr'),
+		n = $rows.length,
+		l = n-1,
+		i = ( undefined === row ? l : row ),
+		$tr = $( $rows[i] ).clone().data( 'table-row', n ).appendTo( $tbody ),
+		c = $tr.length;
+	$.each( $tr.find('td'), function( j, value ) {
+		$(this).data( 'cell', $(this).data( 'cell' ) + c ).data( 'cell-row', n ).text('');
+	});
+}
+
+/*$.fn.addRow = function( row, opt, head ){
+	var defaults = {
+		noedit: [],
+		auto: [],
+		formats: [],
+		decimals: [],
+	};
+	var options = $.extend( defaults, opt ),
+		$tbody = this.find( 'tbody' ),
+		i = ( undefined === row ? $tbody.find('tr').length : row ),
+		$row = $( '<tr data-table-row="' + i + '"></tr>' ).appendTo( $tbody ),
+		max = $( $tbody.find('tr')[0] ).find('td').length;
+
+	for (var j = 0; j < max; j++) {
+		var ind = ( undefined === head ? j : head[j] );
+		var cls = ( $.isNumeric( ind ) ? '' : ind );
+		var noedit = ( options.noedit.length && options.noedit[ind] );
+		$row.append( '<td class="cell' + ( cls ? ' ' + cls : '' ) + ( noedit ? ' no-edit' : '' ) + '" data-cell="' + (i+1)*j + '" data-cell-row="' + i + '" data-cell-column="' + j + '" data-cell-format="' + ( options.formats[ind] ? options.formats[ind] : 'string' ) + '" data-cell-decimal="' + ( options.decimals[ind] ? options.decimals[ind] : 0 ) + ' data-cell-auto="' + ( options.auto[ind] ? options.auto[ind] : '' ) + '"></th>' );
+	}
+}*/
+
+$.fn.getRow = function( row, body ){
 	return $( $(this).find( ( body ? body : 'tbody ' ) + ( $.isNumeric( row ) ? '[data-table-row="' + row + '"]' : 'tr.' + row ) ) );
 }
 
@@ -395,7 +430,7 @@ $.fn.scmRow = function( row, body ){
 // *      TABLE HEAD ICONS
 // *****************************************************
 
-$.scmTableIcon = function( name ){
+$.getTableIcon = function( name ){
 	var icon = {
 		classes: 'pin',
 		value: '',
