@@ -360,6 +360,7 @@ $.fn.getRow = function( row, body ){
 						    	source: arr,
 						    	appendTo: $parent,
 							});
+							$('.ui-autocomplete').css({'min-width':$input.outerWidth()});
 						}
 
 						$input.focus();
