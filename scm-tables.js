@@ -15,8 +15,6 @@
 
 $.fn.addTable = function( opt ){
 
-	
-
 	var defaults = {
 		id: 'scm-table',
 		classes: '',
@@ -100,7 +98,7 @@ $.fn.addTable = function( opt ){
 				var ind = classes[j];
 				var cls = ( $.isNumeric( ind ) ? '' : ind );
 				var noedit = ( options.noedit.length && options.noedit[ind] );
-				$row.append( '<td class="cell' + ( cls ? ' ' + cls : '' ) + ( noedit ? ' no-edit' : '' ) + '" data-column-name="' + ind + '" data-cell="' + (i+1)*j + '" data-cell-row="' + i + '" data-cell-column="' + j + '" data-cell-format="' + ( options.formats[ind] ? options.formats[ind] : 'string' ) + '" data-cell-decimal="' + ( options.decimals[ind] ? options.decimals[ind] : 0 ) + ' data-cell-auto="' + ( options.auto[ind] ? options.auto[ind] : '' ) + '"></th>' );
+				$row.append( '<td class="cell' + ( cls ? ' ' + cls : '' ) + ( noedit ? ' no-edit' : '' ) + '" data-column-name="' + ind + '" data-cell="' + (i+1)*j + '" data-cell-row="' + i + '" data-cell-column="' + j + '" data-cell-format="' + ( options.formats[ind] ? options.formats[ind] : 'string' ) + '" data-cell-decimal="' + ( options.decimals[ind] ? options.decimals[ind] : 0 ) + '" data-cell-auto="' + ( options.auto[ind] ? options.auto[ind] : '' ) + '"></th>' );
 			}
 		}
 	}	
@@ -478,6 +476,16 @@ $.getTableIcon = function( name ){
 		value: '',
 	};
 	switch( name ){
+		case 'trigger':
+		icon.classes = icon.classes + ' trigger light-red';
+		icon.value = '<i class="fa fa-puzzle-piece"></i>';
+		break;
+		case 'draw':
+		case 'special':
+		icon.classes = icon.classes + ' special light-red';
+		icon.value = '<i class="fa fa-fort-awesome"></i>';
+		break;
+		case 'order':
 		case 'count':
 		icon.classes = icon.classes + ' count light-purple';
 		icon.value = '<i class="fa fa-hashtag"></i>';
@@ -486,6 +494,7 @@ $.getTableIcon = function( name ){
 		icon.classes = icon.classes + ' date light-green';
 		icon.value = '<i class="fa fa-calendar-o"></i>';
 		break;
+		case 'duration':
 		case 'time':
 		icon.classes = icon.classes + ' time light-purple';
 		icon.value = '<i class="fa fa-clock-o"></i>';
@@ -519,20 +528,20 @@ $.getTableIcon = function( name ){
 		icon.value = '<i class="fa fa-star"></i>';
 		break;
 		case 'gold':
-		icon.classes = icon.classes + ' star gold';
-		icon.value = '<i class="fa fa-star"></i>';
+		icon.classes = icon.classes + ' medal gold';
+		icon.value = '<i class="fa fa-trophy"></i>';
 		break;
 		case 'silver':
-		icon.classes = icon.classes + ' star silver';
-		icon.value = '<i class="fa fa-star"></i>';
+		icon.classes = icon.classes + ' medal silver';
+		icon.value = '<i class="fa fa-trophy"></i>';
 		break;
 		case 'bronze':
-		icon.classes = icon.classes + ' star bronze';
-		icon.value = '<i class="fa fa-star"></i>';
+		icon.classes = icon.classes + ' medal bronze';
+		icon.value = '<i class="fa fa-trophy"></i>';
 		break;
 		case 'wood':
-		icon.classes = icon.classes + ' star wood';
-		icon.value = '<i class="fa fa-star"></i>';
+		icon.classes = icon.classes + ' medal wood';
+		icon.value = '<i class="fa fa-trophy"></i>';
 		break;
 		case 'chart':
 		icon.classes = icon.classes + ' chart light-green';
