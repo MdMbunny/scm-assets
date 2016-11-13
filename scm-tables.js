@@ -4,7 +4,6 @@
 *****************************************************
 */
 
-
 (function($) {
 
 /*
@@ -20,22 +19,16 @@ $.fn.addTable = function( opt ){
 		classes: '',
 		css: {},
 		sortable: false,
-		nosort: [],
 		editable: false,
-		noedit: [],
-		auto: [],
-		formats: [],
-		decimals: [],
 		autocomplete: false,
-		noauto: [],
-		head: 1,
+		head: 0,
 		header: [],
-		foot: 0,
-		footer: [],
 		columns: 3,
 		rows: 3,
 		prepend: false,
+		emptyrow: false,
 	};
+
 	var options = $.extend( defaults, opt ),
 		$this = this;
 		$table = $( '<table class="scm-table"></table>' ).attr( 'id', options.id ).addClass( options.classes ).css( options.css );
@@ -45,71 +38,80 @@ $.fn.addTable = function( opt ){
 	else
 		$this.append( $table );
 
-	var	$thead,
-		$tbody,
-		$tfoot,
-		classes = [];
+	var	columns = [];
 
-	var HeadFoot = function( elem ){
+	var Head = function(){
 		
-		var $elem = $( '<t' + elem + '></t' + elem + '>' ).appendTo( $table ),
-			rows = options[elem],
-			cont = options[elem+'er'],
-			tag = ( elem == 'head' ? 'th' : 'td' );
-		for (var i = 0; i < rows; i++) {
-			var rowclass = ( i == rows-1 ? 'class="row-' + elem + '" ' : '' );
-			var $row = $( '<tr ' + rowclass + 'data-table-row="' + i + '"></tr>' ).appendTo( $elem );
-			var j = 0;
-			if( cont[i] ){
+		var $thead = $( '<thead></thead>' ).appendTo( $table ),
+			cols = options.header,
+			rows = ( options.head ? options.head : cols.length );
 
-				$.each( cont[i], function( k, value ) {
-					var format = ( options.formats[k] ? options.formats[k] : 'string' );
-					var decimal = ( options.decimals[k] ? options.decimals[k] : 0 );
-					var nosort, noedit = '';
-					if( rowclass ){
-						classes[j] = k;
-						nosort = ( options.nosort.length && options.nosort[k] );
-						noedit = ( options.noedit.length && options.noedit[k] );
+		for (var row = 0; row < rows; row++) {
+			
+			var main = ( row == rows-1 ? 'class="row-head" ' : '' ),
+				$row = $( '<tr ' + main + 'data-table-row="' + row + '"></tr>' ).appendTo( $thead ),
+				col = 0;
+
+			if( cols[row] ){
+
+				$.each( cols[row], function( key, value ) {
+					var cls = ( $.isNumeric( key ) ? '' : key );
+					if( main ){
+						
+						var name = value.name,
+							fa = ( value.icon ? value.icon.startsWith('fa-') : false ),
+							icon = ( value.icon ? '<i class="fa ' + ( !fa ? 'text' : value.icon ) + '">' + ( !fa ? value.icon : '' ) + '</i> ' : '' ),
+							format = ( value.format ? value.format : 'string' ),
+							exception = ( value.exception ? value.exception : '' ),
+							decimal = ( value.decimal ? value.decimal : 0 ),
+							auto = ( options.autocomplete && !value.noauto && format != 'date' ),
+							nosort = ( value.nosort ? true : !options.sortable ),
+							noedit = ( value.noedit ? true : !options.editable );
+
+						cls = ( value.icon ? ' pin' : '' ) + ( value.color ? ' ' + value.color : '' ) + ( nosort ? ' no-sort' : ' sort' ) + ( noedit ? ' no-edit' : ' edit' );
+
+						columns[col] = {
+							slug: key,
+							format: format,
+							exception: exception,
+							decimal: decimal,
+							noedit: noedit,
+							auto: auto,
+						};						
+						
+						$row.append( '<th class="' + cls + '"' + ' data-auto-complete="' + auto + '"' + ' data-column-name="' + key + '" data-column-format="' + format + '" data-column-exception="' + exception + '"' + ' data-column-decimal="' + decimal + '"' + ' data-column-sort="' + !nosort + '"' + ' data-column-edit="' + !noedit + '"' + ' data-cell="' + (row+1)*col + '" data-cell-row="' + row + '" data-cell-column="' + col + '" >' + icon + name + '</th>' );
+						
+					}else{
+						$row.append( '<th' ( cls ? ' class="' + cls + '"' : '' ) + ' data-column-name="' + key + ' data-cell="' + (row+1)*col + '" data-cell-row="' + row + '" data-cell-column="' + col + '" >' + value + '</th>' );
 					}
 
-					var cls = ( $.isNumeric( k ) ? '' : k );
-					if( cls ){
-						var icon = $.getTableIcon( cls );
-						cls = cls + ' ' + icon.classes;
-						value = icon.value + ' ' + value;
-					}
-
-					if( rowclass ) cls = cls + ( nosort ? ' no-sort' : ' sort' ) + ( noedit ? ' no-edit' : ' edit' );
-					var auto = ( options.autocomplete && !options.noauto[k] && elem == 'head' && rowclass && format == 'string' );
-					//if( options.datalist && !options.nolist[k] && elem == 'head' && rowclass && format == 'string' ) $this.prepend( '<datalist id="list-' + k + '"></datalist>' );
-					$row.append( '<' + tag + ( cls ? ' class="' + cls + '"' : '' ) + ( auto ? ' data-auto-complete="true"' : '' ) + ' data-column-name="' + k + '" data-column-format="' + format + '"' + ' data-column-decimal="' + decimal + '"' + ' data-column-sort="' + ( nosort ? false : true ) + '"' + ' data-column-edit="' + ( noedit ? false : true ) + '"' + ' data-cell="' + (i+1)*j + '" data-cell-row="' + i + '" data-cell-column="' + j + '" >' + value + '</th>' );
-					j++;
+					col++;
 				});
+
 			}
 		}
 	}
 
 	var Body = function(){
-		$tbody = $( '<tbody></tbody>' ).appendTo( $table );
-		for (var i = 0; i < options.rows; i++) {
-			//$table.addRow( i, options, classes );
-			var $row = $( '<tr data-table-row="' + i + '"></tr>' ).appendTo( $tbody );
-			for (var j = 0; j < options.columns; j++) {
-				var ind = classes[j];
-				var cls = ( $.isNumeric( ind ) ? '' : ind );
-				var noedit = ( options.noedit.length && options.noedit[ind] );
-				$row.append( '<td class="cell' + ( cls ? ' ' + cls : '' ) + ( noedit ? ' no-edit' : '' ) + '" data-column-name="' + ind + '" data-cell="' + (i+1)*j + '" data-cell-row="' + i + '" data-cell-column="' + j + '" data-cell-format="' + ( options.formats[ind] ? options.formats[ind] : 'string' ) + '" data-cell-decimal="' + ( options.decimals[ind] ? options.decimals[ind] : 0 ) + '" data-cell-auto="' + ( options.auto[ind] ? options.auto[ind] : '' ) + '"></th>' );
+		var $tbody = $( '<tbody></tbody>' ).appendTo( $table );
+		
+		for (var row = 0; row < options.rows + ( options.emptyrow ? 1 : 0 ); row++) {
+			var $row = $( '<tr ' + ( options.emptyrow && row == options.rows ? ' class="empty"' : '' ) + 'data-table-row="' + row + '"></tr>' ).appendTo( $tbody );
+			for (var col = 0; col < options.columns; col++) {
+				var column = columns[col];
+				$row.append( '<td class="cell' + ( column.slug ? ' ' + column.slug : '' ) + ( column.noedit ? ' no-edit' : '' ) + '" data-column-name="' + column.slug + '" data-cell="' + (row+1)*col + '" data-cell-row="' + row + '" data-cell-column="' + col + '" data-cell-format="' + ( column.format ? column.format : 'string' ) + '" data-cell-exception="' + ( column.exception ? column.exception : '' ) + '" data-cell-decimal="' + ( column.decimal ? column.decimals : 0 ) + '" data-cell-auto="' + ( column.auto ? column.auto : false ) + '"></th>' );
 			}
 		}
 	}	
 
-	if( options.head && options.header ) HeadFoot( 'head' );
-	if( options.foot && options.footer ) HeadFoot( 'foot' );
+	if( options.header.length ) Head();
 	Body();
 
 	if( options.sortable ) $table.addClass( 'sortable' ).sortTable();
 	if( options.editable ) $table.addClass( 'editable' ).editTable({
 		editor: $('<input class="editable-input">'),
+		picker: $('<input class="color-picker editable-input">'),
+		calendar: $('<input class="date-picker editable-input">'),
 		offset: { 'width': 1, 'height': 1 },
 	});
 
@@ -135,6 +137,7 @@ $.fn.pushRow = function( row ){
 		i = ( undefined === row ? l : row ),
 		$tr = $( $rows[i] ).clone().data( 'table-row', n ).appendTo( $tbody ),
 		c = $tr.length;
+	$($rows[i]).removeClass('empty');
 	$.each( $tr.find('td'), function( j, value ) {
 		$(this).data( 'cell', $(this).data( 'cell' ) + c ).data( 'cell-row', n ).text('');
 	});
@@ -169,52 +172,109 @@ $.fn.getRow = function( row, body ){
 // *	SORTABLE TABLE
 // *****************************************************
 
+	
+
+	var sortAsc = function (a, b) {
+		if (a > b) return 1;
+		if (a < b) return -1;
+		return 0;
+	};
+
+	var sortDesc = function (a, b) {
+		if (a > b) return -1;
+		if (a < b) return 1;
+		return 0;
+	};
+
+	var dateSortAsc = function (a, b) {
+		var date1 = toDate(a);
+		var date2 = toDate(b);
+		return sortAsc( date1, date2 );
+	};
+
+	var dateSortDesc = function (a, b) {
+		var date1 = toDate(a);
+		var date2 = toDate(b);
+		return sortDesc( date1, date2 );
+	};
+
+	var toDate = function(val) {
+	    var date = val.split('-');
+	    return new Date(date[2], date[1] - 1, date[0]).getTime();
+	}
+
 	$.fn.sortColumn = function () {
 
 		return this.each( function() {
 
 			var $this = $(this),
 				$table = $this.parent().parent().parent(),
+				$tbody = $table.find('tbody'),
 				format = ( $this.data('column-format') ? $this.data('column-format') : 'string' ),
-				decimal = parseInt( $this.data('column-decimal') ? $this.data('column-decimal') : 0 ),
+				time = ( format == 'date' || format == 'time' || format == 'timer' );
+				decimal = ( $this.data('column-decimal') ? $this.data('column-decimal') : 0 ),
+				column = ( $this.data('cell-column') ? $this.data('cell-column') : 0 ),
 				sort = $this.data('column-sort') !== false,
 				evt = $.Event( 'sort' );
 
-			$this.trigger( evt );
-			if( evt.result === false || !sort )
-				return false;
-
 			$this.siblings().removeClass( 'sort-down' ).removeClass( 'sort-up' );
 
+			var $cells = $table.find( 'td[data-cell-column="' + column + '"]' );
+			
 			if( $this.hasClass( 'sort-down' ) ){
 				$this.removeClass( 'sort-down' );
 				$this.addClass( 'sort-up' );
+				var order = $cells.sort(function(a, b) {
+					var va = $(a).text();
+					var vb = $(b).text();
+					if( va === '' ) return 1;
+					if( vb === '' ) return -1;
+					if( time ) return dateSortAsc(va,vb);
+					return sortAsc(va,vb);
+					//return (va > vb) ? -1 : (va < vb) ? 1 : 0;
+				});
+
+				$.each( order, function( index, row) {
+					
+					if( !$(row).text() && $(row).text() !== 0 )
+						$tbody.find('tr[data-table-row="' + $(row).data('cell-row') + '"]').remove().appendTo($tbody);
+					else
+						$tbody.find('tr[data-table-row="' + $(row).data('cell-row') + '"]').remove().prependTo($tbody);
+				});
 
 			}else if( $this.hasClass( 'sort-up' ) ){
 				$this.removeClass( 'sort-up' );
+				var order = $cells.sort(function(a, b) {
+					var va = $(a).data('cell-row');
+					var vb = $(b).data('cell-row');
+					
+					return sortDesc(va,vb);
+				});
+				$.each( order, function( index, row) {
+					$tbody.find('tr[data-table-row="' + $(row).data('cell-row') + '"]').remove().prependTo($tbody);
+				});
 
 			}else{
 				$this.addClass( 'sort-down' );
-
+				var order = $cells.sort(function(a, b) {
+					var va = $(a).text();
+					var vb = $(b).text();
+					if( va === '' ) return -1;
+					if( vb === '' ) return 1;
+					if( time ) return dateSortDesc(va,vb);
+					return sortDesc(va,vb);
+					//return (va < vb) ? -1 : (va > vb) ? 1 : 0;
+				});
+				$.each( order, function( index, row) {
+					
+					if( !$(row).text() && $(row).text() !== 0 )
+						$tbody.find('tr[data-table-row="' + $(row).data('cell-row') + '"]').remove().appendTo($tbody);
+					else
+						$tbody.find('tr[data-table-row="' + $(row).data('cell-row') + '"]').remove().prependTo($tbody);
+				});
 			}
-			
-		});
-	}
-
-	$.fn.orderTable = function( order ) {
-
-		return this.each( function() {
-
-			var $this = $(this),
-				$rows = $this.find( 'tbody tr' ),
-				neworder = [];
-
-			if( $rows > 0 ){
-				for (var i = 0; i < $rows.length; i++) {
-					//$rows[i]
-				};
-			}
-
+			$tbody.find('tr.empty').remove().appendTo($tbody);
+			$table.trigger( evt );
 		});
 	}
 
@@ -231,7 +291,6 @@ $.fn.getRow = function( row, body ){
 					$(this).sortColumn();
 				} );
 			}
-
 		});
 	}
 
@@ -239,66 +298,163 @@ $.fn.getRow = function( row, body ){
 // *	EDITABLE TABLE
 // *****************************************************
 
-	$.fn.validCell = function ( set ) { // Add Format Validation
+
+	var isValidDate = function( value, format ){
+		var format = format || 'mm-dd-yyyy',
+			delimiter = /[^mdy]/.exec(format)[0],
+			theFormat = format.split(delimiter),
+			theDate = value.split(delimiter),
+
+		isDate = function (date, format) {
+			var m, d, y
+			for (var i = 0, len = format.length; i < len; i++) {
+				if (/m/.test(format[i])) m = date[i]
+				if (/d/.test(format[i])) d = date[i]
+				if (/y/.test(format[i])) y = date[i]
+			}
+			return (
+			m > 0 && m < 13 &&
+			y && y.length === 4 &&
+			d > 0 && d <= (new Date(y, m, 0)).getDate()
+			);
+		}
+
+		return isDate(theDate, theFormat)
+
+	}
+
+	var validDate = function( val ){
+		var curyear = (new Date).getFullYear().toString();
+		var arr = val.split( '-' );
+
+		if( arr.length < 2 ) return false;
+
+		if( arr.length < 3 ){
+			if( arr[1].length < 2 ) return false;
+			arr.push( curyear );
+		}
+
+		if( arr.length == 3 ){
+			if( !arr[2] ) arr[2] = curyear;
+		}
+
+		if( arr[2].length < 4 ) return false;
+	
+		if( $.Numeric( arr[0] ) > 31 ) arr[0] = '31';
+		if( $.Numeric( arr[1] ) > 12 ) arr[1] = '12';
+		if( arr[0].length < 2 ) arr[0] = '0' + arr[0];
+		if( arr[1].length < 2 ) arr[1] = '0' + arr[1];
+		if( arr[0].length > 2  ) arr[0] = arr[0].substring( 0, 2 );
+		if( arr[1].length > 2  ) arr[1] = arr[1].substring( 0, 2 );
+		if( arr[2].length > 4  ) arr[2] = arr[2].substring( 0, 4 );
 		
+		val = arr[0] + '-' + arr[1] + '-' + arr[2];
+		if( !isValidDate( val, 'dd-mm-yyyy' ) ) return false;
+		return val;
+	}
+
+
+	$.fn.validCell = function ( cell ) { // Add Format Validation
+		if( !cell ) return this;
+		var invert = cell instanceof jQuery;
+
 		return this.each( function() {
 
-			var $this = $(this),
-				val = ( undefined != set ? set : $this.val() ),
-				format = ( $this.data('cell-format') ? $this.data('cell-format') : 'string' ),
-				correct = $this.data('cell-correct') !== false,
-				decimal = parseInt( $this.data( 'cell-decimal' ) ),
+			var $input = ( invert ? $(this) : 0 ),
+				val = ( invert ? $input.val() : cell ),
+				$cell = ( invert ? cell : $(this) ),
+				format = ( $cell.data('cell-format') ? $cell.data('cell-format') : 'string' ),
+				exception = ( $cell.data('cell-exception') ? $cell.data('cell-exception') : '' ),
+				correct = $cell.data('cell-correct') !== false,
+				decimal = parseInt( $cell.data( 'cell-decimal' ) ),
 				evt = $.Event( 'validate' );
 
-			$this.trigger( evt, val );
-			if( evt.result === false )
-				$this.addClass( 'error' );
-			else
-				$this.removeClass( 'error' );
+			switch( format ){
+				case 'int':
+				case 'number':
+				case 'float':
+					val = val.replace( exception, '' );
+					val = $.Numeric( val );
+				break;
+				case 'date':
+					val = validDate( val );
+					if( correct ){
+						if( val && $input ) $input.datepicker( 'setDate', val );
+					}
+				break;
+			}
+
+			$cell.trigger( evt, val );
+			
+			//if( !correct ){				
+				if( evt.result === false || val === false ){
+					if( $input ) $input.addClass( 'error' );
+					$cell.addClass( 'error' );
+				}else{
+					if( $input ) $input.removeClass( 'error' );
+					$cell.removeClass( 'error' );
+				}
+			//}
 
 		});
 	}
 
-	$.fn.editCell = function ( set ) {
+
+	$.fn.editCell = function ( cell ) {
+		if( !cell ) return this;
+		var invert = cell instanceof jQuery;
 		
 		return this.each( function() {
 		
-			var $this = $(this),
-				val = ( undefined != set ? set : $this.val() ),
-				format = ( $this.data('cell-format') ? $this.data('cell-format') : 'string' ),
-				correct = $this.data('cell-correct') !== false,
-				auto = $this.data('cell-auto') === true,
-				decimal = parseInt( $this.data( 'cell-decimal' ) ),
+			var $input = ( invert ? $(this) : 0 ),
+				$cell = ( $input ? cell : $(this) ),
+				format = ( $cell.data('cell-format') ? $cell.data('cell-format') : 'string' ),
+				exception = ( $cell.data('cell-exception') ? $cell.data('cell-exception') : '' ),
+				correct = $cell.data('cell-correct') !== false,
+				auto = $cell.data('cell-auto') === true,
+				decimal = parseInt( $cell.data( 'cell-decimal' ) ),
+				val = ( $input ? $input.val() : cell ),
 				evt = $.Event('change'),
 				orig;
+				//console.log(val);
 
 			// Text is the same || Validate Event returned Error = keeps original text
-			if( $this.text() === val.toString() || $this.hasClass('error') )
+			if( $cell.text() === val.toString() || ( !correct && $cell.hasClass('error') ) ){
+				if( $input ) $input.removeClass('error');
 				return true;
+			}
 
 			// Autocorrect > Format = corrects value by format
 			if( correct ){
-				$this.removeClass('error');
+				if( $input ) $input.removeClass('error');
+				$cell.removeClass('error');
 				if( auto || ( !auto && val !== '' ) ){
 					switch( format ){
 						case 'int':
 						case 'number':
 						case 'float':
+							orig = val;
+							val = val.replace( exception, '' );
 							val = $.Numeric( val );
 							if( val === false ) return true;
 							val = parseFloat( val );
 							if( format == 'int' ) val = Math.round( val );
 							else if( decimal ) val = val.toFixed( decimal );
+							val = orig;
+						break;
+						case 'date':
+							val = validDate( val );
+							if( !val ) return true;
 						break;
 					}
 				}
 			}
 			
 			// Change Event = back to original text if Event returned false
-			orig = $this.html();
-			$this.text( val.toString() ).trigger( evt, val );
+			orig = $cell.html();
+			$cell.text( val.toString() ).trigger( evt, val );
 			if( evt.result === false )
-				$this.html( orig );
+				$cell.html( orig );
 		});
 	}
 
@@ -319,22 +475,38 @@ $.fn.getRow = function( row, body ){
 			var $this = $(this),
 				$parent = $this.parent(),
 				$input = options.editor.css( 'position', 'absolute' ).hide().appendTo( $parent ),
+				$picker = options.picker.css( 'position', 'absolute' ).hide().appendTo( $parent ).iris(),
+				$calendar = options.calendar
+							.css( 'position', 'absolute' )
+							.hide().appendTo( $parent )
+							.datepicker({
+								dateFormat: 'dd-mm-yy',
+								constrainInput: false,
+								onSelect: function(dateText) { $cell.editCell( dateText ); }
+							}),
+				inputs = [ $input, $picker, $calendar ],
 				offset = options.offset,
 				width = ( 'width' in offset ? offset.width : 0 ),
 				height = ( 'height' in offset ? offset.height : 0 ),
-				$cell,
-				cmdKey = false;
+				$cell, $temp,
+				cmdKey = false,
+				format = '';
 
 			var showEditor = function( select ) {
 					$cell = $this.find( 'td.edit:focus' );
 					if( $cell.length ){
 						$cell.removeClass('error');
+						format = $cell.data( 'cell-format' );
 						var name = $cell.data( 'column-name' );
-						//var $list = $( 'datalist#list-' + name );
-						var list = $this.find( 'th[data-column-name="' + name + '"]' ).data( 'auto-complete' );
+						var list = ( $this.find( 'th[data-column-name="' + name + '"]' ).data( 'auto-complete' ) );
+						
+						$temp = ( format == 'color' ? $picker : ( format == 'date' ? $calendar : $input ) );
+						if( format == 'date' )
+							$temp.datepicker( 'setDate', $cell.text() );
+						else
+							$temp.val( $cell.text() );
 
-						$input.val( $cell.text() )
-							.show()
+						$temp.show()
 							.offset( $cell.offset() )
 							.css( $cell.css( options.props ) )
 							.width( $cell.width() + width )
@@ -342,7 +514,6 @@ $.fn.getRow = function( row, body ){
 
 						if( list ){
 							
-							//$list.empty();
 							var $cells = $this.find( 'td[data-column-name="' + name + '"]' ).not( $cell );
 							var arr = [];
 						    $cells.each(function() {
@@ -350,21 +521,28 @@ $.fn.getRow = function( row, body ){
 						            arr.push($(this).text());
 						    });
 
-						    /*for (var i = 0; i < arr.length; i++) {
-						        $( '<option value="' + arr[i] + '">' ).appendTo( $list );
-						    }
-						    $input.attr( 'list', 'list-' + name );*/
-						    $input.autocomplete( {
-						    	source: arr,
+						    $temp.autocomplete( {
+						    	source: arr.sort(),
 						    	appendTo: $parent,
+						    	minLength: 0,
+						    	select: function( event, ui ){
+						    		if( ui.value ){
+							    		$cell.editCell( ui.value );
+							    		$temp.hide();
+							    	}
+						    	},
 							});
-							$('.ui-autocomplete').css({'min-width':$input.outerWidth()});
+							$('.ui-autocomplete').css({'min-width':$temp.outerWidth()});
+							$temp.autocomplete('enable');
+							$temp.autocomplete( 'search', '' );
+						}else if( $temp.autocomplete( 'instance' ) ){
+							$temp.autocomplete('disable');
 						}
 
-						$input.focus();
+						$temp.focus();
 
 						if( select )
-							$input.select();
+							$temp.select();
 					}
 				},
 				checkCell = function( cell, keycode ){
@@ -388,39 +566,33 @@ $.fn.getRow = function( row, body ){
 					return arr;
 				};
 
-			$input.blur( function(){
-				$cell.editCell( $input.val() );
-				$input.hide();
-			}).keydown( function( e ){
-				if( e.which === ENTER ){
-					$cell.editCell( $input.val() );
-					$input.hide();
-					$cell.focus();
-					e.preventDefault();
-					e.stopPropagation();
-				}else if( e.which === ESC ){
-					$input.val( $cell.text() );
-					e.preventDefault();
-					e.stopPropagation();
-					$input.hide();
-					$cell.focus();
-				}else if( e.which === TAB ){
-					$cell.focus();
-				}/*else if( this.selectionEnd - this.selectionStart === this.value.length ){
-					var check = checkCell( $cell, e.which );
-					if( check.length > 0 ){
-						check.focus();
+			$.each( inputs, function( key, value ) {
+				value.blur( function(e){
+					value.editCell( $cell );
+					value.hide();
+				}).keydown( function( e ){
+					if( e.which === ENTER ){
+						value.editCell( $cell );
+						value.hide();
+						$cell.focus();
 						e.preventDefault();
 						e.stopPropagation();
+					}else if( e.which === ESC ){
+						value.val( $cell.text() );
+						e.preventDefault();
+						e.stopPropagation();
+						value.hide();
+						$cell.focus();
+					}else if( e.which === TAB ){
+						$cell.focus();
 					}
-				}*/
-			})
-			.on( 'input paste', function(){
-				$cell.validCell( $input.val() );
+				})
+				.on( 'input paste', function(){
+					value.validCell( $cell );
+				});
 			});
 
 			$this.find( 'td' ).prop( 'tabindex', 1 ).addClass('edit');
-			//$this.find( '[data-cell-edit="false"]' ).removeClass('edit');
 			$this.find( '.no-edit' ).removeClass('edit');
 			$this.on( 'click keypress dblclick', function( e ){
 				showEditor( true );
@@ -433,10 +605,7 @@ $.fn.getRow = function( row, body ){
 					check.focus();
 				}else if( e.which === ENTER ){
 					showEditor( true );
-				}/*else if( e.which === 17 || e.which === 91 || e.which === 93 ){
-					showEditor( true );
-					prevent = false;
-				}*/else{
+				}else{
 					prevent = false;
 				}
 				if( prevent ){
@@ -448,11 +617,14 @@ $.fn.getRow = function( row, body ){
 			});
 
 			$( window ).on( 'resize', function () {
-				if( $input.is(':visible') ) {
-					$input.offset( $cell.offset() )
-					.width( $cell.width() + width )
-					.height( $cell.height() + height );
-				}
+				$.each( inputs, function( key, value ) {
+					if( value.is(':visible') ) {
+						value.offset( $cell.offset() )
+						.width( $cell.width() + width )
+						.height( $cell.height() + height );
+					}
+				});
+				
 			});
 		});
 
@@ -462,102 +634,10 @@ $.fn.getRow = function( row, body ){
 						  'text-align', 'font', 'font-size', 'font-family', 'font-weight',
 						  'border-radius', 'border', 'border-top', 'border-bottom', 'border-left', 'border-right'],
 		editor: $('<input>'),
+		picker: $('<input class="color-picker">'),
+		calendar: $('<input class="date-picker">'),
 		offset: { 'width': 0, 'height': 0 },
 	};
-
-
-// *****************************************************
-// *      TABLE HEAD ICONS
-// *****************************************************
-
-$.getTableIcon = function( name ){
-	var icon = {
-		classes: 'pin',
-		value: '',
-	};
-	switch( name ){
-		case 'trigger':
-		icon.classes = icon.classes + ' trigger light-red';
-		icon.value = '<i class="fa fa-puzzle-piece"></i>';
-		break;
-		case 'draw':
-		case 'special':
-		icon.classes = icon.classes + ' special light-red';
-		icon.value = '<i class="fa fa-fort-awesome"></i>';
-		break;
-		case 'order':
-		case 'count':
-		icon.classes = icon.classes + ' count light-purple';
-		icon.value = '<i class="fa fa-hashtag"></i>';
-		break;
-		case 'date':
-		icon.classes = icon.classes + ' date light-green';
-		icon.value = '<i class="fa fa-calendar-o"></i>';
-		break;
-		case 'duration':
-		case 'time':
-		icon.classes = icon.classes + ' time light-purple';
-		icon.value = '<i class="fa fa-clock-o"></i>';
-		break;
-		case 'best':
-		icon.classes = icon.classes + ' best light-red';
-		icon.value = '<i class="fa fa-thumbs-up"></i>';
-		break;
-		case 'average':
-		icon.classes = icon.classes + ' average light-red';
-		icon.value = '<i class="fa fa-area-chart"></i>';
-		break;
-		case 'worst':
-		icon.classes = icon.classes + ' worst light-red';
-		icon.value = '<i class="fa fa-thumbs-down"></i>';
-		break;
-		case 'win':
-		icon.classes = icon.classes + ' win light-blue';
-		icon.value = '<i class="fa fa-trophy"></i>';
-		break;
-		case 'game':
-		icon.classes = icon.classes + ' game light-green';
-		icon.value = '<i class="fa fa-gamepad"></i>';
-		break;
-		case 'player':
-		icon.classes = icon.classes + ' player grey';
-		icon.value = '<i class="fa fa-male"></i>';
-		break;
-		case 'star':
-		icon.classes = icon.classes + ' star light-blue';
-		icon.value = '<i class="fa fa-star"></i>';
-		break;
-		case 'gold':
-		icon.classes = icon.classes + ' medal gold';
-		icon.value = '<i class="fa fa-trophy"></i>';
-		break;
-		case 'silver':
-		icon.classes = icon.classes + ' medal silver';
-		icon.value = '<i class="fa fa-trophy"></i>';
-		break;
-		case 'bronze':
-		icon.classes = icon.classes + ' medal bronze';
-		icon.value = '<i class="fa fa-trophy"></i>';
-		break;
-		case 'wood':
-		icon.classes = icon.classes + ' medal wood';
-		icon.value = '<i class="fa fa-trophy"></i>';
-		break;
-		case 'chart':
-		icon.classes = icon.classes + ' chart light-green';
-		icon.value = '<i class="fa fa-pie-chart"></i>';
-		break;
-		case 'goal':
-		icon.classes = icon.classes + ' goal light-green';
-		icon.value = '<i class="fa fa-font-awesome"></i>';
-		break;
-		default:
-		icon.classes = icon.classes + ' scores light-blue';
-		icon.value = '<i class="fa text">' + name[0] + '</i>';
-		break;
-	}
-	return icon;
-}
 
 
 })( jQuery );
