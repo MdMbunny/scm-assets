@@ -1328,6 +1328,50 @@ var $MAGIC;
 	}
 
 	// *****************************************************
+	// *      DETAILS OVERLAY
+	// *****************************************************
+
+	$.fn.showDetails = function( id, content ){
+		$('body').addClass( 'disabled' );
+		this.children().hide();
+		var $content = $( '#' + id );
+		if( !$content.length )
+			$content = ( $.isFunction( content ) ? content().appendTo( this ) : '' );
+		else
+			$content.show();
+		
+		this.attr( 'data-content', '#' + id );
+		this.addClass( 'opened' );
+		this.show();
+		
+	}
+	$.fn.hideDetails = function(){
+		this.hide();
+		this.attr( 'data-content', '' );
+		this.removeClass( 'opened' );
+		$('body').removeClass( 'disabled' );
+	}
+	$.newDetails = function( cls, close, show ){
+		
+		cls = ( !cls ? '' : ' ' + cls );
+
+		var $details = $( '<div class="details' + cls + '" data-content></div>' );
+
+		if( !show )
+			$details.hide();
+
+		if( close ){
+			$details.on( 'click', function(e){
+				if( $( e.target ).hasClass( 'details' ) ){
+					$details.hideDetails();
+				}
+			} );
+		}
+
+		return $details;
+	}
+
+	// *****************************************************
 	// *      AFFIX IT
 	// *****************************************************
 

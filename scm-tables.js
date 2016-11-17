@@ -129,18 +129,25 @@ $.fn.getCell = function( col, row, body ){
 	return $( $(this).find( ( body ? body : 'tbody ' ) + cls + data ) );
 }
 
-$.fn.pushRow = function( row ){
+$.fn.pushRow = function( row, events ){
 	var $tbody = this.find( 'tbody' ),
 		$rows = $tbody.find('tr'),
 		n = $rows.length,
 		l = n-1,
-		i = ( undefined === row ? l : row ),
+		i = ( undefined === row || row < 0 ? l : row ),
 		$tr = $( $rows[i] ).clone().data( 'table-row', n ).appendTo( $tbody ),
 		c = $tr.length;
 	$($rows[i]).removeClass('empty');
 	$.each( $tr.find('td'), function( j, value ) {
-		$(this).data( 'cell', $(this).data( 'cell' ) + c ).data( 'cell-row', n ).text('');
+		var $cell = $(this);
+		$cell.data( 'cell', $cell.data( 'cell' ) + c ).data( 'cell-row', n ).text('');
+		if( undefined !== events ){
+			$.each( events, function( k, val ) {
+				$cell.on( k, val );
+			});
+		}
 	});
+	return $tr;
 }
 
 /*$.fn.addRow = function( row, opt, head ){
