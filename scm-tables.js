@@ -237,6 +237,13 @@ $.fn.getRow = function( row, body ){
 					if( va === '' ) return 1;
 					if( vb === '' ) return -1;
 					if( time ) return dateSortAsc(va,vb);
+					if( format == 'int' ){
+						va = parseInt( va );
+						vb = parseInt( vb );
+					}else if( format == 'number' || format == 'float' ){
+						va = parseFloat( va );
+						vb = parseFloat( vb );
+					}
 					return sortAsc(va,vb);
 					//return (va > vb) ? -1 : (va < vb) ? 1 : 0;
 				});
@@ -254,7 +261,13 @@ $.fn.getRow = function( row, body ){
 				var order = $cells.sort(function(a, b) {
 					var va = $(a).data('cell-row');
 					var vb = $(b).data('cell-row');
-					
+					if( format == 'int' ){
+						va = parseInt( va );
+						vb = parseInt( vb );
+					}else if( format == 'number' || format == 'float' ){
+						va = parseFloat( va );
+						vb = parseFloat( vb );
+					}
 					return sortDesc(va,vb);
 				});
 				$.each( order, function( index, row) {
@@ -269,6 +282,13 @@ $.fn.getRow = function( row, body ){
 					if( va === '' ) return -1;
 					if( vb === '' ) return 1;
 					if( time ) return dateSortDesc(va,vb);
+					if( format == 'int' ){
+						va = parseInt( va );
+						vb = parseInt( vb );
+					}else if( format == 'number' || format == 'float' ){
+						va = parseFloat( va );
+						vb = parseFloat( vb );
+					}
 					return sortDesc(va,vb);
 					//return (va < vb) ? -1 : (va > vb) ? 1 : 0;
 				});
@@ -420,10 +440,9 @@ $.fn.getRow = function( row, body ){
 				correct = $cell.data('cell-correct') !== false,
 				auto = $cell.data('cell-auto') === true,
 				decimal = parseInt( $cell.data( 'cell-decimal' ) ),
-				val = ( $input ? $input.val() : cell ),
+				val = ( $input ? $input.val() : cell.toString() ),
 				evt = $.Event('change'),
 				orig;
-				//console.log(val);
 
 			// Text is the same || Validate Event returned Error = keeps original text
 			if( $cell.text() === val.toString() || ( !correct && $cell.hasClass('error') ) ){
