@@ -12,174 +12,157 @@
 *****************************************************
 */
 
-$.fn.addTable = function( opt ){
+	$.fn.addTable = function( opt ){
 
-	var defaults = {
-		id: 'scm-table',
-		classes: '',
-		css: {},
-		sortable: false,
-		editable: false,
-		autocomplete: false,
-		head: 0,
-		header: [],
-		columns: 3,
-		rows: 3,
-		prepend: false,
-		emptyrow: false,
-	};
+		var defaults = {
+			id: 'scm-table',
+			classes: '',
+			css: {},
+			sortable: false,
+			editable: false,
+			autocomplete: false,
+			head: 0,
+			header: [],
+			columns: 3,
+			rows: 3,
+			prepend: false,
+			emptyrow: false,
+		};
 
-	var options = $.extend( defaults, opt ),
-		$this = this;
-		$table = $( '<table class="scm-table"></table>' ).attr( 'id', options.id ).addClass( options.classes ).css( options.css );
+		var options = $.extend( defaults, opt ),
+			$this = this;
+			$table = $( '<table class="scm-table"></table>' ).attr( 'id', options.id ).addClass( options.classes ).css( options.css );
 
-	if( options.prepend )
-		$this.prepend( $table );
-	else
-		$this.append( $table );
+		if( options.prepend )
+			$this.prepend( $table );
+		else
+			$this.append( $table );
 
-	var	columns = [];
+		var	columns = [];
 
-	var Head = function(){
-		
-		var $thead = $( '<thead></thead>' ).appendTo( $table ),
-			cols = options.header,
-			rows = ( options.head ? options.head : cols.length );
-
-		for (var row = 0; row < rows; row++) {
+		var Head = function(){
 			
-			var main = ( row == rows-1 ? 'class="row-head" ' : '' ),
-				$row = $( '<tr ' + main + 'data-table-row="' + row + '"></tr>' ).appendTo( $thead ),
-				col = 0;
+			var $thead = $( '<thead></thead>' ).appendTo( $table ),
+				cols = options.header,
+				rows = ( options.head ? options.head : cols.length );
 
-			if( cols[row] ){
+			for (var row = 0; row < rows; row++) {
+				
+				var main = ( row == rows-1 ? 'class="row-head" ' : '' ),
+					$row = $( '<tr ' + main + 'data-table-row="' + row + '"></tr>' ).appendTo( $thead ),
+					col = 0;
 
-				$.each( cols[row], function( key, value ) {
-					var cls = ( $.isNumeric( key ) ? '' : key );
-					if( main ){
-						
-						var name = value.name,
-							fa = ( value.icon ? value.icon.startsWith('fa-') : false ),
-							icon = ( value.icon ? '<i class="fa ' + ( !fa ? 'text' : value.icon ) + '">' + ( !fa ? value.icon : '' ) + '</i> ' : '' ),
-							format = ( value.format ? value.format : 'string' ),
-							exception = ( value.exception ? value.exception : '' ),
-							decimal = ( value.decimal ? value.decimal : 0 ),
-							auto = ( options.autocomplete && !value.noauto && format != 'date' ),
-							nosort = ( value.nosort ? true : !options.sortable ),
-							noedit = ( value.noedit ? true : !options.editable );
+				if( cols[row] ){
 
-						cls = ( value.icon ? ' pin' : '' ) + ( value.color ? ' ' + value.color : '' ) + ( nosort ? ' no-sort' : ' sort' ) + ( noedit ? ' no-edit' : ' edit' );
+					$.each( cols[row], function( key, value ) {
+						var cls = ( $.isNumeric( key ) ? '' : key );
+						if( main ){
+							
+							var name = value.name,
+								fa = ( value.icon ? value.icon.startsWith('fa-') : false ),
+								icon = ( value.icon ? '<i class="fa ' + ( !fa ? 'text' : value.icon ) + '">' + ( !fa ? value.icon : '' ) + '</i> ' : '' ),
+								format = ( value.format ? value.format : 'string' ),
+								exception = ( value.exception ? value.exception : '' ),
+								decimal = ( value.decimal ? value.decimal : 0 ),
+								auto = ( options.autocomplete && !value.noauto && format != 'date' ),
+								sort = ( value.sort ? value.sort : '' ),
+								nosort = ( value.nosort ? true : !options.sortable ),
+								noedit = ( value.noedit ? true : !options.editable );
 
-						columns[col] = {
-							slug: key,
-							format: format,
-							exception: exception,
-							decimal: decimal,
-							noedit: noedit,
-							auto: auto,
-						};						
-						
-						$row.append( '<th class="' + cls + '"' + ' data-auto-complete="' + auto + '"' + ' data-column-name="' + key + '" data-column-format="' + format + '" data-column-exception="' + exception + '"' + ' data-column-decimal="' + decimal + '"' + ' data-column-sort="' + !nosort + '"' + ' data-column-edit="' + !noedit + '"' + ' data-cell="' + (row+1)*col + '" data-cell-row="' + row + '" data-cell-column="' + col + '" >' + icon + name + '</th>' );
-						
-					}else{
-						$row.append( '<th' ( cls ? ' class="' + cls + '"' : '' ) + ' data-column-name="' + key + ' data-cell="' + (row+1)*col + '" data-cell-row="' + row + '" data-cell-column="' + col + '" >' + value + '</th>' );
-					}
+							cls = ( value.icon ? ' pin' : '' ) + ( value.color ? ' ' + value.color : '' ) + ( nosort ? ' no-sort' : ' sort' ) + ( noedit ? ' no-edit' : ' edit' );
 
-					col++;
+							columns[col] = {
+								slug: key,
+								format: format,
+								exception: exception,
+								decimal: decimal,
+								noedit: noedit,
+								auto: auto,
+							};						
+							
+							$row.append( '<th class="' + cls + '"' + ' data-auto-complete="' + auto + '"' + ' data-column-name="' + key + '" data-column-format="' + format + '" data-column-exception="' + exception + '"' + ' data-column-decimal="' + decimal + '"' + ' data-column-sort="' + !nosort + '"' + ' data-column-sortby="' + sort + '"' + ' data-column-edit="' + !noedit + '"' + ' data-cell="' + (row+1)*col + '" data-cell-row="' + row + '" data-cell-column="' + col + '" >' + icon + name + '</th>' );
+							
+						}else{
+							$row.append( '<th' ( cls ? ' class="' + cls + '"' : '' ) + ' data-column-name="' + key + ' data-cell="' + (row+1)*col + '" data-cell-row="' + row + '" data-cell-column="' + col + '" >' + value + '</th>' );
+						}
+
+						col++;
+					});
+
+				}
+			}
+		}
+
+		var Body = function(){
+			var $tbody = $( '<tbody></tbody>' ).appendTo( $table );
+			
+			for (var row = 0; row < options.rows + ( options.emptyrow ? 1 : 0 ); row++) {
+				var $row = $( '<tr ' + ( options.emptyrow && row == options.rows ? ' class="empty"' : '' ) + 'data-table-row="' + row + '"></tr>' ).appendTo( $tbody );
+				for (var col = 0; col < options.columns; col++) {
+					var column = columns[col];
+					$row.append( '<td class="cell' + ( column.slug ? ' ' + column.slug : '' ) + ( column.noedit ? ' no-edit' : '' ) + '" data-column-name="' + column.slug + '" data-cell="' + (row+1)*col + '" data-cell-row="' + row + '" data-cell-column="' + col + '" data-cell-format="' + ( column.format ? column.format : 'string' ) + '" data-cell-exception="' + ( column.exception ? column.exception : '' ) + '" data-cell-decimal="' + ( column.decimal ? column.decimals : 0 ) + '" data-cell-auto="' + ( column.auto ? column.auto : false ) + '"></th>' );
+				}
+			}
+		}	
+
+		if( options.header.length ) Head();
+		Body();
+
+		if( options.sortable ) $table.addClass( 'sortable' ).sortTable();
+		if( options.editable ) $table.addClass( 'editable' ).editTable({
+			editor: $('<input class="editable-input">'),
+			picker: $('<input class="color-picker editable-input">'),
+			calendar: $('<input class="date-picker editable-input">'),
+			offset: { 'width': 1, 'height': 1 },
+		});
+
+		return $table;
+	}
+
+// *****************************************************
+// *	TABLE UTILITIES
+// *****************************************************
+
+	$.fn.getCell = function( col, row, body ){
+		var cls = '.cell' + ( undefined === row || row === false || $.isNumeric( row ) ? '' : '.' + row ) + ( undefined === col || col === false || $.isNumeric( col ) ? '' : '.' + col );
+		var data = ( $.isNumeric( row ) ? '[data-cell-row="' + row + '"]' : '') + ( $.isNumeric( col ) ? '[data-cell-column="' + col + '"]' : '');
+
+		return $( $(this).find( ( body ? body : 'tbody ' ) + cls + data ) );
+	}
+
+	$.fn.pushRow = function( row, events ){
+		var $tbody = this.find( 'tbody' ),
+			$rows = $tbody.find('tr'),
+			n = $rows.length,
+			l = n-1,
+			i = ( undefined === row || row < 0 ? l : row ),
+			$tr = $( $rows[i] ).clone().data( 'table-row', n ).appendTo( $tbody ),
+			c = $tr.length;
+		$($rows[i]).removeClass('empty');
+		$.each( $tr.find('td'), function( j, value ) {
+			var $cell = $(this);
+			$cell.data( 'cell', $cell.data( 'cell' ) + c ).data( 'cell-row', n ).text('');
+			if( undefined !== events ){
+				$.each( events, function( k, val ) {
+					$cell.on( k, val );
 				});
-
 			}
-		}
+		});
+		return $tr;
 	}
 
-	var Body = function(){
-		var $tbody = $( '<tbody></tbody>' ).appendTo( $table );
-		
-		for (var row = 0; row < options.rows + ( options.emptyrow ? 1 : 0 ); row++) {
-			var $row = $( '<tr ' + ( options.emptyrow && row == options.rows ? ' class="empty"' : '' ) + 'data-table-row="' + row + '"></tr>' ).appendTo( $tbody );
-			for (var col = 0; col < options.columns; col++) {
-				var column = columns[col];
-				$row.append( '<td class="cell' + ( column.slug ? ' ' + column.slug : '' ) + ( column.noedit ? ' no-edit' : '' ) + '" data-column-name="' + column.slug + '" data-cell="' + (row+1)*col + '" data-cell-row="' + row + '" data-cell-column="' + col + '" data-cell-format="' + ( column.format ? column.format : 'string' ) + '" data-cell-exception="' + ( column.exception ? column.exception : '' ) + '" data-cell-decimal="' + ( column.decimal ? column.decimals : 0 ) + '" data-cell-auto="' + ( column.auto ? column.auto : false ) + '"></th>' );
-			}
-		}
-	}	
-
-	if( options.header.length ) Head();
-	Body();
-
-	if( options.sortable ) $table.addClass( 'sortable' ).sortTable();
-	if( options.editable ) $table.addClass( 'editable' ).editTable({
-		editor: $('<input class="editable-input">'),
-		picker: $('<input class="color-picker editable-input">'),
-		calendar: $('<input class="date-picker editable-input">'),
-		offset: { 'width': 1, 'height': 1 },
-	});
-
-	return $table;
-}
-
-// *****************************************************
-// *	CELLS
-// *****************************************************
-
-$.fn.getCell = function( col, row, body ){
-	var cls = '.cell' + ( undefined === row || row === false || $.isNumeric( row ) ? '' : '.' + row ) + ( undefined === col || col === false || $.isNumeric( col ) ? '' : '.' + col );
-	var data = ( $.isNumeric( row ) ? '[data-cell-row="' + row + '"]' : '') + ( $.isNumeric( col ) ? '[data-cell-column="' + col + '"]' : '');
-
-	return $( $(this).find( ( body ? body : 'tbody ' ) + cls + data ) );
-}
-
-$.fn.pushRow = function( row, events ){
-	var $tbody = this.find( 'tbody' ),
-		$rows = $tbody.find('tr'),
-		n = $rows.length,
-		l = n-1,
-		i = ( undefined === row || row < 0 ? l : row ),
-		$tr = $( $rows[i] ).clone().data( 'table-row', n ).appendTo( $tbody ),
-		c = $tr.length;
-	$($rows[i]).removeClass('empty');
-	$.each( $tr.find('td'), function( j, value ) {
-		var $cell = $(this);
-		$cell.data( 'cell', $cell.data( 'cell' ) + c ).data( 'cell-row', n ).text('');
-		if( undefined !== events ){
-			$.each( events, function( k, val ) {
-				$cell.on( k, val );
-			});
-		}
-	});
-	return $tr;
-}
-
-/*$.fn.addRow = function( row, opt, head ){
-	var defaults = {
-		noedit: [],
-		auto: [],
-		formats: [],
-		decimals: [],
-	};
-	var options = $.extend( defaults, opt ),
-		$tbody = this.find( 'tbody' ),
-		i = ( undefined === row ? $tbody.find('tr').length : row ),
-		$row = $( '<tr data-table-row="' + i + '"></tr>' ).appendTo( $tbody ),
-		max = $( $tbody.find('tr')[0] ).find('td').length;
-
-	for (var j = 0; j < max; j++) {
-		var ind = ( undefined === head ? j : head[j] );
-		var cls = ( $.isNumeric( ind ) ? '' : ind );
-		var noedit = ( options.noedit.length && options.noedit[ind] );
-		$row.append( '<td class="cell' + ( cls ? ' ' + cls : '' ) + ( noedit ? ' no-edit' : '' ) + '" data-cell="' + (i+1)*j + '" data-cell-row="' + i + '" data-cell-column="' + j + '" data-cell-format="' + ( options.formats[ind] ? options.formats[ind] : 'string' ) + '" data-cell-decimal="' + ( options.decimals[ind] ? options.decimals[ind] : 0 ) + ' data-cell-auto="' + ( options.auto[ind] ? options.auto[ind] : '' ) + '"></th>' );
+	$.fn.getRow = function( row, body ){
+		return $( $(this).find( ( body ? body : 'tbody' ) + ( $.isNumeric( row ) ? ' [data-table-row="' + row + '"]' : ' tr.' + row ) ) );
 	}
-}*/
 
-$.fn.getRow = function( row, body ){
-	return $( $(this).find( ( body ? body : 'tbody ' ) + ( $.isNumeric( row ) ? '[data-table-row="' + row + '"]' : 'tr.' + row ) ) );
-}
+
+// *****************************************************
+// *****************************************************
+
 
 // *****************************************************
 // *	SORTABLE TABLE
 // *****************************************************
-
-	
 
 	var sortAsc = function (a, b) {
 		if (a > b) return 1;
@@ -210,97 +193,75 @@ $.fn.getRow = function( row, body ){
 	    return new Date(date[2], date[1] - 1, date[0]).getTime();
 	}
 
-	$.fn.sortColumn = function () {
+	$.fn.sortCells = function( format, opt ){
+		var $cells = $(this),
+			$tbody = $cells.parents('tbody'),
+			time = ( format == 'date' || format == 'time' || format == 'timer' ),
+			orig = !opt || opt === 'orig' || opt === 'original',
+			order = $cells.sort(function(a, b) {
+				var va = '';
+				var vb = '';
+				if( orig ){
+					va = $(a).data('cell-row');
+					vb = $(b).data('cell-row');
+				}else{
+					va = $(a).text();
+					vb = $(b).text();
+					if( va === '' ) return -1;
+					if( vb === '' ) return 1;
+					if( time ){
+						if( opt != 'asc' ) return dateSortDesc(va,vb);
+						return dateSortAsc(va,vb);
+					}
+				}
 
-		return this.each( function() {
+				if( format == 'int' || orig ){
+					va = parseInt( va );
+					vb = parseInt( vb );
+				}else if( format == 'number' || format == 'float' ){
+					va = parseFloat( va );
+					vb = parseFloat( vb );
+				}
+				if( opt != 'asc' ) return sortDesc(va,vb);
+				return sortAsc(va,vb);
+			});
 
-			var $this = $(this),
-				$table = $this.parent().parent().parent(),
-				$tbody = $table.find('tbody'),
-				format = ( $this.data('column-format') ? $this.data('column-format') : 'string' ),
-				time = ( format == 'date' || format == 'time' || format == 'timer' );
-				decimal = ( $this.data('column-decimal') ? $this.data('column-decimal') : 0 ),
-				column = ( $this.data('cell-column') ? $this.data('cell-column') : 0 ),
-				sort = $this.data('column-sort') !== false,
+		$.each( order, function( index, row) {
+			$tbody.find('tr[data-table-row="' + $(row).data('cell-row') + '"]').remove().prependTo($tbody);
+		});
+	}
+
+	$.fn.sortColumn = function( head ){
+
+		return this.each( function(){
+
+			var $table = $(this),
+				$column = head,
+				format = ( $column.data('column-format') ? $column.data('column-format') : 'string' ),
+				column = ( $column.data('cell-column') ? $column.data('cell-column') : 0 ),
 				evt = $.Event( 'sort' );
 
-			$this.siblings().removeClass( 'sort-down' ).removeClass( 'sort-up' );
+			$column.siblings().removeClass( 'sort-down' ).removeClass( 'sort-up' );
 
 			var $cells = $table.find( 'td[data-cell-column="' + column + '"]' );
 			
-			if( $this.hasClass( 'sort-down' ) ){
-				$this.removeClass( 'sort-down' );
-				$this.addClass( 'sort-up' );
-				var order = $cells.sort(function(a, b) {
-					var va = $(a).text();
-					var vb = $(b).text();
-					if( va === '' ) return 1;
-					if( vb === '' ) return -1;
-					if( time ) return dateSortAsc(va,vb);
-					if( format == 'int' ){
-						va = parseInt( va );
-						vb = parseInt( vb );
-					}else if( format == 'number' || format == 'float' ){
-						va = parseFloat( va );
-						vb = parseFloat( vb );
-					}
-					return sortAsc(va,vb);
-					//return (va > vb) ? -1 : (va < vb) ? 1 : 0;
-				});
+			if( $column.hasClass( 'sort-down' ) ){
 
-				$.each( order, function( index, row) {
-					
-					if( !$(row).text() && $(row).text() !== 0 )
-						$tbody.find('tr[data-table-row="' + $(row).data('cell-row') + '"]').remove().appendTo($tbody);
-					else
-						$tbody.find('tr[data-table-row="' + $(row).data('cell-row') + '"]').remove().prependTo($tbody);
-				});
+				$column.removeClass( 'sort-down' );
+				$column.addClass( 'sort-up' );
+				$cells.sortCells( format, 'asc' );
 
-			}else if( $this.hasClass( 'sort-up' ) ){
-				$this.removeClass( 'sort-up' );
-				var order = $cells.sort(function(a, b) {
-					var va = $(a).data('cell-row');
-					var vb = $(b).data('cell-row');
-					if( format == 'int' ){
-						va = parseInt( va );
-						vb = parseInt( vb );
-					}else if( format == 'number' || format == 'float' ){
-						va = parseFloat( va );
-						vb = parseFloat( vb );
-					}
-					return sortDesc(va,vb);
-				});
-				$.each( order, function( index, row) {
-					$tbody.find('tr[data-table-row="' + $(row).data('cell-row') + '"]').remove().prependTo($tbody);
-				});
+			}else if( $column.hasClass( 'sort-up' ) ){
+
+				$column.removeClass( 'sort-up' );
+				$cells.sortCells( format, 'orig' );
 
 			}else{
-				$this.addClass( 'sort-down' );
-				var order = $cells.sort(function(a, b) {
-					var va = $(a).text();
-					var vb = $(b).text();
-					if( va === '' ) return -1;
-					if( vb === '' ) return 1;
-					if( time ) return dateSortDesc(va,vb);
-					if( format == 'int' ){
-						va = parseInt( va );
-						vb = parseInt( vb );
-					}else if( format == 'number' || format == 'float' ){
-						va = parseFloat( va );
-						vb = parseFloat( vb );
-					}
-					return sortDesc(va,vb);
-					//return (va < vb) ? -1 : (va > vb) ? 1 : 0;
-				});
-				$.each( order, function( index, row) {
-					
-					if( !$(row).text() && $(row).text() !== 0 )
-						$tbody.find('tr[data-table-row="' + $(row).data('cell-row') + '"]').remove().appendTo($tbody);
-					else
-						$tbody.find('tr[data-table-row="' + $(row).data('cell-row') + '"]').remove().prependTo($tbody);
-				});
+
+				$column.addClass( 'sort-down' );
+				$cells.sortCells( format, 'desc' );
 			}
-			$tbody.find('tr.empty').remove().appendTo($tbody);
+
 			$table.trigger( evt );
 		});
 	}
@@ -309,13 +270,16 @@ $.fn.getRow = function( row, body ){
 
 		return this.each( function() {
 
-			var $this = $(this),
-				$heads = $this.find( 'thead tr.row-head th:not( [data-column-sort="false"] )' );
+			var $table = $(this),
+				$heads = $table.find( 'thead tr.row-head th:not( [data-column-sort="false"] )' );
 
 			if( $heads.length > 0 ){
 				$heads.css( 'cursor', 'pointer' )
 				.on( 'click', function( e ){
-					$(this).sortColumn();
+					var $head = $(this);
+					var by = $head.data('column-sortby');
+					if( by ) $head = $table.find( 'th[data-column-name="' + by + '"]' );
+					$table.sortColumn( $head );
 				} );
 			}
 		});
