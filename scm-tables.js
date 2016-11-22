@@ -113,8 +113,11 @@
 			editor: $('<input class="editable-input">'),
 			picker: $('<input class="color-picker editable-input">'),
 			calendar: $('<input class="date-picker editable-input">'),
-			offset: { 'width': 1, 'height': 1 },
+			offset: { 'width': 0, 'height': 0 },
 		});
+
+		$table.find( 'tr > th:first-child, tr > td:first-child' ).addClass( 'first' );
+		$table.find( 'tr > th:last-child, tr > td:last-child' ).addClass( 'last' );
 
 		return $table;
 	}
@@ -231,20 +234,20 @@
 		});
 	}
 
-	$.fn.sortColumn = function( head ){
+	$.fn.sortColumn = function( head, by ){
 
 		return this.each( function(){
 
 			var $table = $(this),
 				$column = head,
-				format = ( $column.data('column-format') ? $column.data('column-format') : 'string' ),
-				column = ( $column.data('cell-column') ? $column.data('cell-column') : 0 ),
+				format = ( by && by.length && by.data('column-format') ? by.data('column-format') : ( $column.data('column-format') ? $column.data('column-format') : 'string' ) ),
+				column = ( by && by.length && by.data('cell-column') ? by.data('cell-column') : ( $column.data('cell-column') ? $column.data('cell-column') : 0 ) ),
 				evt = $.Event( 'sort' );
 
 			$column.siblings().removeClass( 'sort-down' ).removeClass( 'sort-up' );
 
 			var $cells = $table.find( 'td[data-cell-column="' + column + '"]' );
-			
+
 			if( $column.hasClass( 'sort-down' ) ){
 
 				$column.removeClass( 'sort-down' );
@@ -278,8 +281,8 @@
 				.on( 'click', function( e ){
 					var $head = $(this);
 					var by = $head.data('column-sortby');
-					if( by ) $head = $table.find( 'th[data-column-name="' + by + '"]' );
-					$table.sortColumn( $head );
+					if( by ) by = $table.find( 'th[data-column-name="' + by + '"]' );
+					$table.sortColumn( $head, by );
 				} );
 			}
 		});
