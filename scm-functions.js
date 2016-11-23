@@ -118,6 +118,52 @@
 		}
 	}
 
+	if ( !$.fn.shadowWidth ) {
+
+		$.fn.shadowWidth = function() {
+			var proceed = this.css('box-shadow');
+			if( !proceed ) return 0;
+			var result = this.css('box-shadow').match(/(-?\d)|(rgba\(.+\))/g);
+			if( !result ) return 0;
+
+			return Number(result[1]) + Number(result[3]) + Number(result[4]);
+		}
+	}
+
+	if ( !$.fn.shadowHeight ) {
+
+		$.fn.shadowHeight = function() {
+			var proceed = this.css('box-shadow');
+			if( !proceed ) return 0;
+			var result = this.css('box-shadow').match(/(-?\d)|(rgba\(.+\))/g);
+			if( !result ) return 0;
+
+			return Number(result[2]) + Number(result[3]) + Number(result[4]);
+		}
+	}
+
+	if ( !$.fn.realWidth ) {
+
+		$.fn.realWidth = function(margin) {
+			var sh = this.shadowWidth();
+			var out = this.outerWidth();
+			var mar = this.outerWidth(margin);
+			var dif = mar - out;
+			return ( margin ? mar : out ) + ( sh > dif ? sh : 0 );
+		}
+	}
+
+	if ( !$.fn.realHeight ) {
+
+		$.fn.realHeight = function(margin) {
+			var sh = this.shadowHeight();
+			var out = this.outerHeight();
+			var mar = this.outerHeight(margin);
+			var dif = mar - out;
+			return ( margin ? mar : out ) + ( sh > dif ? sh : 0 );
+		}
+	}
+
 	if ( !$.fn.getHighest ) {
 
 		$.fn.getHighest = function( elem ) {
@@ -290,6 +336,24 @@
 	    var emSize = parseFloat($("body").css("font-size"));
 	    return (input / emSize);
 	}
+
+	// INPUTS
+
+	$.fn.getCursorPosition = function() {
+        var input = this.get(0);
+        if (!input) return; // No (input) element found
+        if ('selectionStart' in input) {
+            // Standard-compliant browsers
+            return { start: input.selectionStart, end: input.selectionEnd };
+        } else if (document.selection) {
+            // IE
+            input.focus();
+            var sel = document.selection.createRange();
+            var selLen = document.selection.createRange().text.length;
+            sel.moveStart('character', -input.value.length);
+            return sel.text.length - selLen;
+        }
+    }
 
 	// ARRAY
 

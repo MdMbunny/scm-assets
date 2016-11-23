@@ -230,7 +230,7 @@
 			});
 
 		$.each( order, function( index, row) {
-			$tbody.find('tr[data-table-row="' + $(row).data('cell-row') + '"]').remove().prependTo($tbody);
+			$tbody.find('tr[data-table-row="' + $(row).data('cell-row') + '"]').detach().prependTo($tbody);
 		});
 	}
 
@@ -485,6 +485,19 @@
 				cmdKey = false,
 				format = '';
 
+			var hideEditor = function( input, cell, value ) {
+				if( input && input.hasClass( 'active' ) ){
+					if( cell ){
+						if( undefined !== value )
+							cell.editCell( value );
+						else
+							input.editCell( cell );
+					}
+					
+					input.removeClass('active').hide();
+				}
+			}
+
 			var showEditor = function( select ) {
 					$cell = $this.find( 'td.edit:focus' );
 					if( $cell.length ){
@@ -499,7 +512,9 @@
 						else
 							$temp.val( $cell.text() );
 
-						$temp.show()
+						$temp
+							.addClass('active')
+							.show()
 							.offset( $cell.offset() )
 							.css( $cell.css( options.props ) )
 							.width( $cell.width() + width )
@@ -519,10 +534,8 @@
 						    	appendTo: $parent,
 						    	minLength: 0,
 						    	select: function( event, ui ){
-						    		if( ui.value ){
-							    		$cell.editCell( ui.value );
-							    		$temp.hide();
-							    	}
+						    		if( ui.value )
+							    		hideEditor( $temp, $cell, ui.value );
 						    	},
 							});
 							$('.ui-autocomplete').css({'min-width':$temp.outerWidth()});
@@ -536,6 +549,11 @@
 
 						if( select )
 							$temp.select();
+
+						var caret = $temp.getCursorPosition();
+						$temp.data( 'caret-start', caret.start );
+						$temp.data( 'caret-end', caret.end );
+
 					}
 				},
 				checkCell = function( cell, keycode ){
@@ -560,29 +578,52 @@
 				};
 
 			$.each( inputs, function( key, value ) {
-				value.blur( function(e){
-					value.editCell( $cell );
-					value.hide();
-				}).keydown( function( e ){
-					if( e.which === ENTER ){
-						value.editCell( $cell );
-						value.hide();
-						$cell.focus();
-						e.preventDefault();
-						e.stopPropagation();
-					}else if( e.which === ESC ){
-						value.val( $cell.text() );
-						e.preventDefault();
-						e.stopPropagation();
-						value.hide();
-						$cell.focus();
-					}else if( e.which === TAB ){
-						$cell.focus();
-					}
-				})
-				.on( 'input paste', function(){
-					value.validCell( $cell );
-				});
+				value
+					.blur( function(e){
+						hideEditor( value, $cell );
+					})
+					.keydown( function( e ){
+						var caret = $temp.getCursorPosition();
+						if( caret.start !== caret.end )
+							value.data( 'caret-sel', 1 );
+						else
+							value.data( 'caret-sel', 0 );
+
+						if( e.which === ENTER ){
+							hideEditor( value, $cell );
+							$cell.focus();
+							e.preventDefault();
+							e.stopPropagation();
+						}else if( e.which === ESC ){
+							value.val( $cell.text() );
+							e.preventDefault();
+							e.stopPropagation();
+							hideEditor( value );
+							$cell.focus();
+						}else if( e.which === TAB ){
+							$cell.focus();
+						}
+					})
+					.keyup( function( e ){
+						var old = value.data( 'caret-start' );
+						
+						var caret = $temp.getCursorPosition();
+						value.data( 'caret-start', caret.start );
+						value.data( 'caret-end', caret.end );
+												
+						if( !value.data( 'caret-sel' ) && ( old === caret.start || !value.val() ) ){
+							var check = checkCell( $cell, e.which );
+							if( check.length > 0 ){
+								hideEditor( value, $cell );
+								check.focus();
+								e.preventDefault();
+								e.stopPropagation();
+							}
+						}
+					})
+					.on( 'input paste', function(){
+						value.validCell( $cell );
+					});
 			});
 
 			$this.find( 'td' ).prop( 'tabindex', 1 ).addClass('edit');
@@ -592,12 +633,14 @@
 			})
 			.keydown( function( e ){
 				if( e.which == 93 ) cmdKey = true;
-				var prevent = true,
-					check = checkCell( $( e.target ), e.which );
+				var prevent = true;
+				var check = checkCell( $( e.target ), e.which );
 				if( check.length > 0 ){
 					check.focus();
 				}else if( e.which === ENTER ){
 					showEditor( true );
+				}else if( e.keyCode == 46 || e.keyCode == 8 ){
+					$this.find( 'td.edit:focus' ).text( '' );
 				}else{
 					prevent = false;
 				}
