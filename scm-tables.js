@@ -391,7 +391,7 @@
 
 
 	$.fn.editCell = function ( cell ) {
-		if( !cell ) return this;
+		if( !cell && cell !== 0 ) return this;
 		var invert = cell instanceof jQuery;
 		
 		var $input = ( invert ? this : 0 ),
@@ -421,7 +421,7 @@
 					case 'number':
 					case 'float':
 						orig = val;
-						val = val.replace( exception, '' );
+						val = val.substring(0, val.indexOf(exception));
 						val = $.Numeric( val );
 						if( val === false ) return true;
 						val = parseFloat( val );
