@@ -352,45 +352,41 @@
 		if( !cell ) return this;
 		var invert = cell instanceof jQuery;
 
-		return this.each( function() {
+		var $input = ( invert ? this : 0 ),
+			val = ( invert ? $input.val() : cell ),
+			$cell = ( invert ? cell : this ),
+			format = ( $cell.data('cell-format') ? $cell.data('cell-format') : 'string' ),
+			exception = ( $cell.data('cell-exception') ? $cell.data('cell-exception') : '' ),
+			correct = $cell.data('cell-correct') !== false,
+			decimal = parseInt( $cell.data( 'cell-decimal' ) ),
+			evt = $.Event( 'validate' );
 
-			var $input = ( invert ? $(this) : 0 ),
-				val = ( invert ? $input.val() : cell ),
-				$cell = ( invert ? cell : $(this) ),
-				format = ( $cell.data('cell-format') ? $cell.data('cell-format') : 'string' ),
-				exception = ( $cell.data('cell-exception') ? $cell.data('cell-exception') : '' ),
-				correct = $cell.data('cell-correct') !== false,
-				decimal = parseInt( $cell.data( 'cell-decimal' ) ),
-				evt = $.Event( 'validate' );
-
-			switch( format ){
-				case 'int':
-				case 'number':
-				case 'float':
-					val = val.replace( exception, '' );
-					val = $.Numeric( val );
-				break;
-				case 'date':
-					val = validDate( val );
-					if( correct ){
-						if( val && $input ) $input.datepicker( 'setDate', val );
-					}
-				break;
-			}
-
-			$cell.trigger( evt, val );
-			
-			//if( !correct ){				
-				if( evt.result === false || val === false ){
-					if( $input ) $input.addClass( 'error' );
-					$cell.addClass( 'error' );
-				}else{
-					if( $input ) $input.removeClass( 'error' );
-					$cell.removeClass( 'error' );
+		switch( format ){
+			case 'int':
+			case 'number':
+			case 'float':
+				val = val.replace( exception, '' );
+				val = $.Numeric( val );
+			break;
+			case 'date':
+				val = validDate( val );
+				if( correct ){
+					if( val && $input ) $input.datepicker( 'setDate', val );
 				}
-			//}
+			break;
+		}
 
-		});
+		$cell.trigger( evt, val );
+	
+		if( evt.result === false || val === false ){
+			if( $input ) $input.addClass( 'error' );
+			$cell.addClass( 'error' );
+		}else{
+			if( $input ) $input.removeClass( 'error' );
+			$cell.removeClass( 'error' );
+		}
+		
+		return this;
 	}
 
 
@@ -398,57 +394,56 @@
 		if( !cell ) return this;
 		var invert = cell instanceof jQuery;
 		
-		return this.each( function() {
-		
-			var $input = ( invert ? $(this) : 0 ),
-				$cell = ( $input ? cell : $(this) ),
-				format = ( $cell.data('cell-format') ? $cell.data('cell-format') : 'string' ),
-				exception = ( $cell.data('cell-exception') ? $cell.data('cell-exception') : '' ),
-				correct = $cell.data('cell-correct') !== false,
-				auto = $cell.data('cell-auto') === true,
-				decimal = parseInt( $cell.data( 'cell-decimal' ) ),
-				val = ( $input ? $input.val() : cell.toString() ),
-				evt = $.Event('change'),
-				orig;
+		var $input = ( invert ? this : 0 ),
+			$cell = ( $input ? cell : this ),
+			format = ( $cell.data('cell-format') ? $cell.data('cell-format') : 'string' ),
+			exception = ( $cell.data('cell-exception') ? $cell.data('cell-exception') : '' ),
+			correct = $cell.data('cell-correct') !== false,
+			auto = $cell.data('cell-auto') === true,
+			decimal = parseInt( $cell.data( 'cell-decimal' ) ),
+			val = ( $input ? $input.val() : cell.toString() ),
+			evt = $.Event('change'),
+			orig;
 
-			// Text is the same || Validate Event returned Error = keeps original text
-			if( $cell.text() === val.toString() || ( !correct && $cell.hasClass('error') ) ){
-				if( $input ) $input.removeClass('error');
-				return true;
-			}
+		// Text is the same || Validate Event returned Error = keeps original text
+		if( $cell.text() === val.toString() || ( !correct && $cell.hasClass('error') ) ){
+			if( $input ) $input.removeClass('error');
+			return true;
+		}
 
-			// Autocorrect > Format = corrects value by format
-			if( correct ){
-				if( $input ) $input.removeClass('error');
-				$cell.removeClass('error');
-				if( auto || ( !auto && val !== '' ) ){
-					switch( format ){
-						case 'int':
-						case 'number':
-						case 'float':
-							orig = val;
-							val = val.replace( exception, '' );
-							val = $.Numeric( val );
-							if( val === false ) return true;
-							val = parseFloat( val );
-							if( format == 'int' ) val = Math.round( val );
-							else if( decimal ) val = val.toFixed( decimal );
-							val = orig;
-						break;
-						case 'date':
-							val = validDate( val );
-							if( !val ) return true;
-						break;
-					}
+		// Autocorrect > Format = corrects value by format
+		if( correct ){
+			if( $input ) $input.removeClass('error');
+			$cell.removeClass('error');
+			if( auto || ( !auto && val !== '' ) ){
+				switch( format ){
+					case 'int':
+					case 'number':
+					case 'float':
+						orig = val;
+						val = val.replace( exception, '' );
+						val = $.Numeric( val );
+						if( val === false ) return true;
+						val = parseFloat( val );
+						if( format == 'int' ) val = Math.round( val );
+						else if( decimal ) val = val.toFixed( decimal );
+						val = orig;
+					break;
+					case 'date':
+						val = validDate( val );
+						if( !val ) return true;
+					break;
 				}
 			}
-			
-			// Change Event = back to original text if Event returned false
-			orig = $cell.html();
-			$cell.text( val.toString() ).trigger( evt, val );
-			if( evt.result === false )
-				$cell.html( orig );
-		});
+		}
+		
+		// Change Event = back to original text if Event returned false
+		orig = $cell.html();
+		$cell.text( val.toString() ).trigger( evt, val );
+		if( evt.result === false )
+			$cell.html( orig );
+
+		return this;
 	}
 
 	$.fn.editTable = function( opt ){
