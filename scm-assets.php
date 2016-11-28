@@ -3,7 +3,7 @@
  * Plugin Name:         SCM Assets
  * Plugin URI:          http://studiocreativo-m.it/
  * Description:         SCM Javascript Integration
- * Version:             1.5.9
+ * Version:             1.6.0
  * Author:              Studio Creativo M
  * Author URI:          http://studiocreativo-m.it/
  * License:             http://www.gnu.org/licenses/gpl-3.0.html

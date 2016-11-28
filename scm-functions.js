@@ -216,10 +216,10 @@
 				var equal 			= ( !equal_max ? equal_min : equal_max ),
 					current 	 	= ( !equal_max ? 0 : 9999999 ),
 					max 			= !current,
-					maxw 			= parseInt( $elem.data( 'max-width' ), 10 ),
-					maxh 			= parseInt( $elem.data( 'max-height' ), 10 ),
-					minw 			= parseInt( $elem.data( 'min-width' ), 10 ),
-					minh 			= parseInt( $elem.data( 'min-height' ), 10 );
+					maxw 			= $.parsePx( $elem.data( 'max-width' ) ),
+					maxh 			= $.parsePx( $elem.data( 'max-height' ) ),
+					minw 			= $.parsePx( $elem.data( 'min-width' ) ),
+					minh 			= $.parsePx( $elem.data( 'min-height' ) );
 
 				$($elems).each( function( i ) {
 
@@ -227,8 +227,8 @@
 						m 		= 0;
 
 					switch( equal ){
-						case 'height': m = parseInt( $this.css( 'height' ), 10 ); break;
-						case 'width': m = parseInt( $this.css( 'width' ), 10 ); break;
+						case 'height': m = $.parsePx( $this.css( 'height' ), 10 ); break;
+						case 'width': m = $.parsePx( $this.css( 'width' ), 10 ); break;
 					}					
 
 					if( !max )
@@ -335,6 +335,13 @@
 	$.PxToEm = function( input ) {
 	    var emSize = parseFloat($("body").css("font-size"));
 	    return (input / emSize);
+	}
+
+	$.parsePx = function( val ){
+	    val = ( val ? val.toString() : '0' );
+	    if( val.indexOf( 'em' ) >= 0 )
+	        return $.EmToPx( val );
+	    return parseFloat( val );
 	}
 
 	// INPUTS
