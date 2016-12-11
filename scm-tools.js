@@ -299,7 +299,7 @@ var $MAGIC;
 		    var $this 		= $( this ),
 		    	host 		= new RegExp(location.host),
 		    	data 		= $this.data( 'href' ),
-		    	link 		= ( data ? data.replace('page:', host) : $this.attr( 'href' ).replace('page:', host) );
+		    	link 		= ( undefined !== data ? data.replace('page:', host) : $this.attr( 'href' ).replace('page:', host) );
 
 	    	if( !link )
 	    		return;
@@ -501,7 +501,8 @@ var $MAGIC;
 	}
 
 	$.fn.loadContent = function( set_link, set_id, set_current, set_type ){
-		
+
+
 		var $body = $('body');
 		$body.disableIt();
 		$body.trigger( 'loadContentBefore' );
@@ -516,8 +517,11 @@ var $MAGIC;
 
 			var id = ( set_id ? set_id : ( $this.data( 'load-content' ) ? $this.data( 'load-content' ) : $this.attr( 'id' ) ) ),
 				$container = $( '#' + id );
-			if( !$container.length )
+
+			if( !$container.length ){
+				$body.enableIt();
 				return this;
+			}
 				
 			var	c_height = $container.outerHeight(),
 				w_height = $( window ).height();
@@ -563,7 +567,7 @@ var $MAGIC;
 			}
 
 			if( !CONTENTS[id] )
-				CONTENTS[id] = { replace: {} };
+				CONTENTS[id] = { replace: {}, popup: {} };
 
 			$parent.css( 'overflow', 'hidden' ).css( 'height', c_height );
 
@@ -572,7 +576,7 @@ var $MAGIC;
 
 					CONTENTS[id].replace[current] = $container.html();
 
-					$container.smoothAnchor( '', { complete: true } ).fadeOut('fast', function(){
+					$container.smoothScroll( { offset: 1, units:'em', head: true, complete: true } ).fadeOut('fast', function(){
 
 						if( CONTENTS[id].replace[next] ){
 							replaceContent( CONTENTS[id].replace[next] );
@@ -583,7 +587,6 @@ var $MAGIC;
 							$container.show();
 							if( c_height > w_height )
 								$parent.animate({ 'height': w_height - $.getStickyHeight() }, 'fast' );
-
 
 							$parent.ajaxPost( ajaxcall.url, aj_data, replaceContent, 'bar', { classes: 'absolute middle full-width double' } );
 						}
@@ -856,6 +859,8 @@ var $MAGIC;
 			offset = $.EmToPx( offset )
 
 		destination = height - offset - head;
+		if( obj.hasClass('has-fade') && !obj.hasClass('current-fade') )
+			destination -= $.EmToPx( 3 ) // vincolato a css
 
 		if( body - destination < win )
 			destination = body - win;
@@ -1153,7 +1158,7 @@ var $MAGIC;
 
 			for (var i = 0; i < $cont.length; i++) {
 				
-				$content = $( $cont[i] );
+				$content = $( $cont[i] ).addClass( 'has-fade' );
 
 				new $.ScrollMagic.Scene({
 		        	triggerElement: $content,
@@ -1456,6 +1461,8 @@ var $MAGIC;
 			var $this 		= $( this ),
 				markers 	= $this.children( '.marker' ),
 				zoom 		= parseFloat( $this.data( 'zoom' ) ),
+				infowidth 	= parseInt( $this.data( 'infowidth' ) ? $this.data( 'infowidth' ) : 500 ),
+				color 		= ( $this.data( 'icon-color' ) ? $this.data( 'icon-color' ) : '#000000' ),
 				style 		= [],
 				args 		= [],
 				map 		= [];
@@ -1479,6 +1486,20 @@ var $MAGIC;
 					]
 				},
 				{
+					featureType: 'landscape.natural',
+					elementType: 'labels',
+					stylers: [
+						{ visibility: 'off' }
+					]
+				},
+				{
+					featureType: 'landscape.natural.terrain',
+					elementType: 'all',
+					stylers: [
+						{ visibility: 'off' }
+					]
+				},
+				{
 					featureType: 'administrative.province',
 					elementType: 'all',
 					stylers: [
@@ -1494,7 +1515,7 @@ var $MAGIC;
 				},
 				{
 					featureType: 'administrative.neighborhood',
-					elementType: 'labels',
+					elementType: 'all',
 					stylers: [
 					  { visibility: 'off' },
 					]
@@ -1525,6 +1546,13 @@ var $MAGIC;
 						{ lightness: 50 },
 					]
 				},
+				{
+					featureType: 'water',
+					elementType: 'all',
+					stylers: [
+						{ lightness: 50 },
+					]
+				},
 	        ];
 
 	        args = {
@@ -1552,12 +1580,44 @@ var $MAGIC;
 
 			infowindow = new google.maps.InfoWindow({
 				content		: '',
-				maxWidth	: 500
+				maxWidth	: infowidth
 			});
 
 			map.markers = [];
 			
 			$( markers ).markerMap( map, infowindow, zoom, countMaps );
+
+			var markerCluster = new MarkerClusterer(map, map.markers, {
+				imagePath: '',
+				//imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m',
+				gridSize: 50,
+				styles: [
+					{
+						url: '',
+						textColor: color,
+						textSize: 24,
+						width: 35,
+						height: 35,
+
+					},
+					{
+						url: '',
+						textColor: color,
+						textSize: 32,
+						width: 50,
+						height: 50,
+
+					},
+					{
+						url: '',
+						textColor: color,
+						textSize: 40,
+						width: 70,
+						height: 70,
+
+					}
+				]
+			});
 
 			//$.centerMap( map, zoom );
 			
@@ -1583,13 +1643,7 @@ var $MAGIC;
 				latlng 			= null,
 				lat 			= $this.data( 'lat' ),
 				lng 			= $this.data( 'lng' ),
-				address 		= $this.data( 'address' ),
-				marker_img 		= $this.data( 'img' ),
-				marker_color	= $this.data( 'icon-color' ),
-				marker_icon		= ( $this.data( 'icon' ) && !marker_img ? '<i class="fa ' + $this.data( 'icon' ) + '" style="color:' + marker_color + ';"></i>' : '' ),
-				marker 			= [],
-				classes 		= $this.attr('class') + ' ',
-				id 				= classes.substr( classes.indexOf( 'scm-marker marker marker-' ) + 25, classes.substr( 25 ).indexOf( ' ' ) );
+				address 		= $this.data( 'address' );
 
 			if( address ){
 				var geocoder = new google.maps.Geocoder();
@@ -1610,13 +1664,13 @@ var $MAGIC;
 			    		$.consoleDebug( DEBUG,  'Location found within ' + str.toUpperCase() + ' Region');
 			        	latlng = results[0].geometry.location;
 			        	$.consoleDebug( DEBUG,  'LatLng are ' + latlng );
-			        	setMarker();
+			        	$this.setMarker(map, latlng, count, zoom);
 			    	}else{
 			    		$.consoleDebug( DEBUG,  'Google Maps Marker: ' + status);
 			    		if( reg ){
 			    			$.consoleDebug( DEBUG,  'Pointing to lat 0 and lng 0');
 				    		latlng = new google.maps.LatLng( 0, 0 );
-				    		setMarker();
+				    		$this.setMarker(map, latlng, count, zoom);
 				    	}else{
 				    		$.consoleDebug( DEBUG,  'Searching address within IT Region');
 				    		$this.markerMap( map, infowindow, zoom, count, 'it' );
@@ -1626,122 +1680,11 @@ var $MAGIC;
 			    });
 			}else if( lat ){
 				latlng = new google.maps.LatLng( lat, lng );
-				setMarker();
+				$this.setMarker(map, latlng, count, zoom);
 			}else{
 				latlng = new google.maps.LatLng( 0, 0 );
-				setMarker();
+				$this.setMarker(map, latlng, count, zoom);
 			}
-
-			var setMarker = function(){
-
-				//var image = new google.maps.MarkerImage(
-					//marker_img
-					//<?php echo json_encode(SCM_URI_CHILD); ?> + 'assets/img/marker.png',
-					/*new google.maps.Size( 24, 42 ),
-					new google.maps.Point( 0, 0 ),
-					new google.maps.Point( 12, 42 )*/
-				//);
-				/*
-				var shadow = new google.maps.MarkerImage(
-						themeImgs + 'map/marker-shadow.png',
-						new google.maps.Size( 58, 44 ),
-						new google.maps.Point( 0, 0 ),
-						new google.maps.Point( 16, 44 )
-					);
-
-				var shape = {
-						coord : [20,0,23,1,24,2,25,3,27,4,27,5,28,6,29,7,29,8,30,9,30,10,31,11,31,12,31,13,31,14,31,15,31,16,31,17,31,18,31,19,31,20,31,21,30,22,30,23,29,24,29,25,28,26,28,27,27,28,27,29,26,30,25,31,25,32,24,33,23,34,22,35,22,36,21,37,20,38,20,39,19,40,18,41,17,42,16,43,15,43,14,42,13,41,12,40,11,39,11,38,10,37,9,36,9,35,8,34,7,33,6,32,6,31,5,30,4,29,4,28,3,27,3,26,2,25,2,24,1,23,1,22,0,21,0,20,0,19,0,18,0,17,0,16,0,15,0,14,0,13,0,12,0,11,1,10,1,9,2,8,2,7,3,6,4,5,4,4,6,3,7,2,8,1,11,0,20,0],
-						type  : 'poly'
-					};
-				*/
-
-				marker = new MarkerWithLabel({
-					raiseOnDrag : false,
-					clickable   : true,
-					draggable 	: false,
-					icon 		: ' ',
-					//icon 		: ( marker_icon ? ' ' : '' ),
-					//icon        : image,
-					//shadow      : shadow,
-					//shape       : shape,
-					cursor      : 'pointer',
-					//animation   : google.maps.Animation.BOUNCE,
-					position	: latlng,
-					map			: map,
-					labelContent: marker_icon,
-				    labelAnchor: new google.maps.Point(13, 40),
-				    labelClass: 'labels' // the CSS class for the label
-				});
-				
-				if ( marker_img )
-					marker.setIcon( marker_img );
-
-				map.markers.push( marker );
-
-				$location = $activator = $('[data-id="' + id + '"]');
-				$action = ( $location.data('open-marker') ? $location.data('open-marker') : false );
-
-				if( $action == false ){
-					$activator = $location.children( '[data-open-marker]' );
-					if( $activator.length ){
-						$action = $activator.data('open-marker');
-					}else{
-						$action = [];
-					}
-				}
-
-				if( $this.html() ){
-
-					with( { mark: marker, location: $location } ){
-
-						google.maps.event.addListener( mark, 'click', function() {
-							openInfoWindow(mark, location);
-						});
-
-					}
-
-					if( $action ){
-
-						$activator.css( 'cursor', 'pointer' );
-						$location.addClass( 'onmap' );
-
-						switch( $action ){
-							case 'over':
-
-								$activator.mouseenter(function () {
-									focusMarker();								    
-								});
-
-							break;
-
-							default:
-
-								$activator.click(function () {
-									focusMarker();
-								});
-
-							break;
-						}
-					}
-				}
-
-				var focusMarker = function(){
-					$( '#map-' + count ).smoothAnchor();
-				    google.maps.event.trigger( marker, 'click' );
-				}
-
-				var openInfoWindow = function( mark, location ){
-					infowindow.close();
-					infowindow.setContent( $this.html() );
-					infowindow.open( map, marker );
-					$( '.onmap' ).removeClass( 'infowindow' );
-					if( location.hasClass( 'onmap' ) )
-						location.addClass( 'infowindow' );
-				}
-
-				$.centerMap( map, zoom );
-
-			};
 		});
 	}
 
@@ -1763,7 +1706,7 @@ var $MAGIC;
 
 		}else{
 
-			google.maps.event.addListener(map, 'zoom_changed', function() {
+			/*google.maps.event.addListener(map, 'zoom_changed', function() {
 			    zoomChangeBoundsListener = 
 			        google.maps.event.addListener(map, 'bounds_changed', function( event ) {
 
@@ -1776,12 +1719,133 @@ var $MAGIC;
 			        google.maps.event.removeListener( zoomChangeBoundsListener );
 
 			    });
-			});
+			});*/
 
 			map.initialZoom = true;
 			map.fitBounds( bounds );
+			map.setZoom( zoom );
 
 		}
+	}
+
+	$.fn.focusMarker = function( marker ){
+		this.smoothAnchor();
+	    google.maps.event.trigger( marker, 'click' );
+	    return this;
+	}
+
+	$.fn.setMarker = function(map, latlng, count, zoom){
+
+		return this.each(function() {
+
+			var $this 			= $( this ),
+				marker_img 		= $this.data( 'img' ),
+				marker_color	= $this.data( 'icon-color' ),
+				marker_icon		= ( $this.data( 'icon' ) && !marker_img ? '<i class="fa ' + $this.data( 'icon' ) + '" style="color:' + marker_color + ';"></i>' : '' ),
+				classes 		= $this.attr('class') + ' ',
+				id 				= classes.substr( classes.indexOf( 'scm-marker marker marker-' ) + 25, classes.substr( 25 ).indexOf( ' ' ) ),
+				$map 			= $( '#map-' + count );
+			
+			//var image = new google.maps.MarkerImage(
+				//marker_img
+				//<?php echo json_encode(SCM_URI_CHILD); ?> + 'assets/img/marker.png',
+				/*new google.maps.Size( 24, 42 ),
+				new google.maps.Point( 0, 0 ),
+				new google.maps.Point( 12, 42 )*/
+			//);
+			/*
+			var shadow = new google.maps.MarkerImage(
+					themeImgs + 'map/marker-shadow.png',
+					new google.maps.Size( 58, 44 ),
+					new google.maps.Point( 0, 0 ),
+					new google.maps.Point( 16, 44 )
+				);
+
+			var shape = {
+					coord : [20,0,23,1,24,2,25,3,27,4,27,5,28,6,29,7,29,8,30,9,30,10,31,11,31,12,31,13,31,14,31,15,31,16,31,17,31,18,31,19,31,20,31,21,30,22,30,23,29,24,29,25,28,26,28,27,27,28,27,29,26,30,25,31,25,32,24,33,23,34,22,35,22,36,21,37,20,38,20,39,19,40,18,41,17,42,16,43,15,43,14,42,13,41,12,40,11,39,11,38,10,37,9,36,9,35,8,34,7,33,6,32,6,31,5,30,4,29,4,28,3,27,3,26,2,25,2,24,1,23,1,22,0,21,0,20,0,19,0,18,0,17,0,16,0,15,0,14,0,13,0,12,0,11,1,10,1,9,2,8,2,7,3,6,4,5,4,4,6,3,7,2,8,1,11,0,20,0],
+					type  : 'poly'
+				};
+			*/
+
+			var marker = new MarkerWithLabel({
+				raiseOnDrag : false,
+				clickable   : true,
+				draggable 	: false,
+				icon 		: ' ',
+				//icon 		: ( marker_icon ? ' ' : '' ),
+				//icon        : image,
+				//shadow      : shadow,
+				//shape       : shape,
+				cursor      : 'pointer',
+				//animation   : google.maps.Animation.BOUNCE,
+				position	: latlng,
+				map			: map,
+				labelContent: marker_icon,
+			    labelAnchor: new google.maps.Point(13, 40),
+			    labelClass: 'labels' // the CSS class for the label
+			});
+			
+			if ( marker_img )
+				marker.setIcon( marker_img );
+
+			map.markers.push( marker );
+
+			var $location = $activator = $('[data-id="' + id + '"]');
+			var $action = ( $location.data('open-marker') ? $location.data('open-marker') : false );
+
+			if( $action == false ){
+				$activator = $location.children( '[data-open-marker]' );
+				if( $activator.length ){
+					$action = $activator.data('open-marker');
+				}else{
+					$action = [];
+				}
+			}
+
+			if( $this.html() ){
+
+				with( { mark: marker, location: $location } ){
+
+					google.maps.event.addListener( mark, 'click', function() {
+						infowindow.close();
+						infowindow.setContent( $this.html() );
+						infowindow.open( map, marker );
+						$map.eventTools();
+						$( '.onmap' ).removeClass( 'infowindow' );
+						if( location.hasClass( 'onmap' ) )
+							location.addClass( 'infowindow' );
+					});
+
+				}
+
+				if( $action ){
+
+					$activator.css( 'cursor', 'pointer' );
+					$location.addClass( 'onmap' );
+
+					switch( $action ){
+						case 'over':
+
+							$activator.mouseenter(function () {
+								$map.focusMarker( marker );
+							});
+
+						break;
+
+						default:
+
+							$activator.click(function () {
+								$map.focusMarker( marker );
+							});
+
+						break;
+					}
+				}
+			}
+
+			$.centerMap( map, zoom );
+
+		});
 	}
 	
 	// *****************************************************
@@ -1801,13 +1865,13 @@ var $MAGIC;
 		return this.each( function() {
 
 			var $this = $( this ),
-				from = $this.outerWidth();
+				from = $this.parent().outerWidth();
 
-			$this.css( { left: from + 'px', opacity: 1 } );
+			$this.css( { left: '100%', opacity: 1 } );
 				
 				$this.animate({
 
-					'left': '0px'
+					'left': '0%'
 
 				}, speed, function(){
 					$slider.enableIt();
@@ -1826,13 +1890,13 @@ var $MAGIC;
 		return this.each( function() {
 
 			var $this = $( this ),
-				to = - $this.outerWidth();
+				to = - $this.parent().outerWidth();
 
-			$this.css( { left: '0px', opacity: 1 } );
+			$this.css( { left: '0%', opacity: 1 } );
 
 			$this.animate({
 
-				'left': to + 'px'
+				'left': '-200%'
 
 			}, speed, function(){
 			} );
@@ -1986,7 +2050,7 @@ var $MAGIC;
 			    	
 			    	$body.trigger( 'nivoLoaded', [ $this ] );
 			    	//$this.find( '.nivo-caption' ).addClass( 'box' );
-			    	$this.find( '.nivo-caption' ).addClass( 'box' ).captionMoveIn( 'load', this, $this.data( 'slider-speed' ) );
+			    	$this.find( '.nivo-caption' ).addClass( 'responsive float-center box' ).captionMoveIn( 'load', this, $this.data( 'slider-speed' ) );
 			    }
 			});
 
@@ -2034,7 +2098,8 @@ var $MAGIC;
 		return this.each( function() {
 
 			var $this 			= $( this ),
-				popup 			= ( $this.data( 'popup' ) ? $this.data( 'popup' ) : '' );
+				popup 			= ( $this.data( 'popup' ) ? $this.data( 'popup' ) : '' ),
+				id 				= $this.parent().attr('id');
 
 				if( !popup  || !popup.length )
 					return;
@@ -2044,7 +2109,8 @@ var $MAGIC;
 				init 			= ( $this.data( 'popup-init' ) ? $this.data( 'popup-init' ) : 0 ),
 				title 			= ( $this.data( 'popup-title' ) ? $this.data( 'popup-title' ) : '' ),
 				type 			= ( $this.data( 'popup-type' ) ? $this.data( 'popup-type' ) : 'image' ),
-				content 		= ( $this.data( 'popup-content' ) ? $this.data( 'popup-content' ) : '' );
+				template 		= ( $this.data( 'popup-template' ) ? $this.data( 'popup-template' ) : '' );
+				//content 		= ( $this.data( 'popup-content' ) ? $this.data( 'popup-content' ) : '' );
 				
 			var arrows 			= ( len === 1 ? 0 : ( $this.data( 'popup-arrows' ) ? $this.data( 'popup-arrows' ) : 0 ) ),
 				mini 			= ( $this.data( 'popup-miniarrows' ) ? $this.data( 'popup-miniarrows' ) : 0 ),
@@ -2069,7 +2135,8 @@ var $MAGIC;
 				j 				= 0,
 				space 			= $.EmToPx( 1 ),
 				extra 			= $.EmToPx( 3 ),
-				margin 			= [ extra + space, extra, extra + space, extra ];
+				margin 			= [ extra + space, extra, extra + space, extra ],
+				dynamic 		= false;
 
 			$this.disableIt();
 
@@ -2081,18 +2148,50 @@ var $MAGIC;
 
 				}else if( type == 'load' ){
 
-					$this.css( 'opacity', .3 );
-					$( $.iconLoading( 'double', 'absolute middle' ) ).appendTo( $this ).hide().fadeIn('slow');
+					/*var postid = parseInt(popup[i]);
+					var posttemp = parseInt(template);
 
-					$.get( popup[i], function ( response ) {
-						images.push( $( '<div>' + response + '</div>' ).find( content ).html() );
-						j++;
-						if( j == len ){
-							$this.find( '.loading' ).remove();
+					if( !CONTENTS[id] )
+						CONTENTS[id] = { replace: {}, popup: {} };
+
+					if( CONTENTS[id].popup[postid] ){
+						$this.find('.scm-loading').fadeOut( 'fast', function(){ $(this).remove() } );
+						images.push( CONTENTS[id].popup[postid] );
+						$this.enableIt();
+					}else{*/
+						images.push( '<div class="dynamic"></div>' );
+						$this.enableIt();
+						dynamic = true;
+						/*dynamic = function(){
+							var aj_data = {
+								action: 'load_content',
+								name: id,
+								single: postid,
+								template: posttemp,
+								query_vars: ajaxcall.query_vars,
+							};
+
+							$this.ajaxPost( ajaxcall.url, aj_data, function ( html ) {
+								CONTENTS[id].popup[postid] = html;
+								images.push( html );
+								$this.enableIt();
+							}, 'icon', { classes: 'absolute middle double' } );
+						}*/
+
+						/*$this.css( 'opacity', .3 );
+						$( $.iconLoading( 'double', 'absolute middle' ) ).appendTo( $this ).hide().fadeIn('slow');
+
+						$.get( popup[i], function ( response ) {
+							images.push( $( '<div>' + response + '</div>' ).find( content ).html() );
 							$this.enableIt();
-							$this.animate( { 'opacity' : 1 }, 'fast' );
-						}
-					});
+							j++;
+							if( j == len ){
+								$this.find( '.loading' ).remove();
+								$this.enableIt();
+								$this.animate( { 'opacity' : 1 }, 'fast' );
+							}
+						});*/
+					//}
 
 				}else if( typeof( popup[i] ) === 'string' ){
 
@@ -2179,6 +2278,11 @@ var $MAGIC;
 				   		closeSpeed: 350,
 				   		nextSpeed: 600,
 				   		prevSpeed: 600,
+
+				   		keys: {
+				   			play   : false,
+							toggle : false,
+				   		},
 				   		
 				   		helpers: {
 			    			overlay: {
@@ -2315,9 +2419,40 @@ var $MAGIC;
 							$( '.fancybox-counter' ).html( ( this.index + 1 ) + '/' + this.group.length );
 							$( '.fancybox-wrap' ).bind("contextmenu", function (e) { return false; });
 
+							if( dynamic ){
+
+								var $dynamic = $( '.fancybox-wrap .dynamic' );
+								
+								var postid = parseInt(popup[0]);
+								var posttemp = parseInt(template);
+
+								if( !CONTENTS[id] )
+									CONTENTS[id] = { replace: {}, popup: {} };
+
+								if( CONTENTS[id].popup[postid] ){
+									$dynamic.find('.scm-loading').fadeOut( 'fast', function(){ $(this).remove() } );
+									$( CONTENTS[id].popup[postid] ).appendTo( $dynamic ).css( 'opacity', 0 ).animate( { opacity: 1 }, 500 ).eventLinks();
+								}else{
+									var aj_data = {
+										action: 'load_content',
+										name: id,
+										single: postid,
+										template: posttemp,
+										query_vars: ajaxcall.query_vars,
+									};
+
+									$dynamic.ajaxPost( ajaxcall.url, aj_data, function ( html ) {
+										CONTENTS[id].popup[postid] = html;
+										$(html).appendTo( $dynamic ).css( 'opacity', 0 ).animate( { opacity: 1 }, 500 ).eventLinks();
+									}, 'icon', { classes: 'absolute middle triple' } );
+
+								}
+							}
+
 						},
 
-						afterShow: function() {						
+						afterShow: function() {
+
 						},
 
 						beforeClose: function() {

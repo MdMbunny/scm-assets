@@ -410,7 +410,7 @@
 	// STRING
 
 	$.decodeEmail = function( str ){
-		return str.replace( '()', '@' ).replace( ',', '.' );
+		return str.replace( /,/g, '.' ).replace( '()', '@' );
 	}
 
 	$.startsWith = function( str, arr ){
@@ -635,7 +635,7 @@
 		args = $.extend(
 			{
 				classes: 'absolute middle double',
-				icon: 'circle',
+				icon: 'spinner',
 			},
 			( args ? args : {} )
 		);
@@ -648,7 +648,7 @@
 		args = $.extend(
 			{
 				classes: 'absolute middle double',
-				icon: 'spinner',
+				icon: 'circle',
 			},
 			( args ? args : {} )
 		);

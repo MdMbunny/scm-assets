@@ -308,11 +308,11 @@
 					alert( 'Set Google Maps API Key' );
 
 		    	window.initialize = function(e){
-				    var scr_marker = document.createElement('script');
-					scr_marker.type = 'text/javascript';
-					scr_marker.src = 'https://cdn.rawgit.com/googlemaps/v3-utility-library/master/markerwithlabel/src/markerwithlabel.js';
-					document.body.appendChild( scr_marker );
-					$maps.googleMap();
+					$.getScript( 'https://cdn.rawgit.com/googlemaps/v3-utility-library/master/markerwithlabel/src/markerwithlabel.js', function( data, textStatus, jqxhr ) {
+						$.getScript( 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js', function( data, textStatus, jqxhr ) {
+							$maps.googleMap();
+						});
+					});
 				};
 		    	    			    	
 				var scr_maps = document.createElement('script');
