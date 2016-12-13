@@ -1810,7 +1810,7 @@ var $MAGIC;
 						infowindow.close();
 						infowindow.setContent( $this.html() );
 						infowindow.open( map, marker );
-						$map.eventTools();
+						$map.eventInit(1,1);
 						$( '.onmap' ).removeClass( 'infowindow' );
 						if( location.hasClass( 'onmap' ) )
 							location.addClass( 'infowindow' );
@@ -2148,50 +2148,9 @@ var $MAGIC;
 
 				}else if( type == 'load' ){
 
-					/*var postid = parseInt(popup[i]);
-					var posttemp = parseInt(template);
-
-					if( !CONTENTS[id] )
-						CONTENTS[id] = { replace: {}, popup: {} };
-
-					if( CONTENTS[id].popup[postid] ){
-						$this.find('.scm-loading').fadeOut( 'fast', function(){ $(this).remove() } );
-						images.push( CONTENTS[id].popup[postid] );
-						$this.enableIt();
-					}else{*/
 						images.push( '<div class="dynamic"></div>' );
 						$this.enableIt();
 						dynamic = true;
-						/*dynamic = function(){
-							var aj_data = {
-								action: 'load_content',
-								name: id,
-								single: postid,
-								template: posttemp,
-								query_vars: ajaxcall.query_vars,
-							};
-
-							$this.ajaxPost( ajaxcall.url, aj_data, function ( html ) {
-								CONTENTS[id].popup[postid] = html;
-								images.push( html );
-								$this.enableIt();
-							}, 'icon', { classes: 'absolute middle double' } );
-						}*/
-
-						/*$this.css( 'opacity', .3 );
-						$( $.iconLoading( 'double', 'absolute middle' ) ).appendTo( $this ).hide().fadeIn('slow');
-
-						$.get( popup[i], function ( response ) {
-							images.push( $( '<div>' + response + '</div>' ).find( content ).html() );
-							$this.enableIt();
-							j++;
-							if( j == len ){
-								$this.find( '.loading' ).remove();
-								$this.enableIt();
-								$this.animate( { 'opacity' : 1 }, 'fast' );
-							}
-						});*/
-					//}
 
 				}else if( typeof( popup[i] ) === 'string' ){
 
@@ -2417,7 +2376,7 @@ var $MAGIC;
 						beforeShow: function() {
 
 							$( '.fancybox-counter' ).html( ( this.index + 1 ) + '/' + this.group.length );
-							$( '.fancybox-wrap' ).bind("contextmenu", function (e) { return false; });
+							//$( '.fancybox-wrap' ).bind("contextmenu", function (e) { return false; });
 
 							if( dynamic ){
 
@@ -2431,7 +2390,7 @@ var $MAGIC;
 
 								if( CONTENTS[id].popup[postid] ){
 									$dynamic.find('.scm-loading').fadeOut( 'fast', function(){ $(this).remove() } );
-									$( CONTENTS[id].popup[postid] ).appendTo( $dynamic ).css( 'opacity', 0 ).animate( { opacity: 1 }, 500 ).eventLinks();
+									$( CONTENTS[id].popup[postid] ).appendTo( $dynamic ).eventsInit(1, 1, 1).focus().css( 'opacity', 0 ).animate( { opacity: 1 }, 500 );
 								}else{
 									var aj_data = {
 										action: 'load_content',
@@ -2443,7 +2402,7 @@ var $MAGIC;
 
 									$dynamic.ajaxPost( ajaxcall.url, aj_data, function ( html ) {
 										CONTENTS[id].popup[postid] = html;
-										$(html).appendTo( $dynamic ).css( 'opacity', 0 ).animate( { opacity: 1 }, 500 ).eventLinks();
+										$(html).appendTo( $dynamic ).eventsInit(1, 1, 1).focus().css( 'opacity', 0 ).animate( { opacity: 1 }, 500 );
 									}, 'icon', { classes: 'absolute middle triple' } );
 
 								}
