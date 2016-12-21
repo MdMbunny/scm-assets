@@ -3,7 +3,7 @@
  * Plugin Name:         SCM Assets
  * Plugin URI:          http://studiocreativo-m.it/
  * Description:         SCM Javascript Integration
- * Version:             1.6.2
+ * Version:             1.6.4
  * Author:              Studio Creativo M
  * Author URI:          http://studiocreativo-m.it/
  * License:             http://www.gnu.org/licenses/gpl-3.0.html
@@ -55,7 +55,7 @@
 // ***************************************************************************************************************************************************************
 // ***************************************************************************************************************************************************************
 
-define( 'SCM_ASSETS_FANCYBOX', 'https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/' );
+//define( 'SCM_ASSETS_FANCYBOX', 'https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/' );
 
 /*
 *****************************************************
@@ -96,11 +96,11 @@ define( 'SCM_ASSETS_FANCYBOX', 'https://cdnjs.cloudflare.com/ajax/libs/fancybox/
                 wp_register_style( 'fancybox-thumbs-style', SCM_ASSETS_FANCYBOX . 'helpers/jquery.fancybox-thumbs.css', false, null );
                 wp_register_style( 'fancybox-buttons-style', SCM_ASSETS_FANCYBOX . 'helpers/jquery.fancybox-buttons.css', false, null );*/
                 wp_register_style( 'fancybox-style', SCM_ASSETS_URI_ASSETS . 'fancybox-2.1.5/jquery.fancybox.css', false, null );
-                wp_register_style( 'fancybox-thumbs-style', SCM_ASSETS_URI_ASSETS . 'fancybox-2.1.5/helpers/jquery.fancybox-thumbs.css', false, null );
-                wp_register_style( 'fancybox-buttons-style', SCM_ASSETS_URI_ASSETS . 'fancybox-2.1.5/helpers/jquery.fancybox-buttons.css', false, null );
+                //wp_register_style( 'fancybox-thumbs-style', SCM_ASSETS_URI_ASSETS . 'fancybox-2.1.5/helpers/jquery.fancybox-thumbs.css', false, null );
+                //wp_register_style( 'fancybox-buttons-style', SCM_ASSETS_URI_ASSETS . 'fancybox-2.1.5/helpers/jquery.fancybox-buttons.css', false, null );
                 wp_enqueue_style( 'fancybox-style' );
-                wp_enqueue_style( 'fancybox-thumbs-style' );
-                wp_enqueue_style( 'fancybox-buttons-style' );
+                //wp_enqueue_style( 'fancybox-thumbs-style' );
+                //wp_enqueue_style( 'fancybox-buttons-style' );
             }
 
             // Nivo Slider
@@ -132,7 +132,10 @@ define( 'SCM_ASSETS_FANCYBOX', 'https://cdnjs.cloudflare.com/ajax/libs/fancybox/
             // jQuery Effects Core
 
             wp_enqueue_script('jquery-effects-core');
-            wp_enqueue_script('jquery-ui-autocomplete');
+            
+            if( get_field( 'opt-tools-tables', 'option' ) )
+                wp_enqueue_script('jquery-ui-autocomplete');
+            
             wp_enqueue_script('imagesloaded');
 
             // Greensock
@@ -153,8 +156,8 @@ define( 'SCM_ASSETS_FANCYBOX', 'https://cdnjs.cloudflare.com/ajax/libs/fancybox/
                 wp_enqueue_script( 'scroll-magic' );
                 wp_register_script( 'scroll-magic-jquery',  SCM_ASSETS_URI_ASSETS . 'scrollmagic-2.0.5/minified/plugins/jquery.ScrollMagic.min.js', array( 'scroll-magic' ), null, true );
                 wp_enqueue_script( 'scroll-magic-jquery' );
-                wp_register_script( 'scroll-magic-debug',  SCM_ASSETS_URI_ASSETS . 'scrollmagic-2.0.5/minified/plugins/debug.addIndicators.min.js', array( 'scroll-magic-jquery' ), null, true );
-                wp_enqueue_script( 'scroll-magic-debug' );
+                //wp_register_script( 'scroll-magic-debug',  SCM_ASSETS_URI_ASSETS . 'scrollmagic-2.0.5/minified/plugins/debug.addIndicators.min.js', array( 'scroll-magic-jquery' ), null, true );
+                //wp_enqueue_script( 'scroll-magic-debug' );
             }
 
             // TouchSwipe
@@ -184,8 +187,8 @@ define( 'SCM_ASSETS_FANCYBOX', 'https://cdnjs.cloudflare.com/ajax/libs/fancybox/
                 wp_register_script( 'fancybox', SCM_ASSETS_URI_ASSETS . 'fancybox-2.1.5/jquery.fancybox.pack.js', array( 'imagesloaded' ), null, true );
                 wp_enqueue_script( 'fancybox' );
                 // MIN
-                wp_register_script( 'fancybox-helpers', SCM_ASSETS_URI_ASSETS . 'fancybox-2.1.5/helpers/jquery.fancybox-helpers.min.js', array( 'fancybox' ), null, true );
-                wp_enqueue_script( 'fancybox-helpers' );
+                //wp_register_script( 'fancybox-helpers', SCM_ASSETS_URI_ASSETS . 'fancybox-2.1.5/helpers/jquery.fancybox-helpers.min.js', array( 'fancybox' ), null, true );
+                //wp_enqueue_script( 'fancybox-helpers' );
                 // FULL
                 /*wp_register_script( 'fancybox-thumbs', SCM_ASSETS_URI_ASSETS . 'fancybox-2.1.5/helpers/jquery.fancybox-thumbs.js', array( 'fancybox' ), null, true );
                 wp_enqueue_script( 'fancybox-thumbs' );
@@ -230,20 +233,29 @@ define( 'SCM_ASSETS_FANCYBOX', 'https://cdnjs.cloudflare.com/ajax/libs/fancybox/
             // SCM Stuff
 
             // MIN
-            /*wp_register_script( 'jquery-scm-tools', SCM_ASSETS_URI . 'scm.min.js', array( 'imagesloaded' ), null, true );
-            wp_enqueue_script( 'jquery-scm-tools' );*/
+            //wp_register_script( 'jquery-scm-tools', SCM_ASSETS_URI . 'scm-tools.min.js', array( 'imagesloaded' ), null, true );
             // FULL
             wp_register_script( 'jquery-scm-js-functions', SCM_ASSETS_URI . 'scm-js-functions.js', array( 'imagesloaded' ), null, true );
             wp_enqueue_script( 'jquery-scm-js-functions' );
             wp_register_script( 'jquery-scm-functions', SCM_ASSETS_URI . 'scm-functions.js', array( 'jquery-scm-js-functions' ), null, true );
             wp_enqueue_script( 'jquery-scm-functions' );
-            wp_register_script( 'jquery-scm-tables', SCM_ASSETS_URI . 'scm-tables.js', array( 'jquery-scm-functions' ), null, true );
-            wp_enqueue_script( 'jquery-scm-tables' );
-            wp_register_script( 'jquery-scm-tools', SCM_ASSETS_URI . 'scm-tools.js', array( 'jquery-scm-tables' ), null, true );
+            wp_register_script( 'jquery-scm-tools', SCM_ASSETS_URI . 'scm-tools.js', array( 'jquery-scm-functions' ), null, true );
+            //wp_register_script( 'jquery-scm-tables', SCM_ASSETS_URI . 'scm-tables.js', array( 'jquery-scm-functions' ), null, true );
+            //wp_enqueue_script( 'jquery-scm-tables' );
+            //wp_register_script( 'jquery-scm-tools', SCM_ASSETS_URI . 'scm-tools.js', array( 'jquery-scm-tables' ), null, true );
+            //wp_enqueue_script( 'jquery-scm-tools' );            
             wp_enqueue_script( 'jquery-scm-tools' );
 
-            wp_register_script( 'jquery-scm-acf', SCM_ASSETS_URI . 'scm-acf.js', array( 'jquery-scm-tools' ), null, true );
-            wp_enqueue_script( 'jquery-scm-acf' );
+            if( get_field( 'opt-tools-tables', 'option' ) ){
+                // MIN
+                wp_register_script( 'jquery-scm-tables', SCM_ASSETS_URI . 'scm-tables.min.js', array( 'jquery-scm-tools' ), null, true );
+                // FULL
+                //wp_register_script( 'jquery-scm-tables', SCM_ASSETS_URI . 'scm-tables.js', array( 'jquery-scm-tools' ), null, true );
+                wp_enqueue_script( 'jquery-scm-tables' );
+            }
+
+            //wp_register_script( 'jquery-scm-acf', SCM_ASSETS_URI . 'scm-acf.js', array( 'jquery-scm-tools' ), null, true );
+            //wp_enqueue_script( 'jquery-scm-acf' );
 
             // SCM Child
 
@@ -257,7 +269,7 @@ define( 'SCM_ASSETS_FANCYBOX', 'https://cdnjs.cloudflare.com/ajax/libs/fancybox/
                 }
             }
 
-            wp_register_script( 'jquery-scm-child', get_stylesheet_directory_uri() . '/_assets/js/jquery.scm-child.js', array( 'jquery-scm-acf' ), null, true );
+            wp_register_script( 'jquery-scm-child', get_stylesheet_directory_uri() . '/_assets/js/jquery.scm-child.js', array( 'jquery-scm-tools' ), null, true );
             wp_enqueue_script( 'jquery-scm-child' );
 
             $scripts = apply_filters( 'scm_assets_action_register_after_child', array() );

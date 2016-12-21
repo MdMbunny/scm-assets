@@ -214,8 +214,8 @@ var $MAGIC;
 
 		$.consoleDebug( DEBUG, '-- links events');
 
-		var $nav 	= this.find( 'a, .navigation' ).filter(':not(.nolinkit):not(.iubenda-embed)').filter(function( index ) { return $( this ).parents( '.ssba, .acf-form' ).length === 0; }),
-			$link 	= this.find( 'a, [data-href]' ).filter(':not(.nolinkit):not(.iubenda-embed)').filter(function( index ) { return $( this ).parents( '.ssba, .acf-form' ).length === 0; });
+		var $nav 	= this.find( 'a, .navigation' ).filter(':not(.nolinkit):not(.iubenda-embed)').filter(function( index ) { return $( this ).parents( '.ssba, .acf-form, .scm-map' ).length === 0; }),
+			$link 	= this.find( 'a, [data-href]' ).filter(':not(.nolinkit):not(.iubenda-embed)').filter(function( index ) { return $( this ).parents( '.ssba, .acf-form, .scm-map' ).length === 0; });
 
 		$link.filter( ':not([data-link-type])' ).linkIt();
 
@@ -859,8 +859,8 @@ var $MAGIC;
 			offset = $.EmToPx( offset )
 
 		destination = height - offset - head;
-		if( obj.hasClass('has-fade') && !obj.hasClass('current-fade') )
-			destination -= $.EmToPx( 3 ) // vincolato a css
+		/*if( obj.hasClass('has-fade') && !obj.hasClass('current-fade') )
+			destination -= $.EmToPx( 3 )*/ // vincolato a css
 
 		if( body - destination < win )
 			destination = body - win;
@@ -1806,11 +1806,11 @@ var $MAGIC;
 
 				with( { mark: marker, location: $location } ){
 
-					google.maps.event.addListener( mark, 'click', function() {
+					google.maps.event.addListener( mark, 'click', function(e) {
 						infowindow.close();
 						infowindow.setContent( $this.html() );
 						infowindow.open( map, marker );
-						$map.eventInit(1,1);
+						$map.eventsInit(1,1);
 						$( '.onmap' ).removeClass( 'infowindow' );
 						if( location.hasClass( 'onmap' ) )
 							location.addClass( 'infowindow' );
@@ -2406,6 +2406,8 @@ var $MAGIC;
 									}, 'icon', { classes: 'absolute middle triple' } );
 
 								}
+							}else{
+								$( '.fancybox-wrap' ).bind("contextmenu", function (e) { return false; });
 							}
 
 						},
