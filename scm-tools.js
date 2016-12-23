@@ -2148,9 +2148,9 @@ var $MAGIC;
 
 				}else if( type == 'load' ){
 
-						images.push( '<div class="dynamic"></div>' );
-						$this.enableIt();
-						dynamic = true;
+					images.push( '<div class="dynamic"></div>' );
+					$this.enableIt();
+					dynamic = true;
 
 				}else if( typeof( popup[i] ) === 'string' ){
 
@@ -2233,7 +2233,7 @@ var $MAGIC;
 				   		closeEasing: 'easeInSine',
 				   		nextEasing: 'easeInOutSine',
 				   		prevEasing: 'easeInOutSine',
-				   		openSpeed: 50,
+				   		openSpeed: 150,
 				   		closeSpeed: 350,
 				   		nextSpeed: 600,
 				   		prevSpeed: 600,
@@ -2251,7 +2251,7 @@ var $MAGIC;
 					            },
 					            closeClick:false,
 		                        speedOut:50,
-		                        showEarly:true
+		                        //showEarly:true
 			    			},
 			    			title: { type: data },
 				   		},
