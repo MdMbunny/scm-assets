@@ -28,7 +28,6 @@
 		start 		= 'documentDone';
 		wait 		= $body.data( 'fade-wait' );
 		touch 		= $body.hasClass( 'touch' );
-		//touch 		= $body.hasClass('is-touch');
 
 		GOOGLE_API_KEY = $body.attr( 'data-gmap' );
 
@@ -83,7 +82,7 @@
 
 	var startEvents = function(){
 		$.consoleDebug( DEBUG, 'startEvents()');
-		switch( wait ){
+		/*switch( wait ){
 			case 'images': case 'nobg':
 				start = 'imgsLoaded';
 			break;
@@ -98,7 +97,9 @@
 			default:
 				start = 'documentDone';
 			break;
-		}
+		}*/
+
+		start = 'documentDone';
 
 		$.consoleDebug( DEBUG, '- start event is: ' + start );
 		
@@ -106,15 +107,15 @@
 		$body.on( start, function(e){
 			if( DEBUG ) $.log('[on] startEvent.' + start, touch);
 			isready = true;
-			$.bodyIn(e);
+			$.bodyIn();
 		} );
 
-		setTimeout(function() {
+		/*setTimeout(function() {
 			if( !isready ){
 				$.consoleDebug( DEBUG, '[WARNING] BodyIn FORCED START');
 				$.bodyIn();
 			}
-     	}, 5000);
+     	}, 5000);*/
 	}
 
 	// *****************************************************
@@ -331,6 +332,7 @@
 		// WINDOW LOADED event
 		$window.on( 'load', function(e){
 			if( $body.attr( 'data-premature-action' ) ){
+				$.consoleDebug( DEBUG, '*** PREMATURE ACTION ***');
 				window.location.hash = '#content-loaded';
 				setTimeout(function(){
 					$body.removeAttr( 'data-premature-action' );
@@ -384,7 +386,7 @@
 		// Safari Fix **************************************
 		window.onpageshow = function(event) {
 		    if (event.persisted && $body.hasClass('safari')) 
-		    	$.bodyIn(event);
+		    	$.bodyIn();
 		};
 	}
 

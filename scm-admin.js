@@ -24,7 +24,7 @@
 
 		// COLLAPSE LAYOUTS
 
-		var $layout = jQuery('.acf-flexible-content .layout' );
+		/*var $layout = jQuery('.acf-flexible-content .layout' );
 		jQuery('.acf-field .acf-label label:empty').addClass('empty');
 
 		$layout.addClass( '-collapsed' );
@@ -41,7 +41,7 @@
 			}else if( $this.parents('.layout').length == 0 ){
 				$body.find('.layout').addClass('-collapsed');
 			}
-		} );
+		} );*/
 
 		// CONTROL MENU
 
@@ -77,7 +77,7 @@
 	
 
 		var $save = jQuery( '#save-action' );
-		if( $save.find( '.button' ).size() > 0 ){
+		if( $save.find( '.button' ).length > 0 ){
 			$save.prepend( '<i class="fa fa-file-o"></i>' );
 			$save.prepend( '<i class="fa fa-spin fa-cog"></i>' );
 		}

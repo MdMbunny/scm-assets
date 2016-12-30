@@ -42,10 +42,10 @@ var formatDate = function( date, dsep, sep, hsep ){
 
 // Prototype
 
-Number.prototype.toHHMMSS = function () {
-    var hours   = Math.floor(this / 3600);
-    var minutes = Math.floor((this - (hours * 3600)) / 60);
-    var seconds = this - (hours * 3600) - (minutes * 60);
+var toHHMMSS = function (num) {
+    var hours   = Math.floor(num / 3600);
+    var minutes = Math.floor((num - (hours * 3600)) / 60);
+    var seconds = num - (hours * 3600) - (minutes * 60);
 
     if (hours   < 10) {hours   = "0"+hours;}
     if (minutes < 10) {minutes = "0"+minutes;}
@@ -53,9 +53,9 @@ Number.prototype.toHHMMSS = function () {
     return hours+':'+minutes+':'+seconds;
 }
 
-Number.prototype.toHHMM = function () {
-    var hours   = Math.floor(this / 3600);
-    var minutes = Math.floor((this - (hours * 3600)) / 60);
+var toHHMM = function (num) {
+    var hours   = Math.floor(num / 3600);
+    var minutes = Math.floor((num - (hours * 3600)) / 60);
 
     if (hours   < 10) {hours   = "0"+hours;}
     if (minutes < 10) {minutes = "0"+minutes;}
@@ -66,7 +66,7 @@ Number.prototype.toHHMM = function () {
 // OBJECT
 // **********************************************
 
-Object.size = function(obj) {
+var objSize = function(obj) {
     var size = 0, key;
     for (key in obj) {
         if (obj.hasOwnProperty(key)) size++;
@@ -80,48 +80,53 @@ Object.size = function(obj) {
 
 // Prototype
 
-Array.prototype.move = function( from, to ){
+var arrMove = function( arr, from, to ){
     while(from < 0) {
-        from += this.length;
+        from += arr.length;
     }
     while (to < 0) {
-        to += this.length;
+        to += arr.length;
     }
-    if (to >= this.length) {
-        var k = to - this.length;
+    if (to >= arr.length) {
+        var k = to - arr.length;
         while ((k--) + 1) {
-            this.push(undefined);
+            arr.push(undefined);
         }
     }
-    this.splice(to, 0, this.splice(from, 1)[0]);
+    arr.splice(to, 0, arr.splice(from, 1)[0]);
+    return arr;
 };
 
-Array.prototype.swap = function( a, b ){
+var arrSwap = function( arr, a, b ){
 
-    var temp = this[a];
-    this[a] = this[b];
-    this[b] = temp;
+    var temp = arr[a];
+    arr[a] = arr[b];
+    arr[b] = temp;
+    return arr;
 
 };
 
-Array.prototype.csvSwapColumn = function( a, b ){
-    for (var i = 0; i < this.length; i++) {
-        this[i].swap( a, b );
+var csvSwapColumn = function( arr, a, b ){
+    for (var i = 0; i < arr.length; i++) {
+        arr = arrSwap( arr[i], a, b );
     }
+    return arr;
 }
 
-Array.prototype.csvMoveColumn = function( from, to ){
-    for (var i = 0; i < this.length; i++) {
-        this[i].move( from, to );
+var csvMoveColumn = function( arr, from, to ){
+    for (var i = 0; i < arr.length; i++) {
+        arr = arrMove( arr[i], from, to );
     }
+    return arr;
 }
 
-Array.prototype.csvInsertColumn = function( col, index ){
-    index = ( undefined == index ? this.length : index );
-    for (var i = 0; i < this.length; i++) {
-        this[i].splice(index, 0, col);
+var csvInsertColumn = function( arr, col, index ){
+    index = ( undefined == index ? arr.length : index );
+    for (var i = 0; i < arr.length; i++) {
+        arr[i].splice(index, 0, col);
         if(!i) col = '';
     }
+    return arr;
 }
 
 // Utils

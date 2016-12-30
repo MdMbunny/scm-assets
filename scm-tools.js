@@ -663,7 +663,7 @@ var $MAGIC;
 	// *      PAGE ENTER
 	// *****************************************************
 
-	$.bodyIn = function( event ){
+	$.bodyIn = function(){
 
 		$.consoleDebug( DEBUG, '-----------');
 
@@ -682,7 +682,7 @@ var $MAGIC;
 		$body.addClass( 'bodyin' );
 		$body.removeClass( 'bodyout' );
 		$body.css( 'opacity', opacity );
-		$navigation.css( 'opacity', 1 );		
+		//$navigation.css( 'opacity', 1 );		
 
 		var scroll	= function(){
 
@@ -695,8 +695,9 @@ var $MAGIC;
     	};
 
     	if( !page && $anchor.length ){
+
 			$.consoleDebug( DEBUG, 'jump to anchor');
-			$anchor.smoothScroll( { time: 0 } );
+			$anchor.smoothScroll( { delay: delay, time: 0 } );
 		}
 
     	if( duration ){
@@ -808,18 +809,26 @@ var $MAGIC;
 
 		var $body = $( 'body' );
 		$body.disableIt();
+		var ended = function() {
+			if( typeof complete === 'function' )
+				complete();
+			else if( !complete )
+				$body.enableIt();
+		}
 		var scroll = function(){
-			$('html').animate( {
-				scrollTop: parseFloat( destination )
-			}, parseFloat( duration ), ease );
-			$body.animate( {
-				scrollTop: parseFloat( destination )
-			}, parseFloat( duration ), ease, function() {
-				if( typeof complete === 'function' )
-					complete();
-				else if( !complete )
-					$body.enableIt();
-			});
+
+			if( duration ){
+				$('html').animate( {
+					scrollTop: parseFloat( destination )
+				}, parseFloat( duration ), ease );
+				$body.animate( {
+					scrollTop: parseFloat( destination )
+				}, parseFloat( duration ), ease, ended);
+			}else{
+				$('html').scrollTop( parseFloat( destination ) );
+				$body.scrollTop( parseFloat( destination ) );
+				ended();
+			}
 		}
 
 		if( delay )
@@ -831,8 +840,8 @@ var $MAGIC;
 	$.getSmoothData = function() {
 		var $body = $( 'body' );
 		var args = {
-			time : 		parseFloat( $body.data( 'smooth-duration' ) ? $body.data( 'smooth-duration' ) : 1 ),
-			delay : 	parseFloat( $body.data( 'smooth-delay' ) ? $body.data( 'smooth-delay' ) : 0.1 ),
+			time : 		parseFloat( $body.data( 'smooth-duration' ) ? $body.data( 'smooth-duration' ) : 0 ),
+			delay : 	parseFloat( $body.data( 'smooth-delay' ) ? $body.data( 'smooth-delay' ) : 0 ),
 			offset : 	parseFloat( $body.data( 'smooth-offset' ) ? $body.data( 'smooth-offset' ) : 0 ),
 			head : 		$body.data( 'smooth-head' ) ? $body.data( 'smooth-head' ) : 0,
 			units : 	( $body.data( 'smooth-offset-units' ) ? $body.data( 'smooth-offset-units' ) : 'px' ),
@@ -923,12 +932,10 @@ var $MAGIC;
 			difference = Math.abs( destination - position );
 			duration = Math.max( time * Math.min( difference, 6000 ), 500 );
 
-			if( time === 0 )
-				$body.scrollTop( destination );
-			else if( !difference )
+			if( !difference )
 				$body.enableIt();
 			else
-				$.scrollTo( destination, duration, ease, delay, complete );
+				$.scrollTo( destination, ( !time ? 0 : duration ), ease, delay, complete );
 
 			return this;
 
@@ -1857,7 +1864,8 @@ var $MAGIC;
 
 	$.fn.captionMoveIn = function( state, slider, speed ){	
 
-		var $slider = $( slider );
+		//var $slider = $( slider );
+		var $slider = slider;
 		
 		$slider.disableIt();
 		//$slider.css( 'pointer-events', 'none' );
@@ -1882,7 +1890,8 @@ var $MAGIC;
 
 	$.fn.captionMoveOut = function( state, slider, speed ){
 
-		var $slider = $( slider );
+		//var $slider = $( slider );
+		var $slider = slider;
 
 		//$slider.css( 'pointer-events', 'none' );
 		$slider.disableIt();
@@ -1960,12 +1969,12 @@ var $MAGIC;
 			    randomStart: 		$this.data( 'slider-random' ), 									// Start on a random slide
 			    beforeChange: function( e ){       													// Triggers before a slide transition
 
-			    	$this.find( '.nivo-caption' ).captionMoveOut( 'before', this, $this.data( 'slider-speed' ) );
+			    	$this.find( '.nivo-caption' ).captionMoveOut( 'before', $this, $this.data( 'slider-speed' ) );
 
 			    },
 			    afterChange: function( e ){        						// Triggers after a slide transition
 
-			    	$this.find( '.nivo-caption' ).captionMoveIn( 'after', this, $this.data( 'slider-speed' ) );
+			    	$this.find( '.nivo-caption' ).captionMoveIn( 'after', $this, $this.data( 'slider-speed' ) );
 
 			    },
 			    slideshowEnd: function( e ){       						// Triggers after all slides have been shown
@@ -2050,7 +2059,7 @@ var $MAGIC;
 			    	
 			    	$body.trigger( 'nivoLoaded', [ $this ] );
 			    	//$this.find( '.nivo-caption' ).addClass( 'box' );
-			    	$this.find( '.nivo-caption' ).addClass( 'responsive float-center box' ).captionMoveIn( 'load', this, $this.data( 'slider-speed' ) );
+			    	$this.find( '.nivo-caption' ).addClass( 'responsive float-center box' ).captionMoveIn( 'load', $this, $this.data( 'slider-speed' ) );
 			    }
 			});
 
@@ -2380,7 +2389,8 @@ var $MAGIC;
 
 							if( dynamic ){
 
-								var $dynamic = $( '.fancybox-wrap .dynamic' );
+								var $wrap = $( '.fancybox-wrap' );
+								var $dynamic = $wrap.find( '.dynamic' );
 								
 								var postid = parseInt(popup[0]);
 								var posttemp = parseInt(template);
@@ -2400,7 +2410,7 @@ var $MAGIC;
 										query_vars: ajaxcall.query_vars,
 									};
 
-									$dynamic.ajaxPost( ajaxcall.url, aj_data, function ( html ) {
+									$wrap.ajaxPost( ajaxcall.url, aj_data, function ( html ) {
 										CONTENTS[id].popup[postid] = html;
 										$(html).appendTo( $dynamic ).eventsInit(1, 1, 1).focus().css( 'opacity', 0 ).animate( { opacity: 1 }, 500 );
 									}, 'icon', { classes: 'absolute middle triple' } );

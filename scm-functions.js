@@ -598,26 +598,6 @@
 *****************************************************
 */
 
-	/*$.progressBar = function( element, percent, html, time ) {
-	    element.find('div')
-	    	.animate( {
-	    		width: parseFloat(percent) * element.width() / 100
-	    	}, time ? time : 500 )
-	    	.html( html ? percent + '% ' : '' );
-	}
-
-	$.progressBarLoading = function( args ) {
-
-		args = $.extend(
-			{
-				classes: 'absolute middle full-width',
-			},
-			( args ? args : {} )
-		);
-		
-		return '<div class="scm-loading loading-bar ' + args.classes + '"></div>';
-	}*/
-
 	$.barLoading = function( args ) {
 
 		args = $.extend(
@@ -640,7 +620,7 @@
 			( args ? args : {} )
 		);
 
-		return '<div class="scm-loading loading-icon ' + args.classes + '"><i class="fa fa-spin fa-' + args.icon + '"></i></div>';
+		return '<div class="scm-loading loading-icon ' + args.classes + '"><i class="fa fa-pulse fa-' + args.icon + '"></i></div>';
 	}
 
 	$.circleLoading = function( args ) {
