@@ -3,7 +3,7 @@
  * Plugin Name:         SCM Assets
  * Plugin URI:          http://studiocreativo-m.it/
  * Description:         SCM Javascript Integration
- * Version:             1.6.6
+ * Version:             1.6.7
  * Author:              Studio Creativo M
  * Author URI:          http://studiocreativo-m.it/
  * License:             http://www.gnu.org/licenses/gpl-3.0.html
@@ -350,10 +350,10 @@
     if ( ! function_exists( 'scm_assets_register_fontawesome' ) ) {
         function scm_assets_register_fontawesome() {
 
-            wp_register_script('font-awesome', 'https://use.fontawesome.com/ee6c1736d8.js', null, null, true );
-            wp_enqueue_script( 'font-awesome' );
-            //wp_register_style('font-awesome', SCM_ASSETS_URI_ASSETS . 'font-awesome-4.6.3/css/font-awesome.min.css', false, null );
-            //wp_enqueue_style( 'font-awesome' );   
+            //wp_register_script('font-awesome', 'https://use.fontawesome.com/ee6c1736d8.js', null, null, true );
+            //wp_enqueue_script( 'font-awesome' );
+            wp_register_style('font-awesome', SCM_ASSETS_URI_ASSETS . 'font-awesome-4.7.0/css/font-awesome.min.css', false, null );
+            wp_enqueue_style( 'font-awesome' );   
 
         }
     }
