@@ -3,7 +3,7 @@
  * Plugin Name:         SCM Assets
  * Plugin URI:          http://studiocreativo-m.it/
  * Description:         SCM Javascript Integration
- * Version:             1.6.7
+ * Version:             1.6.8
  * Author:              Studio Creativo M
  * Author URI:          http://studiocreativo-m.it/
  * License:             http://www.gnu.org/licenses/gpl-3.0.html
@@ -260,13 +260,13 @@
         // SCM Stuff
 
             // MIN
-            wp_register_script( 'jquery-scm-tools', SCM_ASSETS_URI . 'scm-tools.min.js', array( 'imagesloaded' ), null, true );
+            //wp_register_script( 'jquery-scm-tools', SCM_ASSETS_URI . 'scm-tools.min.js', array( 'imagesloaded' ), null, true );
             // FULL
-            //wp_register_script( 'jquery-scm-js-functions', SCM_ASSETS_URI . 'scm-js-functions.js', array( 'imagesloaded' ), null, true );
-            //wp_enqueue_script( 'jquery-scm-js-functions' );
-            //wp_register_script( 'jquery-scm-functions', SCM_ASSETS_URI . 'scm-functions.js', array( 'jquery-scm-js-functions' ), null, true );
-            //wp_enqueue_script( 'jquery-scm-functions' );
-            //wp_register_script( 'jquery-scm-tools', SCM_ASSETS_URI . 'scm-tools.js', array( 'jquery-scm-functions' ), null, true );
+            wp_register_script( 'jquery-scm-js-functions', SCM_ASSETS_URI . 'scm-js-functions.js', array( 'imagesloaded' ), null, true );
+            wp_enqueue_script( 'jquery-scm-js-functions' );
+            wp_register_script( 'jquery-scm-functions', SCM_ASSETS_URI . 'scm-functions.js', array( 'jquery-scm-js-functions' ), null, true );
+            wp_enqueue_script( 'jquery-scm-functions' );
+            wp_register_script( 'jquery-scm-tools', SCM_ASSETS_URI . 'scm-tools.js', array( 'jquery-scm-functions' ), null, true );
 
             wp_enqueue_script( 'jquery-scm-tools' );
 

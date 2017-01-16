@@ -398,9 +398,9 @@ var $MAGIC;
 			}
 
 			if( !push )
-				$.replaceState( href, attr, null );
+				$.replaceState( href + attr.params, attr, null );
 			else if( push )
-				$.pushState( href, attr, null );
+				$.pushState( href + attr.params, attr, null );
 
 		});
 	}
@@ -540,6 +540,13 @@ var $MAGIC;
 			};
 
 			if( next ) aj_data[id] = next;
+
+			var str =  ( $('body').attr( 'data-params' ) ? $('body').attr( 'data-params' ) : '' );
+			console.log(str);
+			str = $.replaceUrlParameter( id, next, str);
+			console.log(str);
+			$('body').setUrlData( window.location.pathname, window.location.hash, str, true );
+			//$.pushState( window.location.pathname + str, null, null );
 
 			var enableContent = function(){
 				$body.trigger( 'loadContent' );
@@ -1223,6 +1230,8 @@ var $MAGIC;
 	$.fn.toggledIt = function( event ) {
 		
 		event.stopPropagation();
+
+		console.log('toggle');
 
 		return this.each(function() {
 
@@ -2284,7 +2293,7 @@ var $MAGIC;
 						afterLoad: function() {
 
 							var $over = $( '.fancybox-overlay' );
-							var $wrap = $( '.fancybox-wrap' );
+							var $wrap = $( '.fancybox-wrap' );//.remove().prependTo( $over );
 
 							$over.addClass( type );
 							$over.addClass( data );

@@ -161,6 +161,7 @@
 	// *****************************************************
 
 	var navEvents = function(){
+
 		$.consoleDebug( DEBUG, 'navEvents()');
 
 		$window.off( 'scroll').on( 'scroll', function(e){ $( '.toggled' ).toggledOff(); } );
