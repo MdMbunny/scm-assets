@@ -268,6 +268,11 @@ var $MAGIC;
 
 			switch( state ){
 
+				case 'single':
+					$.consoleDebug( DEBUG, '- loading single post');
+					$this.loadSingle( href );
+				break;
+
 				case 'load':
 					$.consoleDebug( DEBUG, '- loading content');
 					$this.loadContent( href );
@@ -320,6 +325,7 @@ var $MAGIC;
 
 			var back 		= linkpath == 'back' || linkpath == 'http:back' || linkpath == 'https:back',
 		        load 		= ( $this.data( 'load-content' ) ? $this.data( 'load-content' ) : $this.parent().data( 'load-content' ) ),
+		        single 		= ( $this.data( 'load-single' ) ? $this.data( 'load-single' ) : '' ),
 		        app 		= ( $.startsWith( linkpath, ['mailto:','callto:','fax:','tel:','skype:'] ) ? linkpath.substr( 0, ( linkpath.indexOf('to:') > 0 ? linkpath.indexOf('to:') : linkpath.indexOf(':') ) ) : null );
 
 		    var href 		= ( back ? '#' : ( app ? link : ( samepath ? '#top' : ( parpath ? parent + link : ( linkanchor >= 0 && lp === lc ? linkpath.substr( linkanchor ) : link ) ) ) ) ),
@@ -359,6 +365,9 @@ var $MAGIC;
 				state = 'external';
 			}
 
+			if( single )
+				state = 'single';
+
 			if( hrefanchor === 0 )
 				$this.attr( 'data-anchor', href );
 
@@ -376,7 +385,7 @@ var $MAGIC;
 	// *      URL
 	// *****************************************************
 
-	$.fn.setUrlData = function( href, hash, params, push ){
+	$.fn.setUrlData = function( href, hash, params, push, type ){
 		$.consoleDebug( DEBUG, '- setUrlData');
 		
 		return this.each( function() {
@@ -385,6 +394,7 @@ var $MAGIC;
 			var attr = {
 				hash: '#top',
 				params: '',
+				type: type,
 			};
 		
 			if( hash && hash !== undefined && hash !== null ){
@@ -500,7 +510,93 @@ var $MAGIC;
 		return this;
 	}
 
-	$.fn.loadContent = function( set_link, set_id, set_current, set_type ){
+	$.fn.loadSingle = function( set_link, back ){
+
+
+		var $body = $('body');
+		$body.disableIt();
+		$body.trigger( 'loadSingleBefore' );
+
+		return this.each( function() {
+
+			var $this = $( this );
+			$this.addClass('current').siblings().removeClass('current');
+
+			var link = ( set_link ? set_link : $this.getLink() );
+
+			var id = $this.data( 'id' ),
+				template = ( $this.data( 'load-template' ) ? $this.data( 'load-template' ) : '' ),
+				$container = $( '.post[data-template="' + template + '"]' );
+
+			if( !$container.length ){
+				$body.enableIt();
+				console.log( 'not found' );
+				return this;
+			}
+				
+			//var	$parent = $container.wrap( '<div class="load-replace relative inline-block"></div>' ).parent();
+			var	$parent = $container.parent();
+
+			var	c_height = $container.outerHeight(),
+				w_height = $( window ).height();
+
+			var	current = parseFloat( ( $container.data( 'id' ) ? $container.data( 'id' ) : id ) ),
+				next = id;
+
+			id = 'single';
+
+			var aj_data = {
+				action: 'load_content',
+				name: id,
+				single: next,
+				template: template,
+				query_vars: ajaxcall.query_vars,
+			};
+
+			var enableContent = function(){
+				$body.trigger( 'loadSingle' );
+				var new_height = $container.outerHeight();
+				$parent.animate( { 'height': new_height }, ( c_height == new_height ? .1 : 'slow' ), function(){
+					$parent.css( 'height', 'auto' ).css( 'overflow', 'visible' );
+					$parent.eventsInit( 1, 1, 1, null, 1 );
+					$body.enableIt();
+					$body.trigger( 'loadContentAfter' );
+					if( !back )
+						$('body').setUrlData( link, '', ( $('body').attr( 'data-params' ) ? $('body').attr( 'data-params' ) : '' ), true, 'single' );
+				} );
+			}
+
+			var replaceContent = function( html, err ){
+				$parent.html( html ).hide().fadeIn('fast', enableContent );
+			}
+
+			if( !CONTENTS[id] )
+				CONTENTS[id] = { replace: {}, popup: {} };
+
+			$parent.css( 'overflow', 'hidden' ).css( 'height', c_height );
+
+			CONTENTS[id].replace[current] = $parent.html();
+
+			$container.smoothScroll( { offset: 1, units:'em', head: true, complete: true } ).fadeOut('fast', function(){
+
+				if( CONTENTS[id].replace[next] ){
+					replaceContent( CONTENTS[id].replace[next] );
+
+				}else{
+
+					$parent.html( '' );
+					//$container.show();
+					if( c_height > w_height )
+						$parent.animate({ 'height': w_height - $.getStickyHeight() }, 'fast' );
+
+					$parent.ajaxPost( ajaxcall.url, aj_data, replaceContent, 'bar', { classes: 'absolute middle full-width double' } );
+				}
+			});
+
+		});
+	}
+
+	$.fn.loadContent = function( set_link, set_id, set_current, set_type, back ){
 
 
 		var $body = $('body');
@@ -541,13 +637,6 @@ var $MAGIC;
 
 			if( next ) aj_data[id] = next;
 
-			var str =  ( $('body').attr( 'data-params' ) ? $('body').attr( 'data-params' ) : '' );
-			console.log(str);
-			str = $.replaceUrlParameter( id, next, str);
-			console.log(str);
-			$('body').setUrlData( window.location.pathname, window.location.hash, str, true );
-			//$.pushState( window.location.pathname + str, null, null );
-
 			var enableContent = function(){
 				$body.trigger( 'loadContent' );
 				var new_height = $container.outerHeight();
@@ -556,6 +645,8 @@ var $MAGIC;
 					$container.unwrap().eventsInit( 1, 1, 1, null, 1 );
 					$body.enableIt();
 					$body.trigger( 'loadContentAfter' );
+					if( !back )
+						$('body').setUrlData( window.location.pathname, window.location.hash, $.replaceUrlParameter( id, next, ( $('body').attr( 'data-params' ) ? $('body').attr( 'data-params' ) : '' ) ), false, 'load' );
 				} );
 			}
 

@@ -263,11 +263,24 @@
 	var popstateEvents = function(){
 		$.consoleDebug( DEBUG, 'popstateEvents()');
 
-		/*window.onpopstate = function(event) {
+		window.onpopstate = function(event) {
 			if( event.state ){
-				if( event.state.params )
+				var link = $( '[data-href="' + document.location.href + '"]' );
+				if( link.length ){
+					switch( event.state.type ){
+						case 'single':
+							$(link[0]).loadSingle( document.location.href, true );
+						break;
+						/*case 'load':
+							$(link[0]).loadContent( document.location.href, '', '', '', true );
+						break;*/
+						default:
+							window.location.href = document.location.href;
+						break;
+					}
+				}
 			}
-		}*/
+		}
 	}
 
 	// *****************************************************
