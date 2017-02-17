@@ -692,6 +692,8 @@ var $MAGIC;
 				break;
 
 				case 'more':
+
+					back = true;
 					
 					$container.children().last().fadeOut( 'fast', function(){
 						this.remove();
