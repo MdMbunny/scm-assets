@@ -214,8 +214,8 @@ var $MAGIC;
 
 		$.consoleDebug( DEBUG, '-- links events');
 
-		var $nav 	= this.find( 'a, .navigation' ).filter(':not(.nolinkit):not(.iubenda-embed)').filter(function( index ) { return $( this ).parents( '.ssba, .acf-form, .scm-map' ).length === 0; }),
-			$link 	= this.find( 'a, [data-href]' ).filter(':not(.nolinkit):not(.iubenda-embed)').filter(function( index ) { return $( this ).parents( '.ssba, .acf-form, .scm-map' ).length === 0; });
+		var $nav 	= this.find( 'a, .navigation' ).filter(':not(.nolinkit):not(.iubenda-embed)').filter(function( index ) { return $( this ).parents( '.ssba, .acf-form, .scm-map, .bx-controls' ).length === 0; }),
+			$link 	= this.find( 'a, [data-href]' ).filter(':not(.nolinkit):not(.iubenda-embed)').filter(function( index ) { return $( this ).parents( '.ssba, .acf-form, .scm-map, .bx-controls' ).length === 0; });
 
 		$link.filter( ':not([data-link-type])' ).linkIt();
 
