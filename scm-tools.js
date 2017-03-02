@@ -198,6 +198,8 @@ var $MAGIC;
 
 	$.fn.eventTools = function(){
 		$.consoleDebug( DEBUG, '-- tools events');
+		this.find( '.scm-map' ).googleMap();
+		this.find( '.addtocalendar' ).AddToCalendar();
 		this.find( '[data-content-fade]' ).fadeContent();
 		this.find( '[data-tooltip]' ).setTooltip();
 		this.find( '[data-cursor]' ).setCursor();
@@ -214,15 +216,24 @@ var $MAGIC;
 
 		$.consoleDebug( DEBUG, '-- links events');
 
-		var $nav 	= this.find( 'a, .navigation' ).filter(':not(.nolinkit):not(.iubenda-embed)').filter(function( index ) { return $( this ).parents( '.ssba, .acf-form, .scm-map, .bx-controls' ).length === 0; }),
-			$link 	= this.find( 'a, [data-href]' ).filter(':not(.nolinkit):not(.iubenda-embed)').filter(function( index ) { return $( this ).parents( '.ssba, .acf-form, .scm-map, .bx-controls' ).length === 0; });
+		var //$nav 	= this.find( 'a, .navigation' ).filter(':not(.nolinkit):not(.iubenda-embed)').filter(function( index ) { return $( this ).parents( '.a2a_kit .ssba-wrap, .acf-form, .scm-map, .bx-controls, .addtocalendar' ).length === 0; }),
+			$link 	= this.find( 'a, [data-href], .navigation' ).filter(':not(.nolinkit):not(.iubenda-embed)').filter(function( index ) { return $( this ).parents( '.social-share, .acf-form, .scm-map, .bx-controls, .addtocalendar' ).length === 0; });
+			//$anch 	= this.find( 'a' ).filter(':not(.nolinkit):not(.iubenda-embed)').filter(function( index ) { return $( this ).parents( '.a2a_kit .ssba-wrap, .acf-form, .scm-map, .bx-controls, .addtocalendar' ).length === 0; }),
+			//$data 	= this.find( '[data-href]' ).replaceTag( '<a>', true );
 
-		$link.filter( ':not([data-link-type])' ).linkIt();
+			//console.log( $anch.length );
+			//console.log( $data.length );
+			//console.log( this.find( 'a' ).filter(':not(.nolinkit):not(.iubenda-embed)').filter(function( index ) { return $( this ).parents( '.a2a_kit .ssba-wrap, .acf-form, .scm-map, .bx-controls, .addtocalendar' ).length === 0; }).length );
+		//$link.filter( ':not([data-link-type])' ).linkIt();
+		$link.linkIt();
 
-		$nav.off( 'mousedown' ).on( 'mousedown', function(e){
+		/*$link.off( 'mousedown' ).on( 'mousedown', function(e){
+			e.stopPropagation();
+		});*/
+		$link.off( 'mousedown' ).on( 'mousedown', function(e){
 			e.stopPropagation();
 		});
-		
+
 		$link.off( 'click' ).on( 'click', function(e){
 
 			var $this = $( this );
@@ -270,6 +281,8 @@ var $MAGIC;
 
 				case 'single':
 					$.consoleDebug( DEBUG, '- loading single post');
+					e.stopPropagation();
+					e.preventDefault();
 					$this.loadSingle( href );
 				break;
 
@@ -304,7 +317,7 @@ var $MAGIC;
 		    var $this 		= $( this ),
 		    	host 		= new RegExp(location.host),
 		    	data 		= $this.data( 'href' ),
-		    	link 		= ( undefined !== data ? data.replace('page:', host) : $this.attr( 'href' ).replace('page:', host) );
+		    	link 		= ( undefined !== data ? data.replace('page:', host) : ( undefined !== $this.attr( 'href' ) ? $this.attr( 'href' ).replace('page:', host) : '' ) );
 
 	    	if( !link )
 	    		return;
@@ -313,7 +326,7 @@ var $MAGIC;
 		    	linkanchor 	= linkpath.indexOf( '#' ),
 		    	lp 			= linkpath.substr( 0, linkanchor );
 
-			var current 	= document.URL,
+			var current 	= document.location.href,//document.URL,
 				curpath		= $.removeSlash( current ),
 				curanchor 	= curpath.indexOf( '#' ),
 				lc 			= ( curanchor >= 0 ? curpath.substr( 0, curanchor ) : curpath );
@@ -328,12 +341,21 @@ var $MAGIC;
 		        single 		= ( $this.data( 'load-single' ) ? $this.data( 'load-single' ) : '' ),
 		        app 		= ( $.startsWith( linkpath, ['mailto:','callto:','fax:','tel:','skype:'] ) ? linkpath.substr( 0, ( linkpath.indexOf('to:') > 0 ? linkpath.indexOf('to:') : linkpath.indexOf(':') ) ) : null );
 
-		    var href 		= ( back ? '#' : ( app ? link : ( samepath ? '#top' : ( parpath ? parent + link : ( linkanchor >= 0 && lp === lc ? linkpath.substr( linkanchor ) : link ) ) ) ) ),
+		    var href 		= ( single ? link : ( back ? '#' : ( app ? link : ( samepath ? '#top' : ( parpath ? parent + link : ( linkanchor >= 0 && lp === lc ? linkpath.substr( linkanchor ) : link ) ) ) ) ) ),
 		        hrefanchor 	= href.indexOf( '#' ),
 		        hrefupload 	= href.indexOf( '/uploads/' ),
-				samehost 	= host.test( href ),
+				samehost 	= hrefanchor === 0 ? true : host.test( href ),
 				target 		= ( data ? $this.data( 'target' ) : ( $this.attr( 'target' ) ? $this.attr( 'target' ) : ( $this.hasClass( 'external' ) ? '_blank' : '' ) ) ),
-				state 		= 'site';
+				state 		= 'site',
+				type 		= ( $this.data( 'link-type' ) ? $this.data( 'link-type' ) : '' );
+
+			if( data && ( href == $.getCleanUrl( current ) || hrefanchor === 0 ) ){
+				$this.addClass( 'current' );
+			}else{
+				$this.removeClass( 'current' );
+			}
+
+			if( type ) return this;
 			
 			if( linkanchor !== 0 && !samehost && target === '_self' )
 				return;
@@ -351,6 +373,7 @@ var $MAGIC;
 			if( load ){
 				
 				state = 'load';
+				target = '_self';
 			
 			}else if( (samehost && target !== '_blank') ){
 
@@ -365,11 +388,18 @@ var $MAGIC;
 				state = 'external';
 			}
 
-			if( single )
+			if( single ){
+				/*hrefanchor = 0;
+				href = link;*/
 				state = 'single';
+				target = '_self';
+			}
 
 			if( hrefanchor === 0 )
 				$this.attr( 'data-anchor', href );
+
+
+
 
 			if(data)
 				$this.data( 'href', href ).data( 'target', target );
@@ -385,7 +415,7 @@ var $MAGIC;
 	// *      URL
 	// *****************************************************
 
-	$.fn.setUrlData = function( href, hash, params, push, type ){
+	$.fn.setUrlData = function( href, hash, params, push, type, element, title ){
 		$.consoleDebug( DEBUG, '- setUrlData');
 		
 		return this.each( function() {
@@ -395,6 +425,7 @@ var $MAGIC;
 				hash: '#top',
 				params: '',
 				type: type,
+				element: element,
 			};
 		
 			if( hash && hash !== undefined && hash !== null ){
@@ -408,9 +439,9 @@ var $MAGIC;
 			}
 
 			if( !push )
-				$.replaceState( href + attr.params, attr, null );
+				$.replaceState( href + attr.params, attr, title );
 			else if( push )
-				$.pushState( href + attr.params, attr, null );
+				$.pushState( href + attr.params, attr, title );
 
 		});
 	}
@@ -510,89 +541,140 @@ var $MAGIC;
 		return this;
 	}
 
-	$.fn.loadSingle = function( set_link, back ){
-
+	$.fn.loadSingle = function( set_link, back, elem ){
 
 		var $body = $('body');
+		var ajaxurl = $body.data( 'ajax' );
+		if( !ajaxurl ) return this;
 		$body.disableIt();
-		$body.trigger( 'loadSingleBefore' );
-
+		
 		return this.each( function() {
 
 			var $this = $( this );
-			$this.addClass('current').siblings().removeClass('current');
+
+			if( !elem )
+				$this.addClass('current').siblings().removeClass('current');
 
 			var link = ( set_link ? set_link : $this.getLink() );
-
-			var id = $this.data( 'id' ),
-				template = ( $this.data( 'load-template' ) ? $this.data( 'load-template' ) : '' ),
-				$container = $( '.post[data-template="' + template + '"]' );
+				template = ( elem ? elem.template : ( $this.data( 'load-template' ) ? $this.data( 'load-template' ) : '' ) ),
+				type = ( elem ? elem.type : ( $this.data( 'post-type' ) ? $this.data( 'post-type' ) : '' ) ),
+				id = 'single-' + type;
+			
+			// Dynamic vars
+			var	$container = $( '.post[data-post-type="' + type + '"][data-template="' + template + '"]' ),
+				$parent = $container.parent(),
+				params = ( $('body').attr( 'data-params' ) ? $('body').attr( 'data-params' ) : '' );				
 
 			if( !$container.length ){
 				$body.enableIt();
-				console.log( 'not found' );
+				var archive = parseInt( $.getUrlParameter( 'archive-' + type, params, 0 ) );
+				$.goToLink( link + ( archive ? '?archive-' + type + '=' + archive : '' ), $this.data( 'target' ), $this.data( 'link-type' ) );
 				return this;
 			}
-				
-			//var	$parent = $container.wrap( '<div class="load-replace relative inline-block"></div>' ).parent();
-			var	$parent = $container.parent();
 
-			var	c_height = $container.outerHeight(),
-				w_height = $( window ).height();
+			var next = ( elem ? elem.id : $this.data( 'id' ) ),
+				name = sanitizeTitle( $container.attr( 'data-post-title' ) ? $container.attr( 'data-post-title' ) : '' ),
+				current = parseFloat( ( $container.data( 'id' ) ? $container.data( 'id' ) : next ) ),
+				resize = ( elem ? elem.resize : ( $this.data( 'load-resize' ) ? $this.data( 'load-resize' ) : '10em' ) ),
+				offset = ( elem ? elem.offset : ( $this.data( 'load-offset' ) ? $this.data( 'load-offset' ) : 2 ) ),
+				units = ( elem ? elem.units : ( $this.data( 'load-units' ) ? $this.data( 'load-units' ) : 'em' ) ),
+				time = ( elem ? elem.time : ( $this.data( 'load-time' ) ? $this.data( 'load-time' ) : .5 ) ),
+				c_height = $parent[0].scrollHeight,
+				w_height = $( window ).height(),
+				replace = false,
+				aj_data = {
+					action: 'load_single',
+					//name: 'single',
+					single: next,
+					template: template,
+					//query_vars: ajaxcall.query_vars,
+				},
+				replaceContent = function( html ){
+					$parent.html( html ).hide();
+					
+					// Dynamic vars
+					$container = $( '.post[data-post-type="' + type + '"][data-template="' + template + '"]' );
+					$parent = $container.parent();
+					params = ( $('body').attr( 'data-params' ) ? $('body').attr( 'data-params' ) : '' );
+					
+					$body.trigger( 'loadSingle', [ $parent ] );
+					enableContent();
+				},
+				enableContent = function(){
+					
+					$body.trigger( 'loadSingleBefore', [ $parent ] );
+					
+					var title = $container.attr( 'data-post-title' );
+					var slug = sanitizeTitle( title );
+					if( title ) document.title = title;
 
-			var	current = parseFloat( ( $container.data( 'id' ) ? $container.data( 'id' ) : id ) ),
-				next = id;
+					$body
+						.removeClass( type + '-' + name )
+						.addClass( type + '-' + slug )
+						.removeClass( 'postid-' + current )
+						.addClass( 'postid-' + next );
+					$( 'article.page' )
+						.removeClass( name )
+						.addClass( slug );
+					//$('*[href*="' + name + '"]:not(.page-numbers)').each(function(){
+					$('*[href*="' + name + '"]').each(function(){
+				        this.href = this.href.replace( name, slug );
+				    });
+				    $('form[action*="' + name + '"]').each(function(){
+				        this.action = this.action.replace( name, slug );
+				    });
 
-			id = 'single';
+				    $parent.fadeIn('fast', function(){
+				    	var new_height = ( !replace ? $parent[0].scrollHeight : $container.outerHeight() + parseInt( $parent.css('padding-top') ) + parseInt( $parent.css('padding-bottom') ) );
+				    	$parent.animate( { 'height': new_height }, ( c_height == new_height ? .1 : 'slow' ), function(){
+							$parent.css( 'height', 'auto' ).css( 'overflow', 'visible' );
+							if( !back )
+								$('body').setUrlData( link, '', params, true, 'single', { 'template':template, 'type':type, 'id':id  } );
+							
+							if( !replace ){
+								$body.trigger( 'loadSingleAfter', [ $parent ] );
+							}else{
+								$parent.eventsInit( 1, 1, 1, null, 1 );
+								$body.enableIt();
+							}
+						} );
+				    } );
+					
+					
+				};
 
-			var aj_data = {
-				action: 'load_content',
-				name: id,
-				single: next,
-				template: template,
-				query_vars: ajaxcall.query_vars,
-			};
-
-			var enableContent = function(){
-				$body.trigger( 'loadSingle' );
-				var new_height = $container.outerHeight();
-				$parent.animate( { 'height': new_height }, ( c_height == new_height ? .1 : 'slow' ), function(){
-					$parent.css( 'height', 'auto' ).css( 'overflow', 'visible' );
-					$parent.eventsInit( 1, 1, 1, null, 1 );
-					$body.enableIt();
-					$body.trigger( 'loadContentAfter' );
-					if( !back )
-						$('body').setUrlData( link, '', ( $('body').attr( 'data-params' ) ? $('body').attr( 'data-params' ) : '' ), true, 'single' );
-				} );
-			}
-
-			var replaceContent = function( html, err ){
-				$parent.html( html ).hide().fadeIn('fast', enableContent );
-			}
-
-			if( !CONTENTS[id] )
-				CONTENTS[id] = { replace: {}, popup: {} };
+			$body.trigger( 'beforeLoadSingle', [ $parent ] );
 
 			$parent.css( 'overflow', 'hidden' ).css( 'height', c_height );
 
+			if( !CONTENTS[id] ) CONTENTS[id] = { replace: {}, popup: {} };
 			CONTENTS[id].replace[current] = $parent.html();
+			if( CONTENTS[id].replace[next] ){
+				
+				replace = true;
+				
+				$parent.smoothScroll( { delay: 0, offset: offset, units:units, time: time, head: true, complete: function(){
+					$container.fadeOut( 'fast', function(){
+						replaceContent( CONTENTS[id].replace[next] );
+					} );
+				}});
 
-			$container.smoothScroll( { offset: 1, units:'em', head: true, complete: true } ).fadeOut('fast', function(){
+			}else{
+				
+				replace = false;
 
-				if( CONTENTS[id].replace[next] ){
-					replaceContent( CONTENTS[id].replace[next] );
+				$parent.smoothScroll( { delay: 0, offset: offset, units:units, time: time, head: true, complete: function(){
 
-				}else{
+					c_height = $.parsePx(resize);
 
-					$parent.html( '' );
-					//$container.show();
-					if( c_height > w_height )
-						$parent.animate({ 'height': w_height - $.getStickyHeight() }, 'fast' );
+					$parent.animate({ 'height': c_height }, time*1000 );
+					$container.fadeOut( time*1000, function(){
+						$parent.ajaxPost( ajaxurl, aj_data, replaceContent, 'bar', { classes: 'absolute middle full-width double' } );
+					} );
 
-					$parent.ajaxPost( ajaxcall.url, aj_data, replaceContent, 'bar', { classes: 'absolute middle full-width double' } );
-				}
-			});
-
+				}});
+			}
+			
 		});
 	}
 
@@ -600,8 +682,9 @@ var $MAGIC;
 
 
 		var $body = $('body');
+		var ajaxurl = $body.data( 'ajax' );
+		if( !ajaxurl ) return this;
 		$body.disableIt();
-		$body.trigger( 'loadContentBefore' );
 
 		return this.each( function() {
 
@@ -618,7 +701,9 @@ var $MAGIC;
 				$body.enableIt();
 				return this;
 			}
-				
+
+			$body.trigger( 'loadContentBefore', [ $container ] );
+
 			var	c_height = $container.outerHeight(),
 				w_height = $( window ).height();
 
@@ -629,35 +714,38 @@ var $MAGIC;
 				next = $.getUrlParameter( id, link, 0 );
 
 			var aj_data = {
-				action: 'load_content',
-				name: id,
+				action: 'load_archive',
+				//name: id,
 				archive: ARCHIVES[id],
-				query_vars: ajaxcall.query_vars,
+				//query_vars: ajaxcall.query_vars,
 			};
 
 			if( next ) aj_data[id] = next;
 
 			var enableContent = function(){
-				$body.trigger( 'loadContent' );
+				$body.trigger( 'loadContentBefore', [ $container ] );
 				var new_height = $container.outerHeight();
 				$parent.animate( { 'height' :new_height }, ( c_height == new_height ? .1 : 'slow' ), function(){
 					$parent.css( 'height', 'auto' ).css( 'overflow', 'visible' );
-					$container.unwrap().eventsInit( 1, 1, 1, null, 1 );
+					$container.unwrap();
 					$body.enableIt();
-					$body.trigger( 'loadContentAfter' );
-					if( !back )
+					$body.trigger( 'loadContentAfter', [ $container ] );
+					if( !back ){
 						$('body').setUrlData( window.location.pathname, window.location.hash, $.replaceUrlParameter( id, next, ( $('body').attr( 'data-params' ) ? $('body').attr( 'data-params' ) : '' ) ), false, 'load' );
+					}
 				} );
 			}
 
 			var replaceContent = function( html, err ){
-				$container.hide().html( html ).fadeIn('fast', enableContent );
+				$container.hide().html( html ).eventsInit( 1, 1, 1, null, 1 );
+				$body.trigger( 'loadContent', [ $container ] );
+				$container.fadeIn('fast', enableContent );
 			}
 
 			var moreContent = function( html, err ){
 				$children = $( html ).hide();
 				$first = $children.first();
-				$container.append( $children );
+				$container.append( $children ).eventsInit( 1, 1, 1, null, 1 );
 				$children.fadeIn( 'fast' );
 				$children.not( '.scm-pagination' ).last().addClass( 'last' );
 				$first.smoothScroll( { complete: true } );
@@ -686,7 +774,7 @@ var $MAGIC;
 							if( c_height > w_height )
 								$parent.animate({ 'height': w_height - $.getStickyHeight() }, 'fast' );
 
-							$parent.ajaxPost( ajaxcall.url, aj_data, replaceContent, 'bar', { classes: 'absolute middle full-width double' } );
+							$parent.ajaxPost( ajaxurl, aj_data, replaceContent, 'bar', { classes: 'absolute middle full-width double' } );
 						}
 					});
 				break;
@@ -701,7 +789,7 @@ var $MAGIC;
 						$last.removeClass( 'last' );
 						aj_data[id + '-more'] = { counter: $last.data( 'counter' ), current: $last.data( 'current' ), total: $last.data( 'total' ), odd: $last.data( 'odd' ) };
 
-						$parent.ajaxPost( ajaxcall.url, aj_data, moreContent, 'bar', { classes: 'relative full-width double' } );
+						$parent.ajaxPost( ajaxurl, aj_data, moreContent, 'bar', { classes: 'relative full-width double' } );
 					} );
 					
 
@@ -736,6 +824,8 @@ var $MAGIC;
 			window.location = $.decodeEmail( link );
 			return;
 		}
+
+		target = ( target ? target : ( state == 'site' || state == 'single' || state == 'load' ? '_self' : '_blank' ) );
 
 		if( target != '_blank' ){
 
@@ -857,7 +947,6 @@ var $MAGIC;
 		}else{
 
 			$.consoleDebug( DEBUG, 'without animation');
-
 			$.goToLink( link, target, state );
 
 		}
@@ -908,8 +997,11 @@ var $MAGIC;
 	$.scrollTo = function( destination, duration, ease, delay, complete ){
 
 		var $body = $( 'body' );
+		var $html = $( 'html' );
+
 		$body.disableIt();
 		var ended = function() {
+			$html.add($body).off('scroll mousedown wheel DOMMouseScroll mousewheel keyup touchmove');
 			if( typeof complete === 'function' )
 				complete();
 			else if( !complete )
@@ -918,14 +1010,18 @@ var $MAGIC;
 		var scroll = function(){
 
 			if( duration ){
-				$('html').animate( {
+				$html.add($body).on('scroll mousedown wheel DOMMouseScroll mousewheel keyup touchmove', function(){
+			       $html.add($body).stop();
+			       ended();
+				});
+				$html.animate( {
 					scrollTop: parseFloat( destination )
 				}, parseFloat( duration ), ease );
 				$body.animate( {
 					scrollTop: parseFloat( destination )
 				}, parseFloat( duration ), ease, ended);
 			}else{
-				$('html').scrollTop( parseFloat( destination ) );
+				$html.scrollTop( parseFloat( destination ) );
 				$body.scrollTop( parseFloat( destination ) );
 				ended();
 			}
@@ -1556,10 +1652,27 @@ var $MAGIC;
 	}
 
 	// *****************************************************
+	// *      ADD TO CALENDAR
+	// *****************************************************
+
+	$.fn.AddToCalendar = function( init ){
+		if( !window.ifaddtocalendar ) return this;
+		
+		this.find( '.disabled' ).removeClass( 'disabled' );
+		if( !init ){
+			$('.atcb-list').remove();
+			addtocalendar.load();
+		}
+
+	}
+
+	// *****************************************************
 	// *      GOOGLE MAPS
 	// *****************************************************
 
 	$.fn.googleMap = function() {
+
+		if( !window.ifgooglemaps ) return this;
 
 		var $body = $( 'body' );
 		var countMaps = 0;
@@ -1568,13 +1681,23 @@ var $MAGIC;
 		return this.each(function() {
 
 			var $this 		= $( this ),
-				markers 	= $this.children( '.marker' ),
+				markers 	= $this.children( '.marker' ).clone(),
 				zoom 		= parseFloat( $this.data( 'zoom' ) ),
-				infowidth 	= parseInt( $this.data( 'infowidth' ) ? $this.data( 'infowidth' ) : 500 ),
-				color 		= ( $this.data( 'icon-color' ) ? $this.data( 'icon-color' ) : '#000000' ),
+				infowidth 	= parseInt( $this.data( 'infowidth' ) ? $this.data( 'infowidth' ) : 0 ),
+				color 		= ( $this.data( 'icon-color' ) ? $this.data( 'icon-color' ) : '' ),
 				style 		= [],
 				args 		= [],
-				map 		= [];
+				map 		= [],
+				infowindow  = '',
+				drag_cont	= ( $this.data( 'control-drag' ) != undefined ? $this.data( 'control-drag' ) : true ),
+				zoom_cont	= ( $this.data( 'control-zoom' ) != undefined ? $this.data( 'control-zoom' ) : true ),
+				street_cont	= ( $this.data( 'control-streetview' ) != undefined ? $this.data( 'control-streetview' ) : true );
+
+			if( $this.attr( 'data-mapped' ) ){
+				$this.empty();
+			}else{
+				$this.attr( 'data-mapped', 1 );
+			}
 
 			$this.attr('id', 'map-' + countMaps);
 
@@ -1668,33 +1791,37 @@ var $MAGIC;
 	        	center: new google.maps.LatLng(0, 0),
 				zoom: zoom,
 				disableDefaultUI: true,
-				draggableCursor : 'crosshair',
-			    draggingCursor  : 'crosshair',
-			    styles                : style,
-			    panControl            : false,
-			    zoomControl           : true,
-			    mapTypeControl        : false,
-			    scaleControl          : false,
-			    streetViewControl     : true,
-			    overviewMapControl    : true,
-			    rotateControl         : true,
-			    scrollwheel           : false,
-			    zoomControlOptions    : {
-			        style    : google.maps.ZoomControlStyle.SMALL,
-			        position : google.maps.ControlPosition.LEFT_CENTER
+				draggableCursor 		: 'crosshair',
+			    draggingCursor  		: 'crosshair',
+			    styles                	: style,
+			    draggable 			  	: drag_cont,
+			    panControl            	: false,
+			    zoomControl           	: zoom_cont,
+			    mapTypeControl        	: false,
+			    scaleControl          	: false,
+			    streetViewControl     	: street_cont,
+			    overviewMapControl    	: true,
+			    rotateControl         	: true,
+			    scrollwheel           	: false,
+			    zoomControlOptions    	: {
+			        style    				: google.maps.ZoomControlStyle.SMALL,
+			        position 				: google.maps.ControlPosition.LEFT_CENTER
 			      },							
 	        };
-			
 			map = new google.maps.Map( this, args );
+			$this.append( markers );
 
-			infowindow = new google.maps.InfoWindow({
-				content		: '',
-				maxWidth	: infowidth
-			});
+			if( infowidth !== 0 ){
+				infowidth = infowidth ? infowidth : 500;
+				infowindow = new google.maps.InfoWindow({
+					content		: '',
+					maxWidth	: infowidth
+				});
+			}
 
 			map.markers = [];
 			
-			$( markers ).markerMap( map, infowindow, zoom, countMaps );
+			markers.markerMap( map, infowindow, zoom, countMaps );
 
 			var markerCluster = new MarkerClusterer(map, map.markers, {
 				imagePath: '',
@@ -1703,7 +1830,7 @@ var $MAGIC;
 				styles: [
 					{
 						url: '',
-						textColor: color,
+						textColor: ( color ? color : '#000000' ),
 						textSize: 24,
 						width: 35,
 						height: 35,
@@ -1711,7 +1838,7 @@ var $MAGIC;
 					},
 					{
 						url: '',
-						textColor: color,
+						textColor: ( color ? color : '#000000' ),
 						textSize: 32,
 						width: 50,
 						height: 50,
@@ -1719,7 +1846,7 @@ var $MAGIC;
 					},
 					{
 						url: '',
-						textColor: color,
+						textColor: ( color ? color : '#000000' ),
 						textSize: 40,
 						width: 70,
 						height: 70,
@@ -1773,13 +1900,13 @@ var $MAGIC;
 			    		$.consoleDebug( DEBUG,  'Location found within ' + str.toUpperCase() + ' Region');
 			        	latlng = results[0].geometry.location;
 			        	$.consoleDebug( DEBUG,  'LatLng are ' + latlng );
-			        	$this.setMarker(map, latlng, count, zoom);
+			        	$this.setMarker(map, infowindow, latlng, count, zoom);
 			    	}else{
 			    		$.consoleDebug( DEBUG,  'Google Maps Marker: ' + status);
 			    		if( reg ){
 			    			$.consoleDebug( DEBUG,  'Pointing to lat 0 and lng 0');
 				    		latlng = new google.maps.LatLng( 0, 0 );
-				    		$this.setMarker(map, latlng, count, zoom);
+				    		$this.setMarker(map, infowindow, latlng, count, zoom);
 				    	}else{
 				    		$.consoleDebug( DEBUG,  'Searching address within IT Region');
 				    		$this.markerMap( map, infowindow, zoom, count, 'it' );
@@ -1789,10 +1916,10 @@ var $MAGIC;
 			    });
 			}else if( lat ){
 				latlng = new google.maps.LatLng( lat, lng );
-				$this.setMarker(map, latlng, count, zoom);
+				$this.setMarker(map, infowindow, latlng, count, zoom);
 			}else{
 				latlng = new google.maps.LatLng( 0, 0 );
-				$this.setMarker(map, latlng, count, zoom);
+				$this.setMarker(map, infowindow, latlng, count, zoom);
 			}
 		});
 	}
@@ -1843,14 +1970,14 @@ var $MAGIC;
 	    return this;
 	}
 
-	$.fn.setMarker = function(map, latlng, count, zoom){
+	$.fn.setMarker = function( map, infowindow, latlng, count, zoom){
 
 		return this.each(function() {
 
 			var $this 			= $( this ),
 				marker_img 		= $this.data( 'img' ),
 				marker_color	= $this.data( 'icon-color' ),
-				marker_icon		= ( $this.data( 'icon' ) && !marker_img ? '<i class="fa ' + $this.data( 'icon' ) + '" style="color:' + marker_color + ';"></i>' : '' ),
+				marker_icon		= ( $this.data( 'icon' ) && !marker_img ? '<i class="fa ' + $this.data( 'icon' ) + '"' + ( marker_color ? ' style="color:' + marker_color + ';"' : '' ) + '></i>' : '' ),
 				classes 		= $this.attr('class') + ' ',
 				id 				= classes.substr( classes.indexOf( 'scm-marker marker marker-' ) + 25, classes.substr( 25 ).indexOf( ' ' ) ),
 				$map 			= $( '#map-' + count );
@@ -1913,16 +2040,18 @@ var $MAGIC;
 
 			if( $this.html() ){
 
-				with( { mark: marker, location: $location } ){
+				with( { mark: marker, location: $location, info: infowindow } ){
 
 					google.maps.event.addListener( mark, 'click', function(e) {
-						infowindow.close();
-						infowindow.setContent( $this.html() );
-						infowindow.open( map, marker );
-						$map.eventsInit(1,1);
-						$( '.onmap' ).removeClass( 'infowindow' );
-						if( location.hasClass( 'onmap' ) )
-							location.addClass( 'infowindow' );
+						if( info ){
+							info.close();
+							info.setContent( $this.html() );
+							info.open( map, marker );
+							$map.eventsInit(1,1);
+							$( '.onmap' ).removeClass( 'infowindow' );
+							if( location.hasClass( 'onmap' ) )
+								location.addClass( 'infowindow' );
+						}
 					});
 
 				}
@@ -2504,15 +2633,17 @@ var $MAGIC;
 									$dynamic.find('.scm-loading').fadeOut( 'fast', function(){ $(this).remove() } );
 									$( CONTENTS[id].popup[postid] ).appendTo( $dynamic ).eventsInit(1, 1, 1).focus().css( 'opacity', 0 ).animate( { opacity: 1 }, 500 );
 								}else{
+									var ajaxurl = $('body').data( 'ajax' );
+									if( !ajaxurl ) return this;
 									var aj_data = {
-										action: 'load_content',
-										name: id,
+										action: 'load_single',
+										//name: id,
 										single: postid,
 										template: posttemp,
-										query_vars: ajaxcall.query_vars,
+										//query_vars: ajaxcall.query_vars,
 									};
 
-									$wrap.ajaxPost( ajaxcall.url, aj_data, function ( html ) {
+									$wrap.ajaxPost( ajaxurl, aj_data, function ( html ) {
 										CONTENTS[id].popup[postid] = html;
 										$(html).appendTo( $dynamic ).eventsInit(1, 1, 1).focus().css( 'opacity', 0 ).animate( { opacity: 1 }, 500 );
 									}, 'icon', { classes: 'absolute middle triple' } );

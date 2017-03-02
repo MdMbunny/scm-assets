@@ -31,6 +31,8 @@
 
 		GOOGLE_API_KEY = $body.attr( 'data-gmap' );
 
+		$body.removeClass('loaded');
+		$body.removeClass( 'bodyin' );
 		$( 'html' ).removeClass( 'no-js' );
 		$body.setLocationData( window.location );
 		$body.disableIt();
@@ -99,12 +101,12 @@
 			break;
 		}*/
 
-		start = 'documentDone';
+		//start = 'documentDone';
 
 		$.consoleDebug( DEBUG, '- start event is: ' + start );
 		
 		var isready = false;
-		$body.on( start, function(e){
+		$body.off( start ).on( start, function(e){
 			if( DEBUG ) $.log('[on] startEvent.' + start, touch);
 			isready = true;
 			$.bodyIn();
@@ -142,7 +144,7 @@
 		} );
 		
 		// BODY RESIZING and RESIZED event
-		$body.off('resizing resized').on( 'resizing resized imgsLoaded', function(e){
+		$body.off('resizing resized imgsLoaded').on( 'resizing resized imgsLoaded', function(e){
 			$body.eventResponsive( e );
 			$( '[data-equal]' ).equalChildrenSize();
 		} );
@@ -265,12 +267,22 @@
 
 		window.onpopstate = function(event) {
 			if( event.state ){
-				var link = $( '[data-href="' + document.location.href + '"]' );
-				if( link.length ){
+				
+				
+				//if( link.length ){
 					switch( event.state.type ){
-						case 'single':
-							$(link[0]).loadSingle( document.location.href, true );
-						break;
+						/*case 'single':
+							var element = event.state.element;
+							var link = $( '[data-href="' + $.getCleanUrl( document.location.href ) + '"]' );
+
+							if( link.length ){
+								$(link[0]).loadSingle( '', true );
+							}else if( element ){
+								console.log( element );
+								$body.loadSingle( $.getCleanUrl( document.location.href ), true, element );
+							}
+							return;
+						break;*/
 						/*case 'load':
 							$(link[0]).loadContent( document.location.href, '', '', '', true );
 						break;*/
@@ -278,7 +290,7 @@
 							window.location.href = document.location.href;
 						break;
 					}
-				}
+				//}
 			}
 		}
 	}
@@ -289,6 +301,10 @@
 
 	var loadEvents = function(){
 		$.consoleDebug( DEBUG, 'loadEvents()');
+
+		$body.off( 'loadSingleAfter' ).on( 'loadSingleAfter', function(e,parent){
+			INITPAGE();
+		} );
 
 		/*var $fancy = $( '[data-popup]' );
 		if( $fancy.length ){
@@ -308,43 +324,58 @@
 
 			$fancy.setFancybox();
 		}*/
-
-		// BODY IMAGES LOADED event
+		
+		// IMAGES event
+		$( '[data-slider="nivo"]' ).setNivoSlider();
 		$body.on( 'imgsLoaded', function( e ) {
-		    
-		    $( '[data-slider="nivo"]' ).setNivoSlider();
-		    
 		    $( '[data-equal]' ).equalChildrenSize();
-		    
-		    var $maps = $( '.scm-map' );
-		    if( $maps.length ){
-
-		    	if( !GOOGLE_API_KEY )
-					alert( 'Set Google Maps API Key' );
-
-		    	window.initialize = function(e){
-					$.getScript( 'https://cdn.rawgit.com/googlemaps/v3-utility-library/master/markerwithlabel/src/markerwithlabel.js', function( data, textStatus, jqxhr ) {
-						$.getScript( 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js', function( data, textStatus, jqxhr ) {
-							$maps.googleMap();
-						});
-					});
-				};
-		    	    			    	
-				var scr_maps = document.createElement('script');
-				scr_maps.type = 'text/javascript';
-				scr_maps.src = 'https://maps.googleapis.com/maps/api/js?key=' + GOOGLE_API_KEY + '&callback=initialize';
-				scr_maps.async = 'async';
-				scr_maps.defer = 'defer';
-				document.body.appendChild( scr_maps );
-
-				$.consoleDebug( DEBUG, '- maps events');
-			}else{
-				$.consoleDebug( DEBUG, '- no maps events');
-			}
 		});
 
+		// ADD TO CALENDAR event
+	    var $cals = $( '.addtocalendar' );
+	    if( $cals.length ){
+
+	    	if( !window.ifaddtocalendar || !window.addtocalendar || typeof window.addtocalendar.start != 'function' ){
+            	
+                $.getScript( ( 'https:' == window.location.protocol ? 'https' : 'http' ) + '://addtocalendar.com/atc/1.5/atc.min.js', function( data, textStatus, jqxhr ) {
+					
+					window.ifaddtocalendar = 1;
+					$cals = $( '.addtocalendar' );
+					$cals.AddToCalendar( true );
+					
+				});
+            }
+	    }
+		
+		// GOOGLE MAPS event
+	    var $maps = $( '.scm-map' );
+	    if( $maps.length ){
+
+	    	if( !GOOGLE_API_KEY )
+				alert( 'Set Google Maps API Key' );
+
+			if( !window.ifgooglemaps || typeof google != 'object' ){
+            	
+		    	$.getScript( 'https://maps.googleapis.com/maps/api/js?key=' + GOOGLE_API_KEY, function( data, textStatus, jqxhr ) {
+					$.getScript( 'https://cdn.rawgit.com/googlemaps/v3-utility-library/master/markerwithlabel/src/markerwithlabel.js', function( data, textStatus, jqxhr ) {
+						$.getScript( 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js', function( data, textStatus, jqxhr ) {
+							
+							window.ifgooglemaps = 1;
+							$maps = $( '.scm-map' );
+							$maps.googleMap();
+
+						});
+					});
+				});
+			}
+
+			$.consoleDebug( DEBUG, '- maps events');
+		}else{
+			$.consoleDebug( DEBUG, '- no maps events');
+		}
+
 		// WINDOW LOADED event
-		$window.on( 'load', function(e){
+		$window.off( 'load' ).on( 'load', function(e){
 			if( $body.attr( 'data-premature-action' ) ){
 				$.consoleDebug( DEBUG, '*** PREMATURE ACTION ***');
 				window.location.hash = '#content-loaded';
@@ -371,7 +402,6 @@
 		// Trigger DOCUMENT READY event
 		$body.trigger( 'documentDone' );
 		$body.addClass('ready');
-		
 	}
 
 	// *****************************************************

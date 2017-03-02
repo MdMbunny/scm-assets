@@ -3,7 +3,7 @@
  * Plugin Name:         SCM Assets
  * Plugin URI:          http://studiocreativo-m.it/
  * Description:         SCM Javascript Integration
- * Version:             1.7.1
+ * Version:             1.7.2
  * Author:              Studio Creativo M
  * Author URI:          http://studiocreativo-m.it/
  * License:             http://www.gnu.org/licenses/gpl-3.0.html
@@ -309,12 +309,12 @@
             wp_register_script( 'jquery-scm', SCM_ASSETS_URI . 'scm.js', array( 'jquery-scm-child' ), null, true );
             wp_enqueue_script( 'jquery-scm' );
 
-            global $wp_query;
+            /*global $wp_query;
             wp_localize_script( 'jquery-scm-tools', 'ajaxcall', array(
                 'url' => admin_url( 'admin-ajax.php' ),
-                'post_id' => $post->ID,
-                'query_vars' => json_encode( $wp_query->query ),
-            ));
+                //'post_id' => $post->ID,
+                //'query_vars' => json_encode( $wp_query->query ),
+            ));*/
         }
     }
 
