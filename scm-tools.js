@@ -212,25 +212,22 @@ var $MAGIC;
 		return this;
 	}
 
+	$.fn.filterLinks = function(){
+		return this.filter(':not(.nolinkit):not(.iubenda-embed)').filter(function( index ) { return $( this ).parents( '.nivoSlider, .nivo-controlNav, .social-share, .acf-form, .scm-map, .bx-controls, .addtocalendar' ).length === 0; });
+	}
+
 	$.fn.eventLinks = function(){
 
 		$.consoleDebug( DEBUG, '-- links events');
 
-		var //$nav 	= this.find( 'a, .navigation' ).filter(':not(.nolinkit):not(.iubenda-embed)').filter(function( index ) { return $( this ).parents( '.a2a_kit .ssba-wrap, .acf-form, .scm-map, .bx-controls, .addtocalendar' ).length === 0; }),
-			$link 	= this.find( 'a, [data-href], .navigation' ).filter(':not(.nolinkit):not(.iubenda-embed)').filter(function( index ) { return $( this ).parents( '.social-share, .acf-form, .scm-map, .bx-controls, .addtocalendar' ).length === 0; });
-			//$anch 	= this.find( 'a' ).filter(':not(.nolinkit):not(.iubenda-embed)').filter(function( index ) { return $( this ).parents( '.a2a_kit .ssba-wrap, .acf-form, .scm-map, .bx-controls, .addtocalendar' ).length === 0; }),
-			//$data 	= this.find( '[data-href]' ).replaceTag( '<a>', true );
+		var $anch = this.find( 'a' ).filterLinks();
+		var $nav = $anch.add( this.find( '.navigation' ).filterLinks() );
+		var $link = $anch.add( this.find( '[data-href]' ) );//.filterLinks() );
 
-			//console.log( $anch.length );
-			//console.log( $data.length );
-			//console.log( this.find( 'a' ).filter(':not(.nolinkit):not(.iubenda-embed)').filter(function( index ) { return $( this ).parents( '.a2a_kit .ssba-wrap, .acf-form, .scm-map, .bx-controls, .addtocalendar' ).length === 0; }).length );
 		//$link.filter( ':not([data-link-type])' ).linkIt();
 		$link.linkIt();
 
-		/*$link.off( 'mousedown' ).on( 'mousedown', function(e){
-			e.stopPropagation();
-		});*/
-		$link.off( 'mousedown' ).on( 'mousedown', function(e){
+		$nav.off( 'mousedown' ).on( 'mousedown', function(e){
 			e.stopPropagation();
 		});
 
@@ -239,7 +236,7 @@ var $MAGIC;
 			var $this = $( this );
 
 			$this.trigger( 'clicked' );
-
+ 
 			var $toggle = $this.parents( '.no-toggled' );
 
 			var cont = 0;
@@ -367,39 +364,33 @@ var $MAGIC;
 	        }
 
 	        if( samehost && hrefupload >= 0 ){
+	        	
+	        	state = 'internal';
 	        	target = '_blank';
-	        }
+	        	
+	        }else if( single ){
 
-			if( load ){
+				state = 'single';
+				target = '_self';
+
+			}else if( load ){
 				
 				state = 'load';
 				target = '_self';
 			
 			}else if( (samehost && target !== '_blank') ){
 
+				state = ( state != 'page' ? 'site' : state );
 				target = '_self' ;
-				if( state != 'page' ){
-					state = 'site';	
-				}
 
 			}else{
 
 				target = '_blank';
 				state = 'external';
-			}
-
-			if( single ){
-				/*hrefanchor = 0;
-				href = link;*/
-				state = 'single';
-				target = '_self';
-			}
+			}			
 
 			if( hrefanchor === 0 )
 				$this.attr( 'data-anchor', href );
-
-
-
 
 			if(data)
 				$this.data( 'href', href ).data( 'target', target );
@@ -702,8 +693,6 @@ var $MAGIC;
 				return this;
 			}
 
-			$body.trigger( 'loadContentBefore', [ $container ] );
-
 			var	c_height = $container.outerHeight(),
 				w_height = $( window ).height();
 
@@ -729,7 +718,7 @@ var $MAGIC;
 					$parent.css( 'height', 'auto' ).css( 'overflow', 'visible' );
 					$container.unwrap();
 					$body.enableIt();
-					$body.trigger( 'loadContentAfter', [ $container ] );
+					$body.trigger( 'loadContent', [ $container ] );
 					if( !back ){
 						$('body').setUrlData( window.location.pathname, window.location.hash, $.replaceUrlParameter( id, next, ( $('body').attr( 'data-params' ) ? $('body').attr( 'data-params' ) : '' ) ), false, 'load' );
 					}
@@ -738,7 +727,6 @@ var $MAGIC;
 
 			var replaceContent = function( html, err ){
 				$container.hide().html( html ).eventsInit( 1, 1, 1, null, 1 );
-				$body.trigger( 'loadContent', [ $container ] );
 				$container.fadeIn('fast', enableContent );
 			}
 
@@ -751,6 +739,8 @@ var $MAGIC;
 				$first.smoothScroll( { complete: true } );
 				enableContent();
 			}
+
+			$body.trigger( 'beforeLoadContent', [ $container ] );
 
 			if( !CONTENTS[id] )
 				CONTENTS[id] = { replace: {}, popup: {} };
@@ -863,6 +853,7 @@ var $MAGIC;
 			opacity 		= parseFloat( $body.data( 'fade-opacity' ) ? $body.data( 'fade-opacity' ) : 0 ) / 10,
 			duration 		= parseFloat( $body.data( 'fade-in' ) ? $body.data( 'fade-in' ) : 0 ),
 			delay 			= parseFloat( $body.data( 'smooth-new' ) ? $body.data( 'smooth-new' ) : 0 ),
+			head 			= ( $body.data( 'smooth-head' ) ? $body.data( 'smooth-head' ) : false ),
 			page 			= ( $body.data( 'smooth-page' ) ? $body.data( 'smooth-page' ) : false ),
 			anchor 			= ( $body.data( 'anchor' ) ? $body.data( 'anchor' ) : '' ),
 			$anchor 		= $( anchor );
@@ -872,13 +863,11 @@ var $MAGIC;
 		$body.addClass( 'bodyin' );
 		$body.removeClass( 'bodyout' );
 		$body.css( 'opacity', opacity );
-		//$navigation.css( 'opacity', 1 );		
 
 		var scroll	= function(){
-
 			if( page && $anchor.length ){
 				$.consoleDebug( DEBUG, 'scroll to anchor');
-				$anchor.smoothScroll( { delay: delay } );
+				$anchor.smoothScroll( { delay: delay, head: head } );
 			}else{
 				$body.enableIt();
 			}
@@ -887,7 +876,7 @@ var $MAGIC;
     	if( !page && $anchor.length ){
 
 			$.consoleDebug( DEBUG, 'jump to anchor');
-			$anchor.smoothScroll( { delay: delay, time: 0 } );
+			$anchor.smoothScroll( { delay: delay, time: 0, head: head } );
 		}
 
     	if( duration ){
@@ -1001,7 +990,7 @@ var $MAGIC;
 
 		$body.disableIt();
 		var ended = function() {
-			$html.add($body).off('scroll mousedown wheel DOMMouseScroll mousewheel keyup touchmove');
+			$html.add($body).off('scroll mousedown wheel DOMMouseScroll mousewheel keyup keydown touchmove');
 			if( typeof complete === 'function' )
 				complete();
 			else if( !complete )
@@ -1010,9 +999,9 @@ var $MAGIC;
 		var scroll = function(){
 
 			if( duration ){
-				$html.add($body).on('scroll mousedown wheel DOMMouseScroll mousewheel keyup touchmove', function(){
-			       $html.add($body).stop();
-			       ended();
+				$html.add($body).on('scroll mousedown wheel DOMMouseScroll mousewheel keyup keydown touchmove', function(){
+			    	$html.add($body).stop();
+			    	ended();
 				});
 				$html.animate( {
 					scrollTop: parseFloat( destination )
@@ -1106,7 +1095,7 @@ var $MAGIC;
 			$.getSmoothData(),
 			args
 		);
-		
+
 		return this.each(function(){
 
 			var $this 			= $( this ),
@@ -1117,21 +1106,23 @@ var $MAGIC;
 				head 			= a.head,
 				ease 			= a.ease,
 				delay 			= a.delay,
-				complete 		= a.complete,
+				complete 		= a.complete;				
 
-				position 		= $( document ).scrollTop(),
-				destination 	= 0,
-				difference 		= 0,
-				duration 		= 0;
+			var scroll = function(){
+				var position = $( document ).scrollTop();
+				var destination = $.getSmoothDestination( $this, offset, units, head );
+				var difference = Math.abs( destination - position );
+				var duration = Math.max( time * Math.min( difference, 6000 ), 500 );
+				if( !difference )
+					$body.enableIt();
+				else
+					$.scrollTo( destination, ( !time ? 0 : duration ), ease, 0, complete );
+			}
 
-			destination = $.getSmoothDestination( $this, offset, units, head );
-			difference = Math.abs( destination - position );
-			duration = Math.max( time * Math.min( difference, 6000 ), 500 );
-
-			if( !difference )
-				$body.enableIt();
+			if( delay )
+				setTimeout( scroll, delay*1000 );
 			else
-				$.scrollTo( destination, ( !time ? 0 : duration ), ease, delay, complete );
+				scroll();
 
 			return this;
 
@@ -1203,6 +1194,7 @@ var $MAGIC;
 				currentClass 	= $elem.data( 'current-link' ),
 	            offset 			= parseFloat( $elem.data( 'current-link-offset' ) ? $elem.data( 'current-link-offset' ) : 0 ),
 	            units 			= ( $elem.data( 'current-link-offset-units' ) ? $elem.data( 'current-link-offset-units' ) : 'px' ),
+	            head 			= ( $body.data( 'smooth-head' ) ? $body.data( 'smooth-head' ) : 0 ),
 	            threshold 		= parseFloat( $elem.data( 'current-link-threshold' ) ? $elem.data( 'current-link-threshold' ) : 0 ),
 	            interval 		= parseFloat( $elem.data( 'current-link-interval' ) ? $elem.data( 'current-link-interval' ) : 250 ),
 	            filter 			= ( $elem.data( 'current-link-filter' ) ? $elem.data( 'current-link-filter' ) : '' ),
@@ -1265,7 +1257,7 @@ var $MAGIC;
 	            	scrollPos 	= $win.scrollTop(),
 	            	pageEnd 	= scrollPos + heightWin >= heightBody,
 	            	current 	= '',
-	            	off 		= $.getStickyHeight() + offset;
+	            	off 		= ( head ? $.getStickyHeight() : 0 ) + offset;
 
 	            if ( pageEnd && $last && $last.length ){
 	            	
@@ -2132,9 +2124,9 @@ var $MAGIC;
 			var $this = $( this ),
 				to = - $this.parent().outerWidth();
 
-			$this.css( { left: '0%', opacity: 1 } );
+			//$this.css( { left: '0%', opacity: 1 } );
 
-			$this.animate({
+			$this.stop().animate({
 
 				'left': '-200%'
 

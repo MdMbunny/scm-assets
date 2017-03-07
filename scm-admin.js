@@ -85,7 +85,7 @@
 		jQuery( '#preview-action a' ).prepend( '<i class="fa fa-search"></i>' );
 
 
-		jQuery( '#delete-action .deletion, #save-action .button, #publishing-action .button, #edittag p.submit' ).on( 'click', function(e){
+		jQuery( '#delete-action .deletion, #save-action .button input, #publishing-action .button input, #edittag p.submit input' ).on( 'click', function(e){
 			jQuery( 'div' ).remove( '.acf-error-message' );
 			$body.addClass( 'loading' );
 			checkDOMChange();
