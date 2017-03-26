@@ -248,21 +248,21 @@
 
 			var $cells = $table.find( 'td[data-cell-column="' + column + '"]' );
 
-			if( $column.hasClass( 'sort-down' ) ){
-
-				$column.removeClass( 'sort-down' );
-				$column.addClass( 'sort-up' );
-				$cells.sortCells( format, 'asc' );
-
-			}else if( $column.hasClass( 'sort-up' ) ){
+			if( $column.hasClass( 'sort-up' ) ){
 
 				$column.removeClass( 'sort-up' );
+				$column.addClass( 'sort-down' );
+				$cells.sortCells( format, 'desc' );
+
+			}else if( $column.hasClass( 'sort-down' ) ){
+
+				$column.removeClass( 'sort-down' );
 				$cells.sortCells( format, 'orig' );
 
 			}else{
 
-				$column.addClass( 'sort-down' );
-				$cells.sortCells( format, 'desc' );
+				$column.addClass( 'sort-up' );
+				$cells.sortCells( format, 'asc' );
 			}
 
 			$table.trigger( evt );
@@ -280,6 +280,7 @@
 				$heads.css( 'cursor', 'pointer' )
 				.on( 'click', function( e ){
 					var $head = $(this);
+					
 					var by = $head.data('column-sortby');
 					if( by ) by = $table.find( 'th[data-column-name="' + by + '"]' );
 					$table.sortColumn( $head, by );
