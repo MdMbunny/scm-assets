@@ -174,6 +174,8 @@ var $MAGIC;
 				var result = image.isLoaded ? 'loaded' : 'broken';
 				if( image.isLoaded ){
 					$this.trigger( 'imgLoaded', instance, image );
+					var portrait = isPortrait( image.img );
+					$(image.img).addClass( portrait ? 'portrait' : 'landscape' );
 					$.consoleDebug( DEBUG, '-- imgLoaded: ' + image.img.src );
 				}else{
 					$this.trigger( 'imgFailed', instance, image );
