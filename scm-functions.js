@@ -334,6 +334,17 @@ $.fn.extend({
     }
 });
 
+if ( !$.fn.getText ) {
+	$.fn.getText = function() {
+		return this
+				.clone()
+			    .children()
+			    .remove()
+			    .end()
+			    .text();
+	};
+}
+
 /*
 *****************************************************
 *	2.0 FUNCTIONS
