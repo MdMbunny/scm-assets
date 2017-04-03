@@ -327,6 +327,7 @@
 		
 		// IMAGES event
 		$( '[data-slider="nivo"]' ).setNivoSlider();
+		$( '[data-slider="bx"]' ).setBxSlider();
 		$body.on( 'imgsLoaded', function( e ) {
 		    $( '[data-equal]' ).equalChildrenSize();
 		});

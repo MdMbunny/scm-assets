@@ -2153,6 +2153,44 @@ var $MAGIC;
 
 		});
 	}
+	$.fn.setBxSlider = function(){
+
+
+		if( !$.functionExists( 'bxSlider' ) )
+			return this;
+
+		return this.each( function() {
+
+			var $body 		= $( 'body' ),
+				$this 		= $( this );
+
+			var cls = $this.attr('class');
+			var style = $this.attr('style');
+			$this.removeClass();
+			$this.removeAttr('style');
+
+			$this.bxSlider({
+				minSlides: 			1,
+				maxSlides: 			1,
+				useCSS: 			false,
+				mode: 				( $this.data( 'slider-effect' ) == 'fade' || $this.data( 'slider-effect' ) == 'vertical' ? $this.data( 'slider-effect' ) : 'horizontal' ),
+			    speed: 				$this.data( 'slider-speed' ),
+			    pause: 				$this.data( 'slider-time' ),
+			    startSlide: 		$this.data( 'slider-start' ),
+			    controls: 			$this.data( 'slider-direction' ),
+			    pager: 				$this.data( 'slider-control' ),
+			    auto: 				!$this.data( 'slider-manual' ),
+			    autoHover: 			$this.data( 'slider-hover' ),
+			    autoDelay:			0,
+			    prevText: 			'',
+			    nextText: 			'',
+			    randomStart: 		$this.data( 'slider-random' ),
+			    slideSelector: 		'.slide-image',
+			    wrapperClass: 		'bx-wrapper ' + cls,
+			}).parents( '.bx-wrapper' ).attr( 'style', 'max-width:100%;' + style );
+
+		});
+	}
 
 	$.fn.setNivoSlider = function(){
 
