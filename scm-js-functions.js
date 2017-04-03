@@ -77,10 +77,13 @@ var sanitizeTitle = function (str){
 
 // Prototype
 
-var toHHMMSS = function (num) {
-    var hours   = Math.floor(num / 3600);
-    var minutes = Math.floor((num - (hours * 3600)) / 60);
-    var seconds = num - (hours * 3600) - (minutes * 60);
+var toHHMMSS = function( num ){
+    num = Math.round( num );
+    var hours   = Math.floor( num / 3600 );
+    num -= hours*3600;
+    var minutes = Math.floor( num / 60 );
+    num -= minutes*60;
+    var seconds = Math.floor(num - (hours * 3600) - (minutes * 60));
 
     if (hours   < 10) {hours   = "0"+hours;}
     if (minutes < 10) {minutes = "0"+minutes;}

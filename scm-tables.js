@@ -27,6 +27,7 @@
 			rows: 3,
 			prepend: false,
 			emptyrow: false,
+			width: '',
 		};
 
 		var options = $.extend( defaults, opt ),
@@ -68,7 +69,7 @@
 								sort = ( value.sort ? value.sort : '' ),
 								nosort = ( value.nosort ? true : !options.sortable ),
 								noedit = ( value.noedit ? true : !options.editable ),
-								width = ( value.width ? value.width : '7.5em' );
+								width = ( value.width ? value.width : ( options.width ? options.width : '7.5em' ) );
 
 							cls = ( value.icon ? ' pin' : '' ) + ( value.color ? ' ' + value.color : '' ) + ( nosort ? ' no-sort' : ' sort' ) + ( noedit ? ' no-edit' : ' edit' );
 
