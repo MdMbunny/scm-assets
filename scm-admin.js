@@ -1,10 +1,12 @@
 ( function($){
 
 		var $body = jQuery( 'body' );
+		var is_advanced = $body.hasClass( 'scm-advanced' );
+		var is_edit = $body.hasClass( 'scm-edit' );
 
 		// ADMIN MENU
 
-		if( $body.hasClass( 'scm-edit' ) ){
+		if( is_edit ){
 
 			jQuery( jQuery( '#adminmenu > .wp-has-current-submenu' ).prevAll('.scm-separator')[0] ).addClass('current').addClass('active').nextUntil( '.scm-separator' ).addClass('active');
 
@@ -22,26 +24,30 @@
 			} );
 		}
 
-		// COLLAPSE LAYOUTS
+		// EMPTY LABELS
 
-		/*var $layout = jQuery('.acf-flexible-content .layout' );
 		jQuery('.acf-field .acf-label label:empty').addClass('empty');
+		jQuery('.acf-flexible-content .layout' ).addClass( '-collapsed' );
 
-		$layout.addClass( '-collapsed' );
+		// COLLAPSE LAYOUTS
 
 		$body.on('click', function(e){
 			var $this = jQuery( e.target );
 			if( $this.hasClass('acf-fc-layout-handle') ){
 				e.stopPropagation();
 				e.preventDefault();
-				if( $this.parent('.layout').hasClass('-collapsed') )
-					$this.parent('.layout').removeClass('-collapsed').siblings('.layout').addClass('-collapsed');
+				
+				$this.siblings( '.acf-fields' ).slideToggle( 'fast', function(){
+					$this.parent('.layout').toggleClass('-collapsed');
+				} );
+				/*if( $this.parent('.layout').hasClass('-collapsed') )
+					$this.parent('.layout').removeClass('-collapsed');//.siblings('.layout').addClass('-collapsed');
 				else
-					$this.parent('.layout').addClass('-collapsed');
-			}else if( $this.parents('.layout').length == 0 ){
+					$this.parent('.layout').addClass('-collapsed');*/
+			}/*else if( $this.parents('.layout').length == 0 ){
 				$body.find('.layout').addClass('-collapsed');
-			}
-		} );*/
+			}*/
+		} );
 
 		// CONTROL MENU
 
@@ -117,21 +123,42 @@
 
 		// ONLY ADVANCED ADMIN
 
-		if( $body.hasClass( 'scm-advanced' ) ){
+		if( is_edit ){
 
 			// ADVANCED FIELDS
 		
 			var $adv = jQuery( '.scm-advanced-options' );
 			var advanced = false;
 
+			var $opt = jQuery( '.acf-field.-option' );
+			var options = false;
+
+			var activate = false;
+
 			$body.on( 'keydown', function(e){
-				if( e.key == 'Alt' ){
+				if( e.key == 'Control' ){
+					activate = true;
+				}
+				if( e.key == 'Alt' && activate ){
+					$opt = jQuery( '.acf-field.-option' );
+				}else if( is_advanced && e.key == 'Meta' && activate ){
 					$adv = jQuery( '.scm-advanced-options' );
 				}
 			} );
 
 			$body.on( 'keyup', function(e){
-				if( e.key == 'Alt' ){
+				if( e.key == 'Control' ){
+					activate = false;
+				}
+				if( e.key == 'Alt' && activate ){
+					if( options ){
+						options = false;
+						$opt.addClass( 'hidden' );
+					}else{
+						options = true;
+						$opt.removeClass( 'hidden' );
+					}
+				}else if( is_advanced && e.key == 'Meta' && activate ){
 					if( advanced ){
 						advanced = false;
 						$adv.addClass( 'hidden' );
@@ -144,55 +171,57 @@
 
 			// SHOW FIELD KEY
 
-			$body.on( 'mouseenter', '.acf-field', function(e){
-				var $this = jQuery(this);
-
-				if( $this.hasClass( 'acf-field' ) ){
-					jQuery( '.show-field-key' ).remove();
-					if ( e.altKey ){
-						e.stopPropagation();
-						$this.append( '<div class="show-field-key">' + $this.attr( 'data-name' ) + '</div>' );
-					}else if ( e.shiftKey){
-						e.stopPropagation();
-						$this.append( '<div class="show-field-key">' + $this.attr( 'data-key' ) + '</div>' );
+			if( is_advanced ){
+				$body.on( 'mouseenter', '.acf-field', function(e){
+					var $this = jQuery(this);
+	
+					if( $this.hasClass( 'acf-field' ) ){
+						jQuery( '.show-field-key' ).remove();
+						if ( e.altKey ){
+							e.stopPropagation();
+							$this.append( '<div class="show-field-key">' + $this.attr( 'data-name' ) + '</div>' );
+						}else if ( e.shiftKey){
+							e.stopPropagation();
+							$this.append( '<div class="show-field-key">' + $this.attr( 'data-key' ) + '</div>' );
+						}
 					}
-				}
-			} );
-
-			$body.on( 'mouseleave', '.acf-field', function(e){
-				var $this = jQuery(this);
-				if( $this.hasClass( 'acf-field' ) ){
-					jQuery( '.show-field-key' ).remove();
-				}
-			} );
-
-		    $body.on('click', function(e){
-		    	var $this = jQuery( e.target );
-				if( e.target.className.indexOf( 'show-field-key' ) > -1 ){
-					if ( e.altKey || e.shiftKey ){
-						e.stopPropagation();
-						e.preventDefault();
-				        var path = $this.html();
-				        path = path.replace(/ &amp;gt; /g,".");
-				        $path.val(path);
-				        $wrap.addClass( 'opened' );
-				        $path.focus();
-				        $path.select();
-			    	}else{
-			    		$wrap.removeClass( 'opened' );
-				    }
-				}else{
-					if( $this.attr('id') !== 'copypath' )
-						$wrap.removeClass( 'opened' );
-				}
-		    });
-			
-			var $path = jQuery('<textarea id="copypath"></textarea>'),
-				$wrap = jQuery('<div id="toppathwrap"></div>'),
-				$fields = jQuery( '.acf-field' );
-
-			$wrap.append( $path );
-			$body.append( $wrap );
+				} );
+	
+				$body.on( 'mouseleave', '.acf-field', function(e){
+					var $this = jQuery(this);
+					if( $this.hasClass( 'acf-field' ) ){
+						jQuery( '.show-field-key' ).remove();
+					}
+				} );
+	
+			    $body.on('click', function(e){
+			    	var $this = jQuery( e.target );
+					if( e.target.className.indexOf( 'show-field-key' ) > -1 ){
+						if ( e.altKey || e.shiftKey ){
+							e.stopPropagation();
+							e.preventDefault();
+					        var path = $this.html();
+					        path = path.replace(/ &amp;gt; /g,".");
+					        $path.val(path);
+					        $wrap.addClass( 'opened' );
+					        $path.focus();
+					        $path.select();
+				    	}else{
+				    		$wrap.removeClass( 'opened' );
+					    }
+					}else{
+						if( $this.attr('id') !== 'copypath' )
+							$wrap.removeClass( 'opened' );
+					}
+			    });
+				
+				var $path = jQuery('<textarea id="copypath"></textarea>'),
+					$wrap = jQuery('<div id="toppathwrap"></div>'),
+					$fields = jQuery( '.acf-field' );
+	
+				$wrap.append( $path );
+				$body.append( $wrap );
+			}
 
 		}		
 
