@@ -2216,9 +2216,9 @@ var $MAGIC;
 
 			$this.nivoSlider( {
 			    effect: 			$this.data( 'slider-effect' ), 									// sliceDown | sliceDownLeft | sliceUp | sliceUpLeft | sliceUpDown | sliceUpDownLeft | fold | fade | random | slideInRight | slideInLeft | boxRandom | boxRain | boxRainReverse | boxRainGrow | boxRainGrowReverse
-			    slices: 			$this.data( 'slider-slices' ), 									// For slice animations
-			    boxCols: 			$this.data( 'slider-cols' ), 									// For box animations
-			    boxRows: 			$this.data( 'slider-rows' ), 									// For box animations
+			    //slices: 			$this.data( 'slider-slices' ), 									// For slice animations
+			    //boxCols: 			$this.data( 'slider-cols' ), 									// For box animations
+			    //boxRows: 			$this.data( 'slider-rows' ), 									// For box animations
 			    animSpeed: 			$this.data( 'slider-speed' ), 									// Slide transition speed
 			    pauseTime: 			$this.data( 'slider-time' ), 									// How long each slide will show
 			    startSlide: 		$this.data( 'slider-start' ), 									// Set starting Slide (0 index)
