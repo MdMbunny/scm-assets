@@ -60,6 +60,7 @@
 						if( main ){
 							
 							var name = value.name,
+								hide = value.hidden,
 								fa = ( value.icon ? value.icon.startsWith('fa-') : false ),
 								icon = ( value.icon ? '<i class="fa ' + ( !fa ? 'text' : value.icon ) + '">' + ( !fa ? value.icon : '' ) + '</i> ' : '' ),
 								format = ( value.format ? value.format : 'string' ),
@@ -81,12 +82,13 @@
 								noedit: noedit,
 								auto: auto,
 								width: width,
+								hide: hide,
 							};						
 							
-							$row.append( '<th style="min-width:' + width + ';" class="' + cls + '" data-auto-complete="' + auto + '" data-column-name="' + key + '" data-column-format="' + format + '" data-column-exception="' + exception + '" data-column-decimal="' + decimal + '" data-column-sort="' + !nosort + '" data-column-sortby="' + sort + '" data-column-edit="' + !noedit + '" data-cell="' + (row+1)*col + '" data-cell-row="' + row + '" data-cell-column="' + col + '" >' + icon + name + '</th>' );
+							$row.append( '<th style="' + ( hide ? 'display: none; ' : '' ) + 'min-width:' + width + ';" class="' + cls + '" data-auto-complete="' + auto + '" data-column-name="' + key + '" data-column-format="' + format + '" data-column-exception="' + exception + '" data-column-decimal="' + decimal + '" data-column-sort="' + !nosort + '" data-column-sortby="' + sort + '" data-column-edit="' + !noedit + '" data-cell="' + (row+1)*col + '" data-cell-row="' + row + '" data-cell-column="' + col + '" >' + icon + name + '</th>' );
 							
 						}else{
-							$row.append( '<th style="min-width:' + width + ';"' + ( cls ? ' class="' + cls + '"' : '' ) + ' data-column-name="' + key + ' data-cell="' + (row+1)*col + '" data-cell-row="' + row + '" data-cell-column="' + col + '" >' + value + '</th>' );
+							$row.append( '<th style="' + ( hide ? 'display: none; ' : '' ) + 'min-width:' + width + ';"' + ( cls ? ' class="' + cls + '"' : '' ) + ' data-column-name="' + key + ' data-cell="' + (row+1)*col + '" data-cell-row="' + row + '" data-cell-column="' + col + '" >' + value + '</th>' );
 						}
 
 						col++;
@@ -100,10 +102,12 @@
 			var $tbody = $( '<tbody></tbody>' ).appendTo( $table );
 			
 			for (var row = 0; row < options.rows + ( options.emptyrow ? 1 : 0 ); row++) {
+
 				var $row = $( '<tr ' + ( options.emptyrow && row == options.rows ? ' class="empty"' : '' ) + 'data-table-row="' + row + '"></tr>' ).appendTo( $tbody );
+
 				for (var col = 0; col < options.columns; col++) {
 					var column = columns[col];
-					$row.append( '<td style="min-width:' + column.width + ';" class="cell' + ( column.slug ? ' ' + column.slug : '' ) + ( column.noedit ? ' no-edit' : '' ) + '" data-column-name="' + column.slug + '" data-cell="' + (row+1)*col + '" data-cell-row="' + row + '" data-cell-column="' + col + '" data-cell-format="' + ( column.format ? column.format : 'string' ) + '" data-cell-exception="' + ( column.exception ? column.exception : '' ) + '" data-cell-decimal="' + ( column.decimal ? column.decimals : 0 ) + '" data-cell-auto="' + ( column.auto ? column.auto : false ) + '"></th>' );
+					$row.append( '<td style="' + ( column.hide ? 'display: none; ' : '' ) + 'min-width:' + column.width + ';" class="cell' + ( column.slug ? ' ' + column.slug : '' ) + ( column.noedit ? ' no-edit' : '' ) + '" data-column-name="' + column.slug + '" data-cell="' + (row+1)*col + '" data-cell-row="' + row + '" data-cell-column="' + col + '" data-cell-format="' + ( column.format ? column.format : 'string' ) + '" data-cell-exception="' + ( column.exception ? column.exception : '' ) + '" data-cell-decimal="' + ( column.decimal ? column.decimals : 0 ) + '" data-cell-auto="' + ( column.auto ? column.auto : false ) + '"></th>' );
 				}
 			}
 		}	
@@ -213,8 +217,8 @@
 				}else{
 					va = $(a).getText();
 					vb = $(b).getText();
-					if( va === '' ) return -1;
-					if( vb === '' ) return 1;
+					if( va === '' ) return 1;
+					if( vb === '' ) return -1;
 					if( time ){
 						if( opt != 'asc' ) return dateSortDesc(va,vb);
 						return dateSortAsc(va,vb);
