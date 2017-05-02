@@ -61,6 +61,8 @@
 							
 							var name = value.name,
 								hide = value.hidden,
+								noname = value.noname,
+								classes = value.classes,
 								fa = ( value.icon ? value.icon.startsWith('fa-') : false ),
 								icon = ( value.icon ? '<i class="fa ' + ( !fa ? 'text' : value.icon ) + '">' + ( !fa ? value.icon : '' ) + '</i> ' : '' ),
 								format = ( value.format ? value.format : 'string' ),
@@ -72,11 +74,12 @@
 								noedit = ( value.noedit ? true : !options.editable ),
 								width = ( value.width ? value.width : ( options.width ? options.width : '7.5em' ) );
 
-							cls = ( value.icon ? ' pin' : '' ) + ( value.color ? ' ' + value.color : '' ) + ( nosort ? ' no-sort' : ' sort' ) + ( noedit ? ' no-edit' : ' edit' );
+							cls = ( classes ? ' ' + classes : '' ) + ( value.icon ? ' pin' : '' ) + ( value.color ? ' ' + value.color : '' ) + ( nosort ? ' no-sort' : ' sort' ) + ( noedit ? ' no-edit' : ' edit' ) + ( noname ? ' no-name' : '' );
 
 							columns[col] = {
 								slug: key,
 								format: format,
+								classes: classes,
 								exception: exception,
 								decimal: decimal,
 								noedit: noedit,
@@ -85,10 +88,10 @@
 								hide: hide,
 							};						
 							
-							$row.append( '<th style="' + ( hide ? 'display: none; ' : '' ) + 'min-width:' + width + ';" class="' + cls + '" data-auto-complete="' + auto + '" data-column-name="' + key + '" data-column-format="' + format + '" data-column-exception="' + exception + '" data-column-decimal="' + decimal + '" data-column-sort="' + !nosort + '" data-column-sortby="' + sort + '" data-column-edit="' + !noedit + '" data-cell="' + (row+1)*col + '" data-cell-row="' + row + '" data-cell-column="' + col + '" >' + icon + name + '</th>' );
+							$row.append( '<th style="' + ( hide ? 'display: none; ' : '' ) + 'min-width:' + width + ';" class="' + cls + '" data-auto-complete="' + auto + '" data-column-name="' + key + '" data-column-format="' + format + '" data-column-exception="' + exception + '" data-column-decimal="' + decimal + '" data-column-sort="' + !nosort + '" data-column-sortby="' + sort + '" data-column-edit="' + !noedit + '" data-cell="' + (row+1)*col + '" data-cell-row="' + row + '" data-cell-column="' + col + '" >' + icon + ( !noname ? name : '' ) + '</th>' );
 							
 						}else{
-							$row.append( '<th style="' + ( hide ? 'display: none; ' : '' ) + 'min-width:' + width + ';"' + ( cls ? ' class="' + cls + '"' : '' ) + ' data-column-name="' + key + ' data-cell="' + (row+1)*col + '" data-cell-row="' + row + '" data-cell-column="' + col + '" >' + value + '</th>' );
+							$row.append( '<th style="min-width:' + width + ';"' + ( cls ? ' class="' + cls + '"' : '' ) + ' data-column-name="' + key + ' data-cell="' + (row+1)*col + '" data-cell-row="' + row + '" data-cell-column="' + col + '" >' + value + '</th>' );
 						}
 
 						col++;
@@ -103,11 +106,11 @@
 			
 			for (var row = 0; row < options.rows + ( options.emptyrow ? 1 : 0 ); row++) {
 
-				var $row = $( '<tr ' + ( options.emptyrow && row == options.rows ? ' class="empty"' : '' ) + 'data-table-row="' + row + '"></tr>' ).appendTo( $tbody );
+				var $row = $( '<tr ' + ( options.emptyrow && row == options.rows ? ' class="new empty"' : '' ) + 'data-table-row="' + row + '"></tr>' ).appendTo( $tbody );
 
 				for (var col = 0; col < options.columns; col++) {
 					var column = columns[col];
-					$row.append( '<td style="' + ( column.hide ? 'display: none; ' : '' ) + 'min-width:' + column.width + ';" class="cell' + ( column.slug ? ' ' + column.slug : '' ) + ( column.noedit ? ' no-edit' : '' ) + '" data-column-name="' + column.slug + '" data-cell="' + (row+1)*col + '" data-cell-row="' + row + '" data-cell-column="' + col + '" data-cell-format="' + ( column.format ? column.format : 'string' ) + '" data-cell-exception="' + ( column.exception ? column.exception : '' ) + '" data-cell-decimal="' + ( column.decimal ? column.decimals : 0 ) + '" data-cell-auto="' + ( column.auto ? column.auto : false ) + '"></th>' );
+					$row.append( '<td style="' + ( column.hide ? 'display: none; ' : '' ) + 'min-width:' + column.width + ';" class="cell' + ( column.slug ? ' ' + column.slug : '' ) + ( column.noedit ? ' no-edit' : '' ) + ( column.classes ? ' ' + column.classes : '' ) + '" data-column-name="' + column.slug + '" data-cell="' + (row+1)*col + '" data-cell-row="' + row + '" data-cell-column="' + col + '" data-cell-format="' + ( column.format ? column.format : 'string' ) + '" data-cell-exception="' + ( column.exception ? column.exception : '' ) + '" data-cell-decimal="' + ( column.decimal ? column.decimals : 0 ) + '" data-cell-auto="' + ( column.auto ? column.auto : false ) + '"></th>' );
 				}
 			}
 		}	
@@ -447,7 +450,7 @@
 		
 		// Change Event = back to original text if Event returned false
 		orig = $cell.html();
-		$cell.text( val.toString() ).trigger( evt, val );
+		$cell.text( val.toString() ).trigger( evt, [ val, invert ] );
 		if( evt.result === false )
 			$cell.html( orig );
 
