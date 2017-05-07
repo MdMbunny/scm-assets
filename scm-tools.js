@@ -493,8 +493,8 @@ var $MAGIC;
 
 	$.fn.ajaxPost = function( url, aj_data, complete, loading, loading_args ){
 
-		if( typeof complete !== 'function' )
-			return this;
+		/*if( typeof complete !== 'function' )
+			return this;*/
 
 		var $loading = $.getLoading( loading, loading_args ).appendTo( this ).hide().fadeIn( 'slow' );
 
@@ -1535,41 +1535,63 @@ var $MAGIC;
 	// *      DETAILS OVERLAY
 	// *****************************************************
 
-	$.fn.showDetails = function( id, content ){
-		$('body').addClass( 'disabled' );
-		this.children().hide();
+	$.fn.showDetails = function( id, content, disable ){
+		if( !disable || !disable.length )
+			disable = $('body');
+		disable.addClass( 'disabled' ).removeClass( 'enabled' );
+		this.children().not('.UI').hide();
+
 		var $content = $( '#' + id );
+
+		/*console.log( id );
+		console.log( this );
+		console.log( content );*/
+
 		if( !$content.length )
-			$content = ( $.isFunction( content ) ? content().appendTo( this ) : '' );
+			$content = ( $.isFunction( content ) ? content().hide().appendTo( this ).fadeIn(300) : '' );
 		else
-			$content.show();
+			$content.fadeIn(300);
 		
 		this.attr( 'data-content', '#' + id );
-		this.addClass( 'opened' );
+		this.addClass( 'opened' ).addClass( 'enabled' );
 		this.show();
 		
 	}
-	$.fn.hideDetails = function(){
-		this.hide();
+	$.fn.hideDetails = function( disable ){
+		this.fadeOut( 300 );
 		this.attr( 'data-content', '' );
-		this.removeClass( 'opened' );
-		$('body').removeClass( 'disabled' );
+		this.removeClass( 'opened' ).removeClass( 'enabled' );
+		if( !disable || !disable.length )
+			disable = $('body');
+		disable.removeClass( 'disabled' ).addClass( 'enabled' );
 	}
-	$.newDetails = function( cls, close, show ){
+	$.newDetails = function( cls, close, disable ){
 		
 		cls = ( !cls ? '' : ' ' + cls );
 
-		var $details = $( '<div class="details' + cls + '" data-content></div>' );
-
-		if( !show )
-			$details.hide();
+		var $details = $( '<div class="details' + cls + '" data-content></div>' ).hide();
 
 		if( close ){
-			$details.on( 'click', function(e){
+
+			if( close instanceof jQuery )
+				close.appendTo( $details ).click( function(e){
+					
+					$( $( this ).parents('.details')[0] ).hideDetails( disable );
+					e.preventDefault();
+					e.stopPropagation();
+
+				} );
+			
+			$details.addClass('click').click( function(e){
+
 				if( $( e.target ).hasClass( 'details' ) ){
-					$details.hideDetails();
+					$( e.target ).hideDetails( disable );
+					e.preventDefault();
+					e.stopPropagation();
 				}
+				
 			} );
+
 		}
 
 		return $details;

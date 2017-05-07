@@ -362,7 +362,15 @@ if ( !$.fn.getText ) {
 	$.consoleDebug = function( db, lg ){
 		if (db)
 			console.log( lg );
-	}
+	}	
+
+	$.getAttributes = function( sel ) {
+		var obj = {};
+		$.each( sel.attributes, function( i, a ){
+    		obj[a.name] = a.value;
+    	});
+    	return obj;
+	}   
 
 	$.EmToPx = function( input ) {
 	    var emSize = parseFloat($("body").css("font-size"));
@@ -641,6 +649,20 @@ if ( !$.fn.getText ) {
 *	3.0 PRESETS
 *****************************************************
 */
+
+	$.closeButton = function( args ) {
+
+		args = $.extend(
+			{
+				classes: '',
+				icon: 'times',
+				text: '',
+			},
+			( args ? args : {} )
+		);
+		
+		return '<button class="close UI' + args.classes + '"><i class="fa fa-' + args.icon + '"></i>' + args.text + '</button>';
+	}
 
 	$.barLoading = function( args ) {
 
