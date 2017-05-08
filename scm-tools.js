@@ -1535,6 +1535,11 @@ var $MAGIC;
 	// *      DETAILS OVERLAY
 	// *****************************************************
 
+	$.fn.enterDetails = function( time ){
+		this;
+		return this;
+	}
+	
 	$.fn.showDetails = function( id, content, disable ){
 		if( !disable || !disable.length )
 			disable = $('body');
@@ -1543,22 +1548,31 @@ var $MAGIC;
 
 		var $content = $( '#' + id );
 
-		/*console.log( id );
-		console.log( this );
-		console.log( content );*/
-
 		if( !$content.length )
-			$content = ( $.isFunction( content ) ? content().hide().appendTo( this ).fadeIn(300) : '' );
+			$content = ( $.isFunction( content ) ? content().appendTo( this ) : '' );
 		else
-			$content.fadeIn(300);
+			$content.show();
+
+		$content.find('img.preload').hide().imagesLoaded().progress( function( instance, image ) {
+			//var result = image.isLoaded ? 'loaded' : 'broken';
+			//console.log( 'image is ' + result + ' for ' + image.img.src );
+			
+			var $img = $(image.img);
+			var time = ( $img.data( 'preload' ) ? parseInt( $img.data( 'preload' ) ) : 500 );
+			$img.removeClass('preload').css({'margin-top':'-5em', 'margin-bottom':'5em', 'opacity':'0'}).show().animate({'opacity':'1', 'margin-top':'0em', 'margin-bottom':'0em'}, time ).siblings('.scm-loading').remove();
+			
+		});
 		
 		this.attr( 'data-content', '#' + id );
 		this.addClass( 'opened' ).addClass( 'enabled' );
-		this.show();
+		
+		this.slideDown( 400 ).find('.UI').show();
 		
 	}
 	$.fn.hideDetails = function( disable ){
-		this.fadeOut( 300 );
+		
+		this.slideUp( 400 ).find('.UI').fadeOut(200);
+
 		this.attr( 'data-content', '' );
 		this.removeClass( 'opened' ).removeClass( 'enabled' );
 		if( !disable || !disable.length )
@@ -1591,7 +1605,6 @@ var $MAGIC;
 				}
 				
 			} );
-
 		}
 
 		return $details;
