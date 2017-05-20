@@ -31,7 +31,7 @@
 		};
 
 		var options = $.extend( defaults, opt ),
-			$this = this;
+			$this = this,
 			$table = $( '<table class="scm-table"></table>' ).attr( 'id', options.id ).addClass( options.classes ).css( options.css );
 
 		if( options.prepend )
@@ -56,7 +56,7 @@
 				if( cols[row] ){
 
 					$.each( cols[row], function( key, value ) {
-						var cls = ( $.isNumeric( key ) ? '' : key );
+						var cls = ( $.isNumber( key ) ? '' : key );
 						if( main ){
 							
 							var name = value.name,
@@ -137,8 +137,8 @@
 // *****************************************************
 
 	$.fn.getCell = function( col, row, body ){
-		var cls = '.cell' + ( undefined === row || row === false || $.isNumeric( row ) ? '' : '.' + row ) + ( undefined === col || col === false || $.isNumeric( col ) ? '' : '.' + col );
-		var data = ( $.isNumeric( row ) ? '[data-cell-row="' + row + '"]' : '') + ( $.isNumeric( col ) ? '[data-cell-column="' + col + '"]' : '');
+		var cls = '.cell' + ( undefined === row || row === false || $.isNumber( row ) ? '' : '.' + row ) + ( undefined === col || col === false || $.isNumber( col ) ? '' : '.' + col );
+		var data = ( $.isNumber( row ) ? '[data-cell-row="' + row + '"]' : '') + ( $.isNumber( col ) ? '[data-cell-column="' + col + '"]' : '');
 
 		return $( $(this).find( ( body ? body : 'tbody ' ) + cls + data ) );
 	}
@@ -165,7 +165,7 @@
 	}
 
 	$.fn.getRow = function( row, body ){
-		return $( $(this).find( ( body ? body : 'tbody' ) + ( $.isNumeric( row ) ? ' [data-table-row="' + row + '"]' : ' tr.' + row ) ) );
+		return $( $(this).find( ( body ? body : 'tbody' ) + ( $.isNumber( row ) ? ' [data-table-row="' + row + '"]' : ' tr.' + row ) ) );
 	}
 
 
@@ -402,6 +402,7 @@
 
 
 	$.fn.editCell = function ( cell ) {
+		
 		if( !cell && cell !== 0 ) return this;
 		var invert = cell instanceof jQuery;
 		
@@ -419,7 +420,7 @@
 		// Text is the same || Validate Event returned Error = keeps original text
 		if( $cell.text() === val.toString() || ( !correct && $cell.hasClass('error') ) ){
 			if( $input ) $input.removeClass('error');
-			return true;
+			return this;
 		}
 
 		// Autocorrect > Format = corrects value by format

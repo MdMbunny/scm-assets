@@ -33,6 +33,8 @@ var $MAGIC;
 	var CONTENTS = {};
 	$MAGIC = new $.ScrollMagic.Controller();
 
+
+
 // *****************************************************
 // *      MAIN PLUGINS
 // *****************************************************
@@ -154,6 +156,7 @@ var $MAGIC;
 	}
 
 	$.fn.eventImages = function( bg ) {
+
 		$.consoleDebug( DEBUG, '-- images events');
 		var $this = this;
 		var bgs = ( !bg ? { background: '*' } : null );
@@ -188,6 +191,8 @@ var $MAGIC;
 
 	$.fn.eventCss = function(){
 		$.consoleDebug( DEBUG, '-- css events');
+		this.find( '[data-border-color]' ).setCss( 'border-color' );
+		this.find( '[data-text-color]' ).setCss( 'text-color', 'color' );
 		this.find( '[data-bg-color]' ).setCss( 'bg-color', 'background-color' );
 		this.find( '[data-zindex]' ).setCss( 'zindex', 'z-index' );
 		this.find( '[data-left]' ).setCss( 'left' );
@@ -496,12 +501,22 @@ var $MAGIC;
 		/*if( typeof complete !== 'function' )
 			return this;*/
 
-		var $loading = $.getLoading( loading, loading_args ).appendTo( this ).hide().fadeIn( 'slow' );
+		var $loading = $.getLoading( loading, loading_args );
+
+		if( loading_args && loading_args.prepend )
+			$loading.hide().prependTo( this ).fadeIn( 'slow' ).addClass( 'onscreen' );
+		else
+			$loading.hide().appendTo( this ).fadeIn( 'slow' ).addClass( 'onscreen' );
+
+		//return;
 
 		$.ajax({
 			url: url,
 			type: 'post',
 			data: aj_data,
+			/*processData: false,
+			contentType: "application/json",
+    		dataType: "json",*/
 			error: function(jqXHR, exception) {
 				var msg = 'Spiacenti, è stato riscontrato un errore.';
 	            if (jqXHR.status === 0) {
@@ -524,7 +539,7 @@ var $MAGIC;
 	        },
 			success: function( html ) {
 				
-				$loading.fadeOut( 'slow', function(){
+				$loading.removeClass( 'onscreen' ).fadeOut( 'slow', function(){
 					$loading.remove();
 					if( typeof complete === 'function' ) complete( html );
 				} );
@@ -951,13 +966,15 @@ var $MAGIC;
 	// *      ENABLE/DISABLE
 	// *****************************************************
 
-	$.fn.enableIt = function( event ){
+	$.fn.enableIt = function( scroll ){
 
 		$.consoleDebug( DEBUG, '[' + this[0].localName + '] ENABLED');
 
 		return this.each(function() {
 
 		    var $this = $( this );
+
+		    if( scroll ) $this.removeClass( 'no-scroll' );
 
 		    $this.removeClass( 'disabled' );
 		    $this.addClass( 'enabled' );
@@ -966,13 +983,15 @@ var $MAGIC;
 		});
 	}
 
-	$.fn.disableIt = function( event ){
+	$.fn.disableIt = function( scroll ){
 
 		$.consoleDebug( DEBUG, '[' + this[0].localName + '] DISABLED');
 
 		return this.each(function() {
 
 		    var $this = $( this );
+
+		    if( scroll ) $this.addClass( 'no-scroll' );
 
 		    $this.addClass( 'disabled' );
 			$this.removeClass( 'enabled' );
@@ -1336,6 +1355,88 @@ var $MAGIC;
 	}
 
 	// *****************************************************
+	// *      ANIMATE
+	// *****************************************************
+
+	$.fn.moveIn = function( complete, dir, css, time, ease ){
+
+		var $this = this;
+
+		var dir = ( dir ? dir : 'top' );
+		var time = ( time ? time : 500 );
+		var ease = ( ease ? ( ease == 'in' ? 'easeInSine' : ( ease == 'out' ? 'easeOutSine' : ( ease == 'inout' ? 'easeInOutSine' : ease ) ) ) : 'easeOutSine' );
+
+		var out = ( dir == 'top' || dir == 'bottom' ? $this.outerHeight() : $this.outerWidth() );
+
+
+		var anim = {};
+		anim[dir] = ( css ? css : '0' );
+		var css = {};
+		css[dir] = ( - out ) + 'px';
+		
+		$this.css( css ).show().animate( anim, time, ease, complete );
+
+		return $this;
+
+	}
+	$.fn.moveOut = function( complete, dir, time, ease ){
+
+		var $this = this;
+
+		var dir = ( dir ? dir : 'top' );
+		var time = ( time ? time : 500 );
+		var ease = ( ease ? ( ease == 'in' ? 'easeInSine' : ( ease == 'out' ? 'easeOutSine' : ( ease == 'inout' ? 'easeInOutSine' : ease ) ) ) : 'easeInSine' );
+
+		var out = ( dir == 'top' || dir == 'bottom' ? $this.outerHeight() : $this.outerWidth() );
+
+		var anim = {};
+		anim[dir] = ( - out ) + 'px';
+
+		$this.animate( anim, time, ease, complete );
+
+		return $this;
+
+	}
+
+	$.fn.openIn = function( complete, dir, css, time, ease ){
+
+		var $this = this;
+
+		var dir = ( dir ? dir : 'top' );
+		var time = ( time ? time : 500 );
+		var ease = ( ease ? ( ease == 'in' ? 'easeInSine' : ( ease == 'out' ? 'easeOutSine' : ( ease == 'inout' ? 'easeInOutSine' : ease ) ) ) : 'easeOutSine' );
+
+		var out = ( dir == 'top' || dir == 'bottom' ? $this.outerHeight() : $this.outerWidth() );
+		var win = ( dir == 'top' || dir == 'bottom' ? $( window ).height() : $( window ).width() );
+
+		var anim = {};
+		anim[dir] = ( css ? css : ( win - out ) + 'px' );
+		var css = {};
+		css[dir] = '100%';
+		
+		$this.css( css ).show().animate( anim, time, ease, complete );
+
+		return $this;
+
+	}
+	$.fn.openOut = function( complete, dir, time, ease ){
+
+		var $this = this;
+
+		var dir = ( dir ? dir : 'top' );
+		var time = ( time ? time : 500 );
+		var ease = ( ease ? ( ease == 'in' ? 'easeInSine' : ( ease == 'out' ? 'easeOutSine' : ( ease == 'inout' ? 'easeInOutSine' : ease ) ) ) : 'easeInSine' );
+
+		var anim = {};
+		anim[dir] = '100%';
+
+		$this.animate( anim, time, ease, complete );
+
+		return $this;
+
+	}
+
+	// *****************************************************
 	// *      FADE CONTENT
 	// *****************************************************
 
@@ -1529,85 +1630,6 @@ var $MAGIC;
 			}
 
 		} );
-	}
-
-	// *****************************************************
-	// *      DETAILS OVERLAY
-	// *****************************************************
-
-	$.fn.enterDetails = function( time ){
-		this;
-		return this;
-	}
-	
-	$.fn.showDetails = function( id, content, disable ){
-		if( !disable || !disable.length )
-			disable = $('body');
-		disable.addClass( 'disabled' ).removeClass( 'enabled' );
-		this.children().not('.UI').hide();
-
-		var $content = $( '#' + id );
-
-		if( !$content.length )
-			$content = ( $.isFunction( content ) ? content().appendTo( this ) : '' );
-		else
-			$content.show();
-
-		$content.find('img.preload').hide().imagesLoaded().progress( function( instance, image ) {
-			//var result = image.isLoaded ? 'loaded' : 'broken';
-			//console.log( 'image is ' + result + ' for ' + image.img.src );
-			
-			var $img = $(image.img);
-			var time = ( $img.data( 'preload' ) ? parseInt( $img.data( 'preload' ) ) : 500 );
-			$img.removeClass('preload').css({'margin-top':'-5em', 'margin-bottom':'5em', 'opacity':'0'}).show().animate({'opacity':'1', 'margin-top':'0em', 'margin-bottom':'0em'}, time ).siblings('.scm-loading').remove();
-			
-		});
-		
-		this.attr( 'data-content', '#' + id );
-		this.addClass( 'opened' ).addClass( 'enabled' );
-		
-		this.slideDown( 400 ).find('.UI').show();
-		
-	}
-	$.fn.hideDetails = function( disable ){
-		
-		this.slideUp( 400 ).find('.UI').fadeOut(200);
-
-		this.attr( 'data-content', '' );
-		this.removeClass( 'opened' ).removeClass( 'enabled' );
-		if( !disable || !disable.length )
-			disable = $('body');
-		disable.removeClass( 'disabled' ).addClass( 'enabled' );
-	}
-	$.newDetails = function( cls, close, disable ){
-		
-		cls = ( !cls ? '' : ' ' + cls );
-
-		var $details = $( '<div class="details' + cls + '" data-content></div>' ).hide();
-
-		if( close ){
-
-			if( close instanceof jQuery )
-				close.appendTo( $details ).click( function(e){
-					
-					$( $( this ).parents('.details')[0] ).hideDetails( disable );
-					e.preventDefault();
-					e.stopPropagation();
-
-				} );
-			
-			$details.addClass('click').click( function(e){
-
-				if( $( e.target ).hasClass( 'details' ) ){
-					$( e.target ).hideDetails( disable );
-					e.preventDefault();
-					e.stopPropagation();
-				}
-				
-			} );
-		}
-
-		return $details;
 	}
 
 	// *****************************************************
@@ -2826,6 +2848,59 @@ var $MAGIC;
 			$this.css( attr, val );
 
 		});
+	}
+
+	// *****************************************************
+	// *      CSS - COLORS PALETTES
+	// *****************************************************
+
+	$.getColor = function( colors, color, palette ){
+		if( !colors ) return '';
+		palette = ( $.isNumeric( palette ) ? +palette : 0 );
+		
+		if( undefined !== color && $.isNumeric( color ) && colors.palettes )
+			return colors.palettes[ parseInt( palette ) ][ parseInt( +color ) ];
+		else if( typeof color == 'string' )
+			return colors[ color ];
+		return '';
+	}
+
+	$.fn.colorIt = function( colors, palette ){
+
+		if( !colors ) return this;
+
+		return this.each( function(){
+
+			//if( undefined !== palette ) $( this ).data( 'palette', palette );
+
+			var pal = ( palette !== undefined ? palette : ( $( this ).data( 'palette' ) !== undefined ? $( this ).data( 'palette' ) : $( this ).parents( '[data-palette]' ).data( 'palette' ) ) );
+			var bg = $.getColor( colors, $( this ).data( 'color-bg' ), pal );
+			var col = $.getColor( colors, $( this ).data( 'color-it' ), pal );
+			var line = $.getColor( colors, $( this ).data( 'color-line' ), pal );
+
+			if( bg ) $( this ).css( 'background-color', bg );
+			if( col ) $( this ).css( 'color', col );
+			if( line ) $( this ).css( 'border-color', line );
+
+		});
+
+		return this;
+	}
+
+	$.fn.setColorIt = function( colors, palette, self ){
+
+		if( !colors ) return this;
+
+		var $elems = this.find( '[data-color-bg], [data-color-it], [data-color-line]' );
+		if( self ) $elems = $elems.add( this );
+
+		$elems.each( function(){
+			if( !$( this ).hasClass( 'color-it' ) ) $( this ).addClass( 'color-it' );
+		});
+
+		$elems.colorIt( colors, palette );
+
+		return this;
 	}
 
 	// *****************************************************

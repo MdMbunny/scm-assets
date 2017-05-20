@@ -3,7 +3,7 @@
  * Plugin Name:         SCM Assets
  * Plugin URI:          http://studiocreativo-m.it/
  * Description:         SCM Javascript Integration
- * Version:             1.8.4
+ * Version:             1.8.5
  * Author:              Studio Creativo M
  * Author URI:          http://studiocreativo-m.it/
  * License:             http://www.gnu.org/licenses/gpl-3.0.html
@@ -183,8 +183,9 @@
                 wp_enqueue_script( 'scroll-magic' );
                 wp_register_script( 'scroll-magic-jquery',  SCM_ASSETS_URI_ASSETS . 'scrollmagic-2.0.5/minified/plugins/jquery.ScrollMagic.min.js', array( 'scroll-magic' ), null, true );
                 wp_enqueue_script( 'scroll-magic-jquery' );
-                //wp_register_script( 'scroll-magic-debug',  SCM_ASSETS_URI_ASSETS . 'scrollmagic-2.0.5/minified/plugins/debug.addIndicators.min.js', array( 'scroll-magic-jquery' ), null, true );
-                //wp_enqueue_script( 'scroll-magic-debug' );
+                
+                wp_register_script( 'scroll-magic-debug',  SCM_ASSETS_URI_ASSETS . 'scrollmagic-2.0.5/minified/plugins/debug.addIndicators.min.js', array( 'scroll-magic-jquery' ), null, true );
+                wp_enqueue_script( 'scroll-magic-debug' );
             }
 
             // Fancybox --- You could replace it
@@ -257,6 +258,14 @@
                 wp_enqueue_script( 'awesome-cursor' );
             }
 
+
+
+            wp_register_script( 'color-thief',  SCM_ASSETS_URI_ASSETS . 'color-thief-2.0.1/src/color-thief.js', array( 'imagesloaded' ), null, true );
+            wp_enqueue_script( 'color-thief' );
+            wp_register_script( 'vibrant',  SCM_ASSETS_URI_ASSETS . 'vibrant.js-1.0/dist/Vibrant.min.js', array( 'imagesloaded' ), null, true );
+            wp_enqueue_script( 'vibrant' );
+
+
         // SCM Stuff
 
             // MIN
@@ -275,9 +284,18 @@
                 //wp_register_script( 'jquery-scm-tables', SCM_ASSETS_URI . 'scm-tables.min.js', array( 'jquery-scm-tools' ), null, true );
                 // FULL
                 wp_register_script( 'jquery-scm-tables', SCM_ASSETS_URI . 'scm-tables.js', array( 'jquery-scm-tools' ), null, true );
-
                 wp_enqueue_script( 'jquery-scm-tables' );
             }
+
+            //if( $scm_assets_settings['ui'] ){ // DA AGGIUNGERE A WP OPTIONS
+
+                wp_register_script( 'jquery-scm-panels', SCM_ASSETS_URI . 'scm-panels.js', array( 'jquery-scm-tools' ), null, true );
+                wp_enqueue_script( 'jquery-scm-panels' );
+
+                wp_register_script( 'jquery-scm-ui', SCM_ASSETS_URI . 'scm-ui.js', array( 'jquery-scm-tools' ), null, true );
+                wp_enqueue_script( 'jquery-scm-ui' );
+
+            //}
 
             // SCM Child
 

@@ -34,6 +34,7 @@
 		$body.removeClass('loaded');
 		$body.removeClass( 'bodyin' );
 		$( 'html' ).removeClass( 'no-js' );
+
 		$body.setLocationData( window.location );
 		$body.disableIt();
 	}
@@ -166,7 +167,10 @@
 
 		$.consoleDebug( DEBUG, 'navEvents()');
 
-		$window.off( 'scroll').on( 'scroll', function(e){ $( '.toggled' ).toggledOff(); } );
+		$window.off( 'scroll').on( 'scroll', function(e){
+			
+			$( '.toggled' ).toggledOff();
+		} );
 		
 		$body.on( 'resizing', function(e){ $( '.toggled' ).toggledOff(); } );
 		$body.off( 'switchOn').on( 'switchOn', '.navigation.toggle', function( e, state ){ $( this ).toggledOff(); $body.addClass('toggled-nav'); } );

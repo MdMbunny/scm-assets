@@ -308,7 +308,20 @@
 		};
 	}
 
-$.extend({
+//Invert HTML elements
+	if ( !$.fn.invertChildren ) {
+		$.fn.invertChildren = function( selector ) {
+			var $this = this;
+			selector = selector || '';
+			$this.children( selector ).slice(1).each(function() {
+			    $(this).insertBefore($this.children().eq(0));
+			});
+			return $this;
+		};
+	}
+
+
+/*$.extend({
     replaceTag: function (currentElem, newTagObj, keepProps) {
         var $currentElem = $(currentElem);
         var i, $newTag = $(newTagObj).clone();
@@ -332,7 +345,7 @@ $.fn.extend({
             jQuery.replaceTag(this, newTagObj, keepProps);
         });
     }
-});
+});*/
 
 if ( !$.fn.getText ) {
 	$.fn.getText = function() {
@@ -427,29 +440,38 @@ if ( !$.fn.getText ) {
 	// OBJECT
 
 	$.sortKeys = function( obj ) {
-	    var keys = []; for(var key in obj) keys.push(key);
+	    var keys = [];
+	    for(var key in obj) keys.push(key);
 	    return keys.sort(function(a,b){return obj[a]-obj[b]});
 	}
 
 	$.rsortKeys = function( obj ) {
-	    var keys = []; for(var key in obj) keys.push(key);
+	    var keys = [];
+	    for(var key in obj) keys.push(key);
 	    return keys.sort(function(a,b){return obj[b]-obj[a]});
 	}
+	$.fn.objToData = function( obj ){
+		for( var key in obj ){
+			this.attr( 'data-' + key, obj[key] );
+		}
+		return this;
+	}
+
 
 	// NUMBER
 
 	$.stringDecimal = function( num ) {
-		if( typeof num == 'string' && $.isNumeric( parseFloat( num ) ) )
+		if( typeof num == 'string' && $.isNumber( parseFloat( num ) ) )
 			return num.replace(',','.');
 	    return num;
 	}
 
-	$.isNumeric = function( num ) {
+	$.isNumber = function( num ) {
 	    return !isNaN( $.stringDecimal(num) );
 	}
 
 	$.Numeric = function( num ) {
-	    return ( $.isNumeric( num ) ? +$.stringDecimal(num) : false );
+	    return ( $.isNumber( num ) ? +$.stringDecimal(num) : false );
 	}
 
 	// STRING
@@ -650,6 +672,21 @@ if ( !$.fn.getText ) {
 *****************************************************
 */
 
+	$.actionButton = function( args ) {
+
+		args = $.extend(
+			{
+				classes: '',
+				icon: 'cog',
+				text: '',
+				attr: '',
+			},
+			( args ? args : {} )
+		);
+		
+		return '<button class="action UI' + args.classes + '"' + ( args.attr ? ' ' + args.attr : '' ) + '><i class="fa fa-' + args.icon + '"></i>' + args.text + '</button>';
+	}
+
 	$.closeButton = function( args ) {
 
 		args = $.extend(
@@ -657,11 +694,12 @@ if ( !$.fn.getText ) {
 				classes: '',
 				icon: 'times',
 				text: '',
+				attr: '',
 			},
 			( args ? args : {} )
 		);
 		
-		return '<button class="close UI' + args.classes + '"><i class="fa fa-' + args.icon + '"></i>' + args.text + '</button>';
+		return '<button class="close UI' + args.classes + '"' + ( args.attr ? ' ' + args.attr : '' ) + '><i class="fa fa-' + args.icon + '"></i>' + args.text + '</button>';
 	}
 
 	$.barLoading = function( args ) {
@@ -669,11 +707,12 @@ if ( !$.fn.getText ) {
 		args = $.extend(
 			{
 				classes: 'absolute middle full-width',
+				attr: '',
 			},
 			( args ? args : {} )
 		);
 		
-		return '<div class="scm-loading loading-bar ' + args.classes + '"></div>';
+		return '<div class="scm-loading loading-bar ' + args.classes + '"' + ( args.attr ? ' ' + args.attr : '' ) + '></div>';
 	}
 
 	$.iconLoading = function( args ) {
@@ -682,11 +721,12 @@ if ( !$.fn.getText ) {
 			{
 				classes: 'absolute middle double',
 				icon: 'spinner',
+				attr: '',
 			},
 			( args ? args : {} )
 		);
 
-		return '<div class="scm-loading loading-icon ' + args.classes + '"><i class="fa fa-pulse fa-' + args.icon + '"></i></div>';
+		return '<div class="scm-loading loading-icon ' + args.classes + '"' + ( args.attr ? ' ' + args.attr : '' ) + '><i class="fa fa-pulse fa-' + args.icon + '"></i></div>';
 	}
 
 	$.circleLoading = function( args ) {
@@ -695,11 +735,12 @@ if ( !$.fn.getText ) {
 			{
 				classes: 'absolute middle double',
 				icon: 'circle',
+				attr: '',
 			},
 			( args ? args : {} )
 		);
 
-		return '<div class="scm-loading loading-circle ' + args.classes + '"><i class="fa fa-spin fa-' + args.icon + ' absolute middle"></i></div>';
+		return '<div class="scm-loading loading-circle ' + args.classes + '"' + ( args.attr ? ' ' + args.attr : '' ) + '><i class="fa fa-spin fa-' + args.icon + ' absolute middle"></i></div>';
 	}
 
 })( jQuery );
