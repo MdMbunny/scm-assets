@@ -1358,11 +1358,26 @@ var $MAGIC;
 	// *      ANIMATE
 	// *****************************************************
 
+	$.fn.slideIn = function( prev, complete, dir, css, time, ease ){
+
+		var $this = this;
+
+		var dir = ( dir ? dir : 'right' );
+		var opp = oppositePos( dir );
+
+		$this.moveIn( complete, dir, css, time, ease );
+		if( prev && prev.length )
+			prev.moveOut( '', opp, time, ease );
+
+		return $this;
+
+	}
 	$.fn.moveIn = function( complete, dir, css, time, ease ){
 
 		var $this = this;
 
-		var dir = ( dir ? dir : 'top' );
+		var dir = ( dir ? dir : 'bottom' );
+		var opp = oppositePos( dir );
 		var time = ( time ? time : 500 );
 		var ease = ( ease ? ( ease == 'in' ? 'easeInSine' : ( ease == 'out' ? 'easeOutSine' : ( ease == 'inout' ? 'easeInOutSine' : ease ) ) ) : 'easeOutSine' );
 
@@ -1373,7 +1388,8 @@ var $MAGIC;
 		anim[dir] = ( css ? css : '0' );
 		var css = {};
 		css[dir] = ( - out ) + 'px';
-		
+		//css[opp] = 'initial';
+
 		$this.css( css ).show().animate( anim, time, ease, complete );
 
 		return $this;
@@ -1383,7 +1399,8 @@ var $MAGIC;
 
 		var $this = this;
 
-		var dir = ( dir ? dir : 'top' );
+		var dir = ( dir ? dir : 'bottom' );
+		var opp = oppositePos( dir );
 		var time = ( time ? time : 500 );
 		var ease = ( ease ? ( ease == 'in' ? 'easeInSine' : ( ease == 'out' ? 'easeOutSine' : ( ease == 'inout' ? 'easeInOutSine' : ease ) ) ) : 'easeInSine' );
 
@@ -1391,8 +1408,9 @@ var $MAGIC;
 
 		var anim = {};
 		anim[dir] = ( - out ) + 'px';
-
-		$this.animate( anim, time, ease, complete );
+		var css = {};
+		css[opp] = 'initial';
+		$this.css( css ).animate( anim, time, ease, complete );
 
 		return $this;
 
@@ -1706,11 +1724,25 @@ var $MAGIC;
 	// *      ADD TO CALENDAR
 	// *****************************************************
 
+	$.fn.InitCalendar = function(){
+		if( !window.ifaddtocalendar || !window.addtocalendar || typeof window.addtocalendar.start != 'function' ){
+        	
+            $.getScript( ( 'https:' == window.location.protocol ? 'https' : 'http' ) + '://addtocalendar.com/atc/1.5/atc.min.js', function( data, textStatus, jqxhr ) {
+				
+				window.ifaddtocalendar = 1;
+				$cals = $( '.addtocalendar' );
+				$cals.AddToCalendar( true );
+				
+			});
+        }
+	}
+
 	$.fn.AddToCalendar = function( init ){
 		if( !window.ifaddtocalendar ) return this;
 		
 		this.find( '.disabled' ).removeClass( 'disabled' );
 		if( !init ){
+
 			$('.atcb-list').remove();
 			addtocalendar.load();
 		}
@@ -2893,6 +2925,8 @@ var $MAGIC;
 
 		var $elems = this.find( '[data-color-bg], [data-color-it], [data-color-line]' );
 		if( self ) $elems = $elems.add( this );
+
+
 
 		$elems.each( function(){
 			if( !$( this ).hasClass( 'color-it' ) ) $( this ).addClass( 'color-it' );

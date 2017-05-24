@@ -201,6 +201,10 @@ var escapeJSON = function( str ) {
                .replace(/\\f/g, "\\f");
 };
 
+var oppositePos = function( pos ){
+    return ( pos == 'top' ? 'bottom' : ( pos == 'bottom' ? 'top' : ( pos == 'left' ? 'right' : 'left' ) ) );
+}
+
 // **********************************************
 // NUMBER
 // **********************************************

@@ -1,75 +1,105 @@
+var PANELS = false;
+
 ( function($){
 
 	// **********************************************
 	// GET Details Panels
 	// **********************************************
 
-	$.fn.showPanel = function( id, cls, content, dir ){
+	$.fn.overPanel = function( id, cls, content, dir ){
 
-		var dir = ( dir ? dir : 'top' );
-		var mov = ( dir == 'top' ? 'bottom' : ( dir == 'bottom' ? 'top' : ( dir == 'left' ? 'right' : 'left' ) ) );
+		return this.showPanel( id, cls, content, dir, true );
+		
+	}
+
+	$.fn.showPanel = function( id, cls, content, dir, prev ){
+
+		var dir = ( dir ? dir : 'bottom' );
+		//var opp = oppositePos( dir );
+		//var mov = ( dir == 'top' ? 'bottom' : ( dir == 'bottom' ? 'top' : ( dir == 'left' ? 'right' : 'left' ) ) );
 		var cls = ( cls ? ' ' + cls : '' );
 
-		var first = !this.hasClass( 'opened' );
-		if( first ){
+		var $content = this.find( '.panel-content#' + id ).removeClass( 'prev' );
+		var first = false;
+		//var open = !this.hasClass( 'opened' );
+
+		var $prev = this.children( '.panel-content.enabled' ).last();
+		var open = !$prev.length;
+
+		/*if( $content.hasClass( 'prev' ) && $content.next().is( $prev ) ){
+			return this.hidePanel( dir );
+		}*/
+
+		if( !$content.length ){
+			//if( this.data( 'panels' )[id] ){
+			//	$content = $( this.data( 'panels' )[id] );
+			//}else{
+				first = true;
+				$content = $( '<div id="' + id + '" class="panel-content' + cls + '"></div>' );
+				$content = ( $.isFunction( content ) ? content( $content ) : $content );
+				$content.addClass( 'anim-' + dir );
+				//this.data( 'panels' )[id] = $('<div>').append( $content.clone() ).html();
+			//}
+		}
+		if( !$content ) return;
+
+		this.attr( 'data-content', '#' + id );
+
+		if( open ){
 
 			this.children().hide();
 			this.addClass( 'opened' ).enableIt();
+			$( '#site-page' ).addClass( 'panels-opened' );
+
+			this.trigger( 'openpanels', [ first ] );
+			if( PANELS ) console.log( 'Open Panels: ' + this.attr( 'id' ) );
 		
 		}else{
 
-			this.children( '.panel-content' ).last().addClass( 'prev' ).disableIt( true );
+			$prev.addClass( 'prev' ).disableIt( true ).trigger( 'coveringpanel', [ first, open ] );
 
 		}
 		
-		var $content = this.find( '#' + id );
-		if( !$content.length ){
-			$content = $( '<div id="' + id + '" class="panel-content' + cls + '"></div>' );
-			$content = ( $.isFunction( content ) ? content( $content ) : $content );
-		}
-		if( !$content ) return;
-		$content.hide().detach().appendTo( this );		
-
-		this.attr( 'data-content', '#' + id );
+		$content.hide().detach().appendTo( this );
 		
-		//$content.find('img.preload').hide().imagesLoaded().progress( function( instance, image ) {
+		// Questa va levata da qua
 		$content.find('img.preload').hide().eventImages().on( 'imgLoaded', function( instance, image ) {
 			
 			var $img = $(this);
 			var time = ( $img.data( 'preload' ) ? parseInt( $img.data( 'preload' ) ) : 500 );
-			$img.removeClass('preload').css({'margin-top':'-5em', 'margin-bottom':'5em', 'opacity':'0'}).show().animate({'opacity':'1', 'margin-top':'0em', 'margin-bottom':'0em'}, time ).siblings('.scm-loading').remove();
+			$img.removeClass('preload').css({'margin-top':'-5em', 'margin-bottom':'5em', 'opacity':'0'}).delay(100).show().animate({'opacity':'1', 'margin-top':'0em', 'margin-bottom':'0em'}, time ).siblings('.scm-loading').remove();
 			
 		});
 
-		if( first ){
-			$( 'body' ).addClass( 'panels-opened' ).trigger( 'openpanels', [ $content ] );
-		}
-
 		this.show();
 
-		$content.disableIt().trigger( 'showingpanel' );
+		$content.disableIt().trigger( 'showingpanel', [ first, open ] );
 
 		var movein = function(){
 			$content.enableIt( true );
-			if( first ) $( 'html, body' ).disableIt( true );
-			$content.enableIt().trigger( 'showpanel' );
+			if( open ){
+				$( 'html, body' ).disableIt( true );
+			}else if( $prev.length ){
+				if( prev ){
+					$prev.trigger( 'coverpanel', [ first, open ] );
+					if( PANELS ) console.log( 'Cover Panel: ' + $prev.attr( 'id' ) );
+				}else{
+					$prev.remove();
+				}
+			}
+			$content.enableIt().trigger( 'showpanel', [ first, open ] );
+			if( first )
+				if( PANELS ) console.log( 'First Panel: ' + $content.attr( 'id' ) );
+			else
+				if( PANELS ) console.log( 'Show Panel: ' + $content.attr( 'id' ) );
 		}
 
-		if( $content.hasClass( 'img' ) )
-			$content.moveIn( movein, mov, '', 600 );
+		if( dir.startsWith( 'slide-' ) )
+			$content.slideIn( $prev, movein, dir.substring( 6 ), '', 600, 'inout' );
+		else if( dir.startsWith( 'open-' ) )
+			$content.openIn( movein, dir.substring( 5 ), '0', 600 );
 		else
-			$content.openIn( movein, dir, '0', 600 );
-
-		/*var anim = {};
-		anim[dir] = '0';
-		var css = {};
-		css[dir] = '100%';
-
-		$content.css( css ).show().animate( anim, 600, 'easeOutSine', function(){
-			$content.enableIt( true );
-			if( first ) $( 'html, body' ).disableIt( true );
-			$content.trigger( 'showpanel' );
-		} );*/
+			$content.moveIn( movein, dir, '', 600 );
 
 		return $content;
 		
@@ -77,69 +107,68 @@
 
 	$.fn.hidePanel = function( dir ){
 
-		var dir = ( dir ? dir : 'top' );
-		var mov = ( dir == 'top' ? 'bottom' : ( dir == 'bottom' ? 'top' : ( dir == 'left' ? 'right' : 'left' ) ) );
+		var dir = ( dir ? dir : 'bottom' );
+		//var mov = oppositePos( dir );
 
-		var $prev = this.children( '.prev' );
-		var prev = $prev.length;
+		var $prev = this.children( '.prev' ).last();
+		var close = !$prev.length;
 		var $content = this.children( '.panel-content' ).last().disableIt( true );
 		var $this= this;
 
-		if( !prev ){
-			$('html, body').enableIt( true )
-			$('body').removeClass( 'panels-opened' ).trigger( 'closepanels' );
+		if( close ){
+			$( 'html, body' ).enableIt( true )
+			$( '#site-page' ).removeClass( 'panels-opened' );
+
+			this.trigger( 'closepanels' );
+			if( PANELS ) console.log( 'Close Panels: ' + this.attr( 'id' ) );
+
 		}else{
-			$prev.last().removeClass( 'prev' );
+			$prev.removeClass( 'prev' ).trigger( 'uncoveringpanel', [ close ] );
 		}
 
-		$content.trigger( 'hidingpanel' );
+		$content.trigger( 'hidingpanel', [ close ] );
 
 		var moveout = function(){
 			$content.hide();
-			if( prev ){
-				$prev.last().enableIt( true );
-				$content.detach().prependTo( $this );//insertBefore( $prev.last().removeClass( 'prev' ).enableIt( true ) );
-				$this.attr( 'data-content', '#' + $prev.last().attr( 'id' ) );
+			if( !close ){
+				
+				//$content.detach().prependTo( $this );
+				$this.attr( 'data-content', '#' + $prev.attr( 'id' ) );
+
+				$prev.enableIt( true ).trigger( 'uncoverpanel', [ close ] );
+				if( PANELS ) console.log( 'Uncover Panel: ' + $prev.attr( 'id' ) );
+
 			}else{
+
 				$this.hide().attr( 'data-content', '' ).disableIt().removeClass( 'opened' );
 				$this.children().disableIt( true );
+
 			}
-			$content.trigger( 'hidepanel' );
+			$content.trigger( 'hidepanel', [ close ] );
+			if( PANELS ) console.log( 'Hide Panel: ' + $content.attr( 'id' ) );
+
+			$content.remove();
 
 		}
-		if( $content.hasClass( 'img' ) )
-			$content.moveOut( moveout, mov, 600 );
-		else
-			$content.openOut( moveout, dir, 600 );
-
-		/*var anim = {};
-		anim[dir] = '100%';
-
-		$last.animate( anim, 600, 'easeInSine', function(){
-			$last.hide();
-			if( prev ){
-				$prev.last().enableIt( true );
-				$last.detach().prependTo( $this );//insertBefore( $prev.last().removeClass( 'prev' ).enableIt( true ) );
-				$this.attr( 'data-content', '#' + $prev.last().attr( 'id' ) );
-			}else{
-				$this.hide().attr( 'data-content', '' ).disableIt().removeClass( 'opened' );
-				$this.children().disableIt( true );
-			}
-			$last.trigger( 'hidepanel' );
-
-		} );*/
+		//if( $content.hasClass( 'img' ) )
+			$content.moveOut( moveout, dir, 600 );
+		//else
+			//$content.openOut( moveout, dir, 600 );
 
 		return $content;
 		
 	}
+	
 	$.Panels = function( cls, noclose ){
 		
 		cls = ( !cls ? '' : ' ' + cls );
 
-		var $panel = $( '<div id="scm-panels" class="scm-panels' + cls + ' disabled" data-content></div>' ).hide();
+		var $panels = $( '<div id="scm-panels" class="scm-panels' + cls + ' disabled" data-content></div>' )
+			.hide();
+			//.data( 'panels', {} );
 		
 		if( !noclose ){
-			$panel.addClass('click').click( function(e){
+			$panels.addClass('click').click( function(e){
 
 				if( $( e.target ).hasClass( 'scm-panels' ) ){
 
@@ -152,7 +181,7 @@
 		}
 
 
-		return $panel;
+		return $panels;
 	}
 
 

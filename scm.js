@@ -340,16 +340,8 @@
 	    var $cals = $( '.addtocalendar' );
 	    if( $cals.length ){
 
-	    	if( !window.ifaddtocalendar || !window.addtocalendar || typeof window.addtocalendar.start != 'function' ){
-            	
-                $.getScript( ( 'https:' == window.location.protocol ? 'https' : 'http' ) + '://addtocalendar.com/atc/1.5/atc.min.js', function( data, textStatus, jqxhr ) {
-					
-					window.ifaddtocalendar = 1;
-					$cals = $( '.addtocalendar' );
-					$cals.AddToCalendar( true );
-					
-				});
-            }
+	    	$cals.InitCalendar();
+	    	
 	    }
 		
 		// GOOGLE MAPS event

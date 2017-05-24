@@ -358,6 +358,23 @@ if ( !$.fn.getText ) {
 	};
 }
 
+if ( !$.fn.prevLoop ) {
+	$.fn.prevLoop = function() {
+		var $prev = this.prev();
+		if( !$prev.length )
+			$prev = this.siblings().last();
+		return $prev;
+	};
+}
+if ( !$.fn.nextLoop ) {
+	$.fn.nextLoop = function() {
+		var $next = this.next();
+		if( !$next.length )
+			$next = this.siblings().first();
+		return $next;
+	};
+}
+
 /*
 *****************************************************
 *	2.0 FUNCTIONS
