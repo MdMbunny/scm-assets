@@ -83,21 +83,54 @@
 
 			// ********************************************** TEXT INPUT
 
-			$.UITextInput = function( action, icon, text, cls ){
+			$.UIInput = function( action, icon, text, cls ){
 
 				/*cls = ( cls ? cls : '' );
 				text = ( text ? text : '' );
 
 				var html = getIcon( icon );*/
-				var $input = $( '<input type="text" name="text-input" value="' + text + '">' );
+				var type = 'text';
+				if( $.isNumeric( text ) )
+					type = 'number'
+
+				var $input = $( '<input type="' + type + '" name="' + type + '-input" class="' + type + '-input" value="' + text + '">' );
 
 				//var $button = $( '<button class="scm-ui-button scm-ui-input">' + html + input + '</button>' ).addClass( cls );
 
-				var $button = $.UILabel( icon, '', 'button', 'scm-ui-button scm-ui-input' ).addClass( cls ).append( $input );
+				var $button = $.UILabel( icon, '', 'button', 'scm-ui-button scm-ui-input scm-ui-comp' ).addClass( cls ).prepend( $input );
 
 				$button.click( action );
 				$input.click( function(e){ e.stopPropagation(); } );
 				
+				return $button;
+
+			}
+
+			$.UISelectOption = function( value, text, id ){
+
+				return $( '<option value="' + value + '" id="' + ( id || value ) + '">' + ( text || value ) + '</option>' );
+
+			}
+
+			$.UISelect = function( action, icon, val, cls, opts ){
+
+				var $select = $( '<select></select>' );
+
+				var $button = $.UILabel( icon, '', 'button', 'scm-ui-button scm-ui-select scm-ui-comp' ).addClass( cls ).prepend( $select );
+
+				if( opts ){
+			
+					for(var k in opts) {
+						$select.append( $.UISelectOption( opts[k].value, opts[k].text, opts[k].id ) );
+					};
+				}
+
+				$select.off( 'change' );
+				if( val )
+					$select.val( val );
+				
+				$select.on( 'change', action );
+
 				return $button;
 
 			}

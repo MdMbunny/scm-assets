@@ -56,7 +56,10 @@ var PANELS = false;
 		
 		}else{
 
-			$prev.addClass( 'prev' ).disableIt( true ).trigger( 'coveringpanel', [ first, open ] );
+			if( prev )
+				$prev.addClass( 'prev' ).disableIt( true ).trigger( 'coveringpanel', [ first, open ] );
+			else
+				$prev.addClass( 'prev' ).disableIt( true ).trigger( 'hidingpanel', [ first, open ] );
 
 		}
 		
@@ -84,6 +87,7 @@ var PANELS = false;
 					$prev.trigger( 'coverpanel', [ first, open ] );
 					if( PANELS ) console.log( 'Cover Panel: ' + $prev.attr( 'id' ) );
 				}else{
+					$prev.trigger( 'hidepanel', [ first, open ] );
 					$prev.remove();
 				}
 			}
