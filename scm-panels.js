@@ -26,6 +26,9 @@ var PANELS = false;
 		var $prev = this.children( '.panel-content.enabled' ).last();
 		var open = !$prev.length;
 
+		var slide_anim = dir.startsWith( 'slide-' );
+		var open_anim = dir.startsWith( 'open-' );
+
 		/*if( $content.hasClass( 'prev' ) && $content.next().is( $prev ) ){
 			return this.hidePanel( dir );
 		}*/
@@ -35,7 +38,7 @@ var PANELS = false;
 			//	$content = $( this.data( 'panels' )[id] );
 			//}else{
 				first = true;
-				$content = $( '<div id="' + id + '" class="panel-content' + cls + '"></div>' );
+				$content = $( '<div id="' + id + '" class="panel-content' + cls + '"></div>' ).prependTo( this );
 				$content = ( $.isFunction( content ) ? content( $content ) : $content );
 				$content.addClass( 'anim-' + dir );
 				//this.data( 'panels' )[id] = $('<div>').append( $content.clone() ).html();
@@ -56,10 +59,14 @@ var PANELS = false;
 		
 		}else{
 
+			$prev.addClass( 'prev' ).disableIt( true );
+
 			if( prev )
-				$prev.addClass( 'prev' ).disableIt( true ).trigger( 'coveringpanel', [ first, open ] );
+				$prev.trigger( 'coveringpanel', [ first, open ] );
+			else if( slide_anim )
+				$prev.trigger( 'slidingpanel', [ first, open ] );
 			else
-				$prev.addClass( 'prev' ).disableIt( true ).trigger( 'hidingpanel', [ first, open ] );
+				$prev.trigger( 'hidingpanel', [ first, open ] );
 
 		}
 		
@@ -98,9 +105,9 @@ var PANELS = false;
 				if( PANELS ) console.log( 'Show Panel: ' + $content.attr( 'id' ) );
 		}
 
-		if( dir.startsWith( 'slide-' ) )
+		if( slide_anim )
 			$content.slideIn( $prev, movein, dir.substring( 6 ), '', 600, 'inout' );
-		else if( dir.startsWith( 'open-' ) )
+		else if( open_anim )
 			$content.openIn( movein, dir.substring( 5 ), '0', 600 );
 		else
 			$content.moveIn( movein, dir, '', 600 );
