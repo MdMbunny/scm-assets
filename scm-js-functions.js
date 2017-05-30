@@ -290,7 +290,7 @@ var objInsert = function(obj,n,k) {
 
 var objToArray = function(obj) {
     var arr = [];
-    for (key in obj) {
+    for (var key in obj) {
         if (obj.hasOwnProperty(key)) arr.push( { key: obj[key] } );
     }
     return arr;

@@ -69,6 +69,7 @@
 								exception = ( value.exception ? value.exception : '' ),
 								decimal = ( value.decimal ? value.decimal : 0 ),
 								auto = ( options.autocomplete && !value.noauto && format != 'date' ),
+								hints = value.hints,
 								sort = ( value.sort ? value.sort : '' ),
 								nosort = ( value.nosort ? true : !options.sortable ),
 								noedit = ( value.noedit ? true : !options.editable ),
@@ -84,11 +85,12 @@
 								decimal: decimal,
 								noedit: noedit,
 								auto: auto,
+								hints: hints,
 								width: width,
 								hide: hide,
 							};						
 							
-							$row.append( '<th style="' + ( hide ? 'display: none; ' : '' ) + 'min-width:' + width + ';" class="' + cls + '" data-auto-complete="' + auto + '" data-column-name="' + key + '" data-column-format="' + format + '" data-column-exception="' + exception + '" data-column-decimal="' + decimal + '" data-column-sort="' + !nosort + '" data-column-sortby="' + sort + '" data-column-edit="' + !noedit + '" data-cell="' + (row+1)*col + '" data-cell-row="' + row + '" data-cell-column="' + col + '" >' + icon + ( !noname ? name : '' ) + '</th>' );
+							$row.append( $( '<th style="' + ( hide ? 'display: none; ' : '' ) + 'min-width:' + width + ';" class="' + cls + '" data-auto-complete="' + auto + '" data-column-name="' + key + '" data-column-format="' + format + '" data-column-exception="' + exception + '" data-column-decimal="' + decimal + '" data-column-sort="' + !nosort + '" data-column-sortby="' + sort + '" data-column-edit="' + !noedit + '" data-cell="' + (row+1)*col + '" data-cell-row="' + row + '" data-cell-column="' + col + '" >' + icon + ( !noname ? name : '' ) + '</th>' ).data( 'hints', hints ) );
 							
 						}else{
 							$row.append( '<th style="min-width:' + width + ';"' + ( cls ? ' class="' + cls + '"' : '' ) + ' data-column-name="' + key + ' data-cell="' + (row+1)*col + '" data-cell-row="' + row + '" data-cell-column="' + col + '" >' + value + '</th>' );
@@ -110,7 +112,7 @@
 
 				for (var col = 0; col < options.columns; col++) {
 					var column = columns[col];
-					$row.append( '<td style="' + ( column.hide ? 'display: none; ' : '' ) + 'min-width:' + column.width + ';" class="cell' + ( column.slug ? ' ' + column.slug : '' ) + ( column.noedit ? ' no-edit' : '' ) + ( column.classes ? ' ' + column.classes : '' ) + '" data-column-name="' + column.slug + '" data-cell="' + (row+1)*col + '" data-cell-row="' + row + '" data-cell-column="' + col + '" data-cell-format="' + ( column.format ? column.format : 'string' ) + '" data-cell-exception="' + ( column.exception ? column.exception : '' ) + '" data-cell-decimal="' + ( column.decimal ? column.decimals : 0 ) + '" data-cell-auto="' + ( column.auto ? column.auto : false ) + '"></th>' );
+					$row.append( '<td style="' + ( column.hide ? 'display: none; ' : '' ) + 'min-width:' + column.width + ';" class="cell' + ( column.slug ? ' ' + column.slug : '' ) + ( column.noedit ? ' no-edit' : '' ) + ( column.classes ? ' ' + column.classes : '' ) + '" data-column-name="' + column.slug + '" data-cell="' + (row+1)*col + '" data-cell-row="' + row + '" data-cell-column="' + col + '" data-cell-format="' + ( column.format ? column.format : 'string' ) + '" data-cell-exception="' + ( column.exception ? column.exception : '' ) + '" data-cell-decimal="' + ( column.decimal ? column.decimals : 0 ) + '" data-cell-auto="' + ( column.auto ? column.auto : false ) + '"></td>' );
 				}
 			}
 		}	
@@ -511,7 +513,8 @@
 						$cell.removeClass('error');
 						format = $cell.data( 'cell-format' );
 						var name = $cell.data( 'column-name' );
-						var list = ( $this.find( 'th[data-column-name="' + name + '"]' ).data( 'auto-complete' ) );
+						var list = $this.find( 'th[data-column-name="' + name + '"]' ).data( 'auto-complete' );
+						var hints = $this.find( 'th[data-column-name="' + name + '"]' ).data( 'hints' );
 						
 						$temp = ( format == 'color' ? $picker : ( format == 'date' ? $calendar : $input ) );
 						if( format == 'date' )
@@ -528,16 +531,25 @@
 							.height( $cell.height() + height );
 
 						if( list ){
-							
-							var $cells = $this.find( 'td[data-column-name="' + name + '"]' ).not( $cell );
+
 							var arr = [];
-						    $cells.each(function() {
-						        if ($.inArray($(this).text(), arr) == -1)
-						            arr.push($(this).text());
-						    });
+							
+							if( !hints ){
+								var $cells = $this.find( 'td[data-column-name="' + name + '"]' ).not( $cell );
+								
+							    $cells.each(function() {
+							        if ($.inArray($(this).text(), arr) == -1)
+							            arr.push($(this).text());
+							    });
+							    arr = arr.sort();
+							}else if( typeof hints == 'function' ){
+								arr = hints( $cell );
+							}else{
+								arr = hints;
+							}
 
 						    $temp.autocomplete( {
-						    	source: arr.sort(),
+						    	source: arr,
 						    	appendTo: $parent,
 						    	minLength: 0,
 						    	select: function( event, ui ){

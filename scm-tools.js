@@ -2926,8 +2926,6 @@ var $MAGIC;
 		var $elems = this.find( '[data-color-bg], [data-color-it], [data-color-line]' );
 		if( self ) $elems = $elems.add( this );
 
-
-
 		$elems.each( function(){
 			if( !$( this ).hasClass( 'color-it' ) ) $( this ).addClass( 'color-it' );
 		});
