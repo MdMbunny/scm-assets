@@ -2629,7 +2629,7 @@ var $MAGIC;
 									e.preventDefault();
 								e.returnValue = false;  
 							}
-							$( 'body' ).addClass( 'no-scroll' );
+							//$( 'body' ).addClass( 'no-scroll' );
 
 						},
 
