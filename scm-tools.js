@@ -2136,6 +2136,9 @@ var $MAGIC;
 								location.addClass( 'infowindow' );
 						}
 					});
+					google.maps.event.addListener( info, 'closeclick', function(){
+					   $( '.onmap' ).removeClass( 'infowindow' );
+					});
 
 				}
 
