@@ -155,8 +155,8 @@
 
 
 					id = ( id ? id : 'file' );
-					send = ( send ? send : 'Send' );
-					upload = ( upload ? upload : 'Upload' );
+					send = ( send ? send : '' );
+					upload = ( upload ? upload : '' );
 					icon = ( icon ? icon : 'fa-file-code-o' );
 
 					var act_input = function(e){
