@@ -28,6 +28,7 @@
 			prepend: false,
 			emptyrow: false,
 			width: '',
+			tip: '',
 		};
 
 		var options = $.extend( defaults, opt ),
@@ -73,9 +74,10 @@
 								sort = ( value.sort ? value.sort : '' ),
 								nosort = ( value.nosort ? true : !options.sortable ),
 								noedit = ( value.noedit ? true : !options.editable ),
-								width = ( value.width ? value.width : ( options.width ? options.width : '7.5em' ) );
+								width = ( value.width ? value.width : ( options.width ? options.width : '7.5em' ) ),
+								tip = value.tip;
 
-							cls = ( classes ? ' ' + classes : '' ) + ( value.icon ? ' pin' : '' ) + ( value.color ? ' ' + value.color : '' ) + ( nosort ? ' no-sort' : ' sort' ) + ( noedit ? ' no-edit' : ' edit' ) + ( noname ? ' no-name' : '' );
+							cls = ( classes ? ' ' + classes : '' ) + ( value.icon ? ' pin' : '' ) + ( value.color ? ' ' + value.color : '' ) + ( nosort ? ' no-sort' : ' sort' ) + ( noedit ? ' no-edit' : ' edit' ) + ( noname ? ' no-name' : '' ) + ( tip ? ' has-tip' : '' );
 
 							columns[col] = {
 								slug: key,
@@ -90,7 +92,7 @@
 								hide: hide,
 							};						
 							
-							$row.append( $( '<th style="' + ( hide ? 'display: none; ' : '' ) + 'min-width:' + width + ';" class="' + cls + '" data-auto-complete="' + auto + '" data-column-name="' + key + '" data-column-format="' + format + '" data-column-exception="' + exception + '" data-column-decimal="' + decimal + '" data-column-sort="' + !nosort + '" data-column-sortby="' + sort + '" data-column-edit="' + !noedit + '" data-cell="' + (row+1)*col + '" data-cell-row="' + row + '" data-cell-column="' + col + '" >' + icon + ( !noname ? name : '' ) + '</th>' ).data( 'hints', hints ) );
+							$row.append( $( '<th style="' + ( hide ? 'display: none; ' : '' ) + 'min-width:' + width + ';" class="' + cls + '" data-auto-complete="' + auto + '" data-column-name="' + key + '" data-column-format="' + format + '" data-column-exception="' + exception + '" data-column-decimal="' + decimal + '" data-column-sort="' + !nosort + '" data-column-sortby="' + sort + '" data-column-edit="' + !noedit + '" data-cell="' + (row+1)*col + '" data-cell-row="' + row + '" data-cell-column="' + col + '"' + ( tip ? ' data-tooltip="span.tip" data-tooltip-direction="s" data-tooltip-class="tip txt-white bg-' + value.color + '"' : '' ) + '>' + icon + ( !noname ? name : '' ) + ( tip ? '<span class="tip">' + tip + '</span>' : '' ) + '</th>' ).data( 'hints', hints ).setTooltip() );
 							
 						}else{
 							$row.append( '<th style="min-width:' + width + ';"' + ( cls ? ' class="' + cls + '"' : '' ) + ' data-column-name="' + key + ' data-cell="' + (row+1)*col + '" data-cell-row="' + row + '" data-cell-column="' + col + '" >' + value + '</th>' );

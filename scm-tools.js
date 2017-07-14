@@ -2812,6 +2812,7 @@ var $MAGIC;
 		    var $this = $( this );
 
 			var data = $this.data('tooltip');
+			if( !data ) return this;
 			var $element = $this.find( data );
 			
 			var content = $element.html();
