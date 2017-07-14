@@ -389,13 +389,17 @@
 			break;
 		}
 
-		$cell.trigger( evt, val );
+		$cell.trigger( evt, [ val, $input ] );
 	
 		if( evt.result === false || val === false ){
 			if( $input ) $input.addClass( 'error' );
 			$cell.addClass( 'error' );
 		}else{
-			if( $input ) $input.removeClass( 'error' );
+			if( $input ){
+				$input.removeClass( 'error' );
+				if( undefined !== evt.result )
+					$input.val( evt.result );
+			}
 			$cell.removeClass( 'error' );
 		}
 		
@@ -453,7 +457,7 @@
 		
 		// Change Event = back to original text if Event returned false
 		orig = $cell.html();
-		$cell.text( val.toString() ).trigger( evt, [ val, invert ] );
+		$cell.text( val.toString() ).trigger( evt, [ val, $input ] );
 		if( evt.result === false )
 			$cell.html( orig );
 
@@ -515,7 +519,7 @@
 						var name = $cell.data( 'column-name' );
 						var list = $this.find( 'th[data-column-name="' + name + '"]' ).data( 'auto-complete' );
 						var hints = $this.find( 'th[data-column-name="' + name + '"]' ).data( 'hints' );
-						
+
 						$temp = ( format == 'color' ? $picker : ( format == 'date' ? $calendar : $input ) );
 						if( format == 'date' )
 							$temp.datepicker( 'setDate', $cell.text() );
@@ -553,13 +557,25 @@
 						    	appendTo: $parent,
 						    	minLength: 0,
 						    	select: function( event, ui ){
-						    		if( ui.value )
-							    		hideEditor( $temp, $cell, ui.value );
+						    		if( ui.item.value )
+							    		hideEditor( $temp, $cell, ui.item.value );
 						    	},
+						    	open: function( event, ui ){
+									$cell.trigger( 'open', [ $temp ] );
+						    	},
+						    	change: function( event, ui ){
+						    		$temp.validCell( $cell );
+						    	},
+						    	focus: function( event, ui ){
+						    		$temp.validCell( $cell );
+						    	}
 							});
+							
 							$('.ui-autocomplete').css({'min-width':$temp.outerWidth()});
+							
 							$temp.autocomplete('enable');
 							$temp.autocomplete( 'search', '' );
+
 						}else if( $temp.autocomplete( 'instance' ) ){
 							$temp.autocomplete('disable');
 						}
@@ -659,7 +675,7 @@
 				}else if( e.which === ENTER ){
 					showEditor( true );
 				}else if( e.keyCode == 46 || e.keyCode == 8 ){
-					$this.find( 'td.edit:focus' ).text( '' );
+					$this.find( 'td.edit:focus' ).trigger( 'change', [ '' ] );
 				}else{
 					prevent = false;
 				}

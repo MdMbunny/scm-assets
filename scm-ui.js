@@ -151,7 +151,7 @@
 
 				// ********************************************** UPLOAD
 
-				$.UIButtonFile = function( id, action, icon, upload, send, cls ){
+				$.UIButtonFile = function( id, action, icon, upload, send, cls, both ){
 
 
 					id = ( id ? id : 'file' );
@@ -178,9 +178,9 @@
 					
 					}
 
-					var $send = $.UIButton( action, 'fa-upload', send ).attr( 'id', 'upload-' + id ).addClass( cls ).addClass( 'hidden disabled' ).addClass('scm-ui-button');
-					var $file = $( '<input id="upload-' + id + '-input" type="file" name="upload-' + id + '-input" />' ).on( 'change', act_input ).addClass('scm-ui-upload-input');
-					var $upload = $.UILabel( icon, upload, 'label' ).attr( 'id', 'upload-' + id + '-button' ).attr( 'for', 'upload-' + id + '-input' ).addClass( cls ).addClass('scm-ui-button');
+					var $send = $.UIButton( action, 'fa-upload', send ).attr( 'id', 'upload-' + id ).addClass( both ).addClass( cls ).addClass( 'hidden disabled' ).addClass('scm-ui-button');
+					var $file = $( '<input id="upload-' + id + '-input" type="file" name="upload-' + id + '-input" />' ).on( 'change', act_input ).addClass( both ).addClass('scm-ui-upload-input');
+					var $upload = $.UILabel( icon, upload, 'label' ).attr( 'id', 'upload-' + id + '-button' ).attr( 'for', 'upload-' + id + '-input' ).addClass( both ).addClass( cls ).addClass('scm-ui-button');
 
 
 					return $send.add( $file ).add( $upload );
