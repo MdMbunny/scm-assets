@@ -12,7 +12,7 @@ var PANELS = false;
 		
 	}
 
-	$.fn.showPanel = function( id, cls, content, dir, prev ){
+	$.fn.showPanel = function( id, cls, content, dir, prev, dur ){
 
 		var dir = ( dir ? dir : 'bottom' );
 		//var opp = oppositePos( dir );
@@ -105,18 +105,22 @@ var PANELS = false;
 				if( PANELS ) console.log( 'Show Panel: ' + $content.attr( 'id' ) );
 		}
 
+		var duration = dur || 600;
+
 		if( slide_anim )
-			$content.slideIn( $prev, movein, dir.substring( 6 ), '', 600, 'inout' );
+			$content.slideIn( $prev, movein, dir.substring( 6 ), '', duration, 'inout' );
 		else if( open_anim )
-			$content.openIn( movein, dir.substring( 5 ), '0', 600 );
+			$content.openIn( movein, dir.substring( 5 ), '0', duration );
 		else
-			$content.moveIn( movein, dir, '', 600 );
+			$content.moveIn( movein, dir, '', duration );
 
 		return $content;
 		
 	}
 
-	$.fn.hidePanel = function( dir ){
+	$.fn.hidePanel = function( dir, dur ){
+
+		var duration = dur || 600;
 
 		var dir = ( dir ? dir : 'bottom' );
 		//var mov = oppositePos( dir );
@@ -162,7 +166,7 @@ var PANELS = false;
 
 		}
 		//if( $content.hasClass( 'img' ) )
-			$content.moveOut( moveout, dir, 600 );
+			$content.moveOut( moveout, dir, duration );
 		//else
 			//$content.openOut( moveout, dir, 600 );
 

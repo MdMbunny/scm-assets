@@ -39,6 +39,51 @@ function enableScroll() {
 }
 
 // **********************************************
+// HTML
+// **********************************************
+
+
+var getit = function( tag, txt, cls, col, bg, data ){
+    return '<' + ( tag || 'p' ) + ' class="' + ( cls || 'text' ) + ( col || bg ? ' color-it' : '' ) + '"' + ( col ? ' data-color-it="' + col + '"' : '' ) + ( bg ? ' data-color-bg="' + bg + '"' : '' ) + ( data ? ' ' + data : '' ) + '>' + txt + '</' + ( tag || 'p' ) + '>';
+}
+
+var getColumn = function( col, cls ){
+    return getit( 'div', '', 'column-layout' + ( cls ? ' ' + cls : '' ), '', '', 'data-column="' + ( col != '11' ? 'middle' : 'solo' ) + '" data-column-width="' + ( col || '11' ) + '"' );
+}
+
+var getTitle = function( tit, tag, cls, col, bg, data ){
+    return getit( 'h' + ( tag || '1' ), tit, ( cls || 'title' ) + ( col || bg ? ' color-it' : '' ), col, bg, data );
+}
+
+var getSpan = function( txt, cls, col, bg, data ){
+    return getit( 'span', txt, cls, col, bg, data );
+}
+
+var getIcon = function( icon, cls, col, bg, data ){
+
+    var ico = '';
+    var second = '';
+    var html = '';
+    cls = ( cls ? ' ' + cls : '' );
+    data = ( col ? ' data-color-it="' + col + '"' : '' ) + ( bg ? ' data-color-bg="' + bg + '"' : '' ) + ( data ? ' ' + data : '' );
+    if( typeof icon != 'string' ){
+        ico = ' fa-stack-1x';
+        second = icon[0];
+        icon = icon[1];
+    }
+
+    if( icon.length > 1 )
+        html = '<i class="fa ' + icon + ico + cls + '"' + data + '></i>';
+    else if( icon )
+        html = '<span class="letter' + ico + cls + '"' + data + '>' + icon + '</span>';
+    
+    if( second ) html = '<span class="fa-stack fa-lg' + cls + '"' + data + '><i class="fa ' + second + ' fa-stack-2x">' + html + '</i></span>';
+
+    return html;
+
+}
+
+// **********************************************
 // COLORS
 // **********************************************
 

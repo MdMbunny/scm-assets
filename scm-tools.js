@@ -508,8 +508,6 @@ var $MAGIC;
 		else
 			$loading.hide().appendTo( this ).fadeIn( 'slow' ).addClass( 'onscreen' );
 
-		//return;
-
 		$.ajax({
 			url: url,
 			type: 'post',
@@ -2927,8 +2925,9 @@ var $MAGIC;
 
 		if( !colors ) return this;
 
-		var $elems = this.find( '[data-color-bg], [data-color-it], [data-color-line]' );
+		var $elems = $.unique( this.find( '[data-color-bg], [data-color-it], [data-color-line]' ) );
 		if( self ) $elems = $elems.add( this );
+
 
 		$elems.each( function(){
 			if( !$( this ).hasClass( 'color-it' ) ) $( this ).addClass( 'color-it' );
