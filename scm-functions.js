@@ -77,6 +77,38 @@
 		};
 	}
 
+	if ( !$.fn.minTop ) {
+
+		$.fn.minTop = function() {
+			var t = 1493747292;
+			this.each( function(){
+				t = Math.min( t, $(this).offset().top );
+			} );
+			return t;
+		}
+	}
+
+	if ( !$.fn.totalHeight ) {
+
+		$.fn.totalHeight = function() {
+			var h = 0;
+			this.each( function(){
+				h = h + $(this).outerHeight();
+			} );
+			return h;
+		}
+	}
+	if ( !$.fn.totalWidth ) {
+
+		$.fn.totalWidth = function() {
+			var w = 0;
+			this.each( function(){
+				w = w + $(this).outerWidth();
+			} );
+			return w;
+		}
+	}
+
 	if ( !$.fn.actualHeight ) {
 
 		$.fn.actualHeight = function() {
@@ -214,7 +246,7 @@
 					return this;
 
 				var equal 			= ( !equal_max ? equal_min : equal_max ),
-					current 	 	= ( !equal_max ? 0 : 9999999 ),
+					current 	 	= ( !equal_max ? 0 : 1493747292 ),
 					max 			= !current,
 					maxw 			= $.parsePx( $elem.data( 'max-width' ) ),
 					maxh 			= $.parsePx( $elem.data( 'max-height' ) ),
@@ -320,6 +352,29 @@
 		};
 	}
 
+	if ( !$.fn.sortChildren ) {
+		$.fn.sortChildren = function( attr, selector ) {
+			var $this = this;
+			selector = selector || '';
+			$this.children( selector ).sort(function( a, b ) {
+			    return +a.getAttribute( attr ) - +b.getAttribute( attr );
+			})
+			.appendTo($this);
+			return $this;
+		};
+	}
+	if ( !$.fn.sortIt ) {
+		$.fn.sortIt = function( attr, selector ) {
+			var $this = this;
+			selector = selector || '';
+			var $temp = $( '<div></div>' );
+			$this.sort(function( a, b ) {
+			    return +a.getAttribute( attr ) - +b.getAttribute( attr );
+			})
+			.appendTo($temp);
+			return $temp.children().detach();
+		};
+	}
 
 /*$.extend({
     replaceTag: function (currentElem, newTagObj, keepProps) {
@@ -358,6 +413,27 @@ if ( !$.fn.getText ) {
 	};
 }
 
+if ( !$.fn.appendText ) {
+	$.fn.appendText = function( txt ) {
+		return this.append( document.createTextNode( txt || '' ) );
+	};
+}
+
+if ( !$.fn.prependText ) {
+	$.fn.prependText = function( txt ) {
+		return this.prepend( document.createTextNode( txt || '' ) );
+	};
+}
+
+if ( !$.fn.removeText ) {
+	$.fn.removeText = function( txt ) {
+		return this.contents().filter(function(){
+		    return (this.nodeType == 3);
+		}).remove();
+	};
+}
+
+
 if ( !$.fn.prevLoop ) {
 	$.fn.prevLoop = function() {
 		var $prev = this.prev();
@@ -372,6 +448,27 @@ if ( !$.fn.nextLoop ) {
 		if( !$next.length )
 			$next = this.siblings().first();
 		return $next;
+	};
+}
+
+if ( !$.fn.changeIcon ) {
+	$.fn.changeIcon = function( icon ) {
+		
+		var $this = this;
+		if( !$this.hasClass( 'faicon' ) )
+			$this = $this.find( '.faicon' );
+
+		if( !$this.length ) return this;
+		
+		var cls = $this.attr('class').split(/\s+/);
+		for( var i in cls )
+			if( cls[i].indexOf( 'fa-' ) < 0 )				
+				$this.removeClass( cls[i] );
+
+		$this.addClass( 'fa' ).addClass( icon ).removeClass( 'faicon' ).FAFIX();
+
+		return this;
+
 	};
 }
 

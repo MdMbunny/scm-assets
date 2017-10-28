@@ -29,6 +29,7 @@
 			emptyrow: false,
 			width: '',
 			tip: '',
+			hints: '',
 		};
 
 		var options = $.extend( defaults, opt ),
@@ -77,7 +78,7 @@
 								width = ( value.width ? value.width : ( options.width ? options.width : '7.5em' ) ),
 								tip = value.tip;
 
-							cls = ( classes ? ' ' + classes : '' ) + ( value.icon ? ' pin' : '' ) + ( value.color ? ' ' + value.color : '' ) + ( nosort ? ' no-sort' : ' sort' ) + ( noedit ? ' no-edit' : ' edit' ) + ( noname ? ' no-name' : '' ) + ( tip ? ' has-tip' : '' );
+							cls = ( classes ? ' ' + classes : '' ) + ( value.icon ? ' pin' : '' ) + ( value.color ? ' ' + value.color : '' ) + ( nosort ? ' no-sort' : ' sort' ) + ( noedit ? ' no-edit' : ' edit' ) + ( noname ? ' no-name' : '' ) + ( tip ? ' has-tip has-ui-tip' : '' );
 
 							columns[col] = {
 								slug: key,
@@ -92,7 +93,7 @@
 								hide: hide,
 							};						
 							
-							$row.append( $( '<th style="' + ( hide ? 'display: none; ' : '' ) + 'min-width:' + width + ';" class="' + cls + '" data-auto-complete="' + auto + '" data-column-name="' + key + '" data-column-format="' + format + '" data-column-exception="' + exception + '" data-column-decimal="' + decimal + '" data-column-sort="' + !nosort + '" data-column-sortby="' + sort + '" data-column-edit="' + !noedit + '" data-cell="' + (row+1)*col + '" data-cell-row="' + row + '" data-cell-column="' + col + '"' + ( tip ? ' data-tooltip="span.tip" data-tooltip-direction="s" data-tooltip-class="tip txt-white bg-' + value.color + '"' : '' ) + '>' + icon + ( !noname ? name : '' ) + ( tip ? '<span class="tip">' + tip + '</span>' : '' ) + '</th>' ).data( 'hints', hints ).setTooltip() );
+							$row.append( $( '<th style="' + ( hide ? 'display: none; ' : '' ) + 'min-width:' + width + ';" class="' + cls + '" data-auto-complete="' + auto + '" data-column-name="' + key + '" data-column-format="' + format + '" data-column-exception="' + exception + '" data-column-decimal="' + decimal + '" data-column-sort="' + !nosort + '" data-column-sortby="' + sort + '" data-column-edit="' + !noedit + '" data-cell="' + (row+1)*col + '" data-cell-row="' + row + '" data-cell-column="' + col + '"' + ( tip ? ' data-tooltip="span.tip" data-tooltip-direction="s" data-tooltip-class="ui-tip"' : '' ) + '>' + icon + ( !noname ? name : '' ) + ( tip ? '<span class="tip txt-white bg-' + value.color + '">' + tip + '</span>' : '' ) + '</th>' ).data( 'hints', hints ).setTooltip() );
 							
 						}else{
 							$row.append( '<th style="min-width:' + width + ';"' + ( cls ? ' class="' + cls + '"' : '' ) + ' data-column-name="' + key + ' data-cell="' + (row+1)*col + '" data-cell-row="' + row + '" data-cell-column="' + col + '" >' + value + '</th>' );
@@ -380,7 +381,7 @@
 			case 'int':
 			case 'number':
 			case 'float':
-				val = val.replace( exception, '' );
+				val = val.toString().replace( exception, '' );
 				val = $.Numeric( val );
 			break;
 			case 'date':
@@ -410,6 +411,8 @@
 
 
 	$.fn.editCell = function ( cell ) {
+
+		this.validCell( cell );
 		
 		if( !cell && cell !== 0 ) return this;
 		var invert = cell instanceof jQuery;
@@ -462,6 +465,8 @@
 		$cell.text( val.toString() ).trigger( evt, [ val, $input ] );
 		if( evt.result === false )
 			$cell.html( orig );
+		else
+			$cell.html( evt.result );
 
 		return this;
 	}
@@ -554,29 +559,35 @@
 								arr = hints;
 							}
 
-						    $temp.autocomplete( {
-						    	source: arr,
-						    	appendTo: $parent,
-						    	minLength: 0,
-						    	select: function( event, ui ){
-						    		if( ui.item.value )
-							    		hideEditor( $temp, $cell, ui.item.value );
-						    	},
-						    	open: function( event, ui ){
-									$cell.trigger( 'open', [ $temp ] );
-						    	},
-						    	change: function( event, ui ){
-						    		$temp.validCell( $cell );
-						    	},
-						    	focus: function( event, ui ){
-						    		$temp.validCell( $cell );
-						    	}
-							});
+							if( arr ){
+
+							    $temp.autocomplete( {
+							    	source: arr,
+							    	appendTo: $parent,
+							    	minLength: 0,
+							    	select: function( event, ui ){
+							    		if( ui.item.value )
+								    		hideEditor( $temp, $cell, ui.item.value );
+							    	},
+							    	open: function( event, ui ){
+										$cell.trigger( 'open', [ $temp ] );
+							    	},
+							    	change: function( event, ui ){
+							    		$temp.validCell( $cell );
+							    	},
+							    	focus: function( event, ui ){
+							    		$temp.validCell( $cell );
+							    	}
+								});
 							
-							$('.ui-autocomplete').css({'min-width':$temp.outerWidth()});
-							
-							$temp.autocomplete('enable');
-							$temp.autocomplete( 'search', '' );
+								$('.ui-autocomplete').css({'min-width':$temp.outerWidth()});
+								
+								$temp.autocomplete('enable');
+								$temp.autocomplete( 'search', '' );
+
+							}else if( $temp.autocomplete( 'instance' ) ){
+								$temp.autocomplete('disable');
+							}
 
 						}else if( $temp.autocomplete( 'instance' ) ){
 							$temp.autocomplete('disable');

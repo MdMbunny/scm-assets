@@ -37,6 +37,12 @@
 
 		$body.setLocationData( window.location );
 		$body.disableIt();
+
+		$( document )
+			.on( 'mousedown', function(e) { $body.removeClass( 'keyboard' ) })
+        	.on( 'keydown', function(e) {
+				if( e.key == 'Tab' ) $body.addClass( 'keyboard' );
+			});
 	}
 
 	// *****************************************************
@@ -344,7 +350,27 @@
 	    	
 	    }
 		
-		// GOOGLE MAPS event
+		initMaps();
+		initCharts();
+
+		// WINDOW LOADED event
+		$window.off( 'load' ).on( 'load', function(e){
+			if( $body.attr( 'data-premature-action' ) ){
+				$.consoleDebug( DEBUG, '*** PREMATURE ACTION ***');
+				window.location.hash = '#content-loaded';
+				setTimeout(function(){
+					$body.removeAttr( 'data-premature-action' );
+					$body.setUrlData( window.location.pathname, $body.attr( 'data-anchor' ), $body.attr( 'data-params' ) );
+				}, 500);
+			}
+			$body.trigger( 'documentLoaded' );
+			$body.addClass('loaded');
+		} );
+	}
+
+	// GOOGLE MAPS event
+	var initMaps = function(){
+
 	    var $maps = $( '.scm-map' );
 	    if( $maps.length ){
 
@@ -372,19 +398,33 @@
 			$.consoleDebug( DEBUG, '- no maps events');
 		}
 
-		// WINDOW LOADED event
-		$window.off( 'load' ).on( 'load', function(e){
-			if( $body.attr( 'data-premature-action' ) ){
-				$.consoleDebug( DEBUG, '*** PREMATURE ACTION ***');
-				window.location.hash = '#content-loaded';
-				setTimeout(function(){
-					$body.removeAttr( 'data-premature-action' );
-					$body.setUrlData( window.location.pathname, $body.attr( 'data-anchor' ), $body.attr( 'data-params' ) );
-				}, 500);
-			}
-			$body.trigger( 'documentLoaded' );
-			$body.addClass('loaded');
-		} );
+	}
+
+	// GOOGLE CHARTS event
+	var initCharts = function(){
+		
+	    var $charts = $( '.scm-chart' );
+	    if( $charts.length ){
+
+	    	console.log(window.ifgooglecharts);  
+
+	    	if( !window.ifgooglecharts || typeof google != 'object' )
+                $.getScript( 'https://www.gstatic.com/charts/loader.js', function( data, textStatus, jqxhr ) {
+                     console.log('1');   
+                    window.ifgooglecharts = 1;
+                    google.charts.load( 'current', { packages: ['corechart'] } ); // variabile da elementi esistenti data-packages
+                    google.charts.setOnLoadCallback( function(){
+                    	console.log('e 2');
+                        $charts = $( '.scm-chart' );
+                        $charts.googleChart();
+                    } );
+
+                });
+
+	    	$.consoleDebug( DEBUG, '- charts events');
+	    }else{
+	    	$.consoleDebug( DEBUG, '- no charts events');
+	    }
 	}
 
 	// *****************************************************

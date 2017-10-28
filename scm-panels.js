@@ -12,7 +12,7 @@ var PANELS = false;
 		
 	}
 
-	$.fn.showPanel = function( id, cls, content, dir, prev, dur ){
+	$.fn.showPanel = function( id, cls, content, dir, cover, dur ){
 
 		var dir = ( dir ? dir : 'bottom' );
 		//var opp = oppositePos( dir );
@@ -61,7 +61,7 @@ var PANELS = false;
 
 			$prev.addClass( 'prev' ).disableIt( true );
 
-			if( prev )
+			if( cover )
 				$prev.trigger( 'coveringpanel', [ first, open ] );
 			else if( slide_anim )
 				$prev.trigger( 'slidingpanel', [ first, open ] );
@@ -77,7 +77,7 @@ var PANELS = false;
 			
 			var $img = $(this);
 			var time = ( $img.data( 'preload' ) ? parseInt( $img.data( 'preload' ) ) : 500 );
-			$img.removeClass('preload').css({'margin-top':'-5em', 'margin-bottom':'5em', 'opacity':'0'}).delay(100).show().animate({'opacity':'1', 'margin-top':'0em', 'margin-bottom':'0em'}, time ).siblings('.scm-loading').remove();
+			$img.removeClass('preload').show();//.css({/*'margin-top':'-5em', 'margin-bottom':'5em', */'opacity':'0'}).delay(150).show().animate({'opacity':'1'/*, 'margin-top':'0em', 'margin-bottom':'0em'*/}, time ).siblings('.scm-loading').remove();
 			
 		});
 
@@ -90,7 +90,7 @@ var PANELS = false;
 			if( open ){
 				$( 'html, body' ).disableIt( true );
 			}else if( $prev.length ){
-				if( prev ){
+				if( cover ){
 					$prev.trigger( 'coverpanel', [ first, open ] );
 					if( PANELS ) console.log( 'Cover Panel: ' + $prev.attr( 'id' ) );
 				}else{
@@ -160,6 +160,7 @@ var PANELS = false;
 
 			}
 			$content.trigger( 'hidepanel', [ close ] );
+			
 			if( PANELS ) console.log( 'Hide Panel: ' + $content.attr( 'id' ) );
 
 			$content.remove();

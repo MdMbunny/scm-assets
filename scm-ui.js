@@ -16,9 +16,14 @@
 		opt = ( opt ? opt : ( id && typeof id != 'string' ? id : {} ) );
 
 		var options = $.extend( defaults, opt );
-		var $ui = $( '<div></div>' ).attr( 'id', options.id ).addClass( 'scm-ui' ).addClass( options.classes ).css( options.css );
+		
+		var $ui = $( '#' + options.id );
+		if( !$ui.length )
+			$ui = $( '<div></div>' ).attr( 'id', options.id ).addClass( 'scm-ui' ).addClass( options.classes ).css( options.css ).objToData( options.data );
+		else
+			$ui.empty();
 
-		return $ui.objToData( options.data );
+		return $ui;
 	}
 	$.fn.addUI = function( opt, prepend ){
 
@@ -60,14 +65,13 @@
 				$content = $.UIContent( options );
 
 			if( prepend )
-				children.length ? this.children( '.scm-ui-content' ).last().before( $content ) : this.prepend( $content );
+				this.prepend( $content );
 			else
-				children.length ? this.children( '.scm-ui-content' ).first().after( $content ) : this.append( $content );
+				this.append( $content );
 
 			return $content;
 
 		}
-
 
 			// ********************************************** LABEL
 
@@ -75,64 +79,152 @@
 				cls = ( cls ? cls : ( tag ? tag : 'label' ) );
 				tag = ( tag ? tag : 'span' );
 				text = ( text ? text : '' );
+
+				icon = ( icon == 'none' ? '' : icon );
 				
 				var html = getIcon( icon ) + text;
 
-				return $( '<' + tag + ' class="scm-ui-label">' + html + '</' + tag + '>' ).addClass( cls ).addClass( text ? ' text' : ' icon' );
+				return $( '<' + tag + ' class="scm-ui-label">' + html + '</' + tag + '>' ).addClass( cls ).addClass( text ? ' text' : ( icon ? ' icon' : ' noicon' ) );
+			}
+			$.fn.UILabelText = function( txt ){
+				return this.each( function(){
+
+					var $this = $(this);
+					$this.removeText();
+					if( txt )
+						$this
+							.appendText( txt )
+							.addClass( 'text' )
+							.removeClass( 'icon' )
+							.removeClass( 'noicon' );
+					else
+						$this
+							.addClass( $this.children( '.faicon' ).length ? 'icon' : 'noicon' )
+							.removeClass( 'text' );
+
+				} );
 			}
 
 			// ********************************************** TEXT INPUT
 
-			$.UIInput = function( action, icon, text, cls ){
+			$.UIInput = function( action, icon, text, cls, min, max ){
 
-				/*cls = ( cls ? cls : '' );
-				text = ( text ? text : '' );
-
-				var html = getIcon( icon );*/
 				var type = 'text';
-				if( $.isNumeric( text ) )
+				if( typeof text == 'number' ){
 					type = 'number'
+					min = ( undefined !== min ? min : 0 );
+				}
 
-				var $input = $( '<input type="' + type + '" name="' + type + '-input" class="' + type + '-input" value="' + text + '">' );
-
-				//var $button = $( '<button class="scm-ui-button scm-ui-input">' + html + input + '</button>' ).addClass( cls );
+				var $input = $( '<input type="' + type + '" name="' + type + '-input" class="' + type + '-input" value="' + text + '"' + ( undefined !== min ? ' min="' + min + '"' : '' ) + ( undefined !== max ? ' max="' + max + '"' : '' ) + '>' );
 
 				var $button = $.UILabel( icon, '', 'button', 'scm-ui-button scm-ui-input scm-ui-comp' ).addClass( cls ).prepend( $input );
 
-				$button.click( action );
-				$input.click( function(e){ e.stopPropagation(); } );
+				//if( icon ){
+					$button.on( 'click', action );
+					$button.on( 'focusout', function(e){
+						$button.removeClass( 'focus' );
+					});
+					$input.on( 'focus', function(e){
+						$button.addClass( 'focus' );
+					});
+					$input.on( 'focusout', function(e){
+						if( !icon )
+							$button.trigger( 'click' );
+					});
+					$input.on( 'click keyup', function(e){
+						e.stopPropagation();
+						e.preventDefault();
+						if( e.key == 'Enter' ){
+							$button.trigger( 'click' ).next().focus();
+						}else if ( e.key ){
+							$button.trigger( 'change', [ $input.val() ] );
+						}
+					} );
+					//$input.on( 'change', function(){  } );
+				//}else{
+					//$input.on( 'change', action );
+				//}
 				
 				return $button;
 
 			}
+			$.fn.UIInput = function(){
+				return this.children( 'input' );
+			}
+			$.fn.UIInputValue = function( val, trigger ){
+				if( undefined === val ){
+					val = $(this).UIInput().val();
+					if( $(this).UIInput().attr( 'type' ) == 'number' ) val = parseFloat( val );
+					return val;
+				}
 
-			$.UISelectOption = function( value, text, id ){
-
-				return $( '<option value="' + value + '" id="' + ( id || value ) + '">' + ( text || value ) + '</option>' );
+				$(this).UIInput().val( val );
+				if( trigger )
+					$(this).trigger( 'click' );
+				
+				return $(this);
 
 			}
 
-			$.UISelect = function( action, icon, val, cls, opts ){
+			// ********************************************** SELECT INPUT
+
+			$.UISelect = function( action, icon, val, cls, opts, create ){
 
 				var $select = $( '<select></select>' );
 
 				var $button = $.UILabel( icon, '', 'button', 'scm-ui-button scm-ui-select scm-ui-comp' ).addClass( cls ).prepend( $select );
 
-				if( opts ){
-			
-					for(var k in opts) {
-						$select.append( $.UISelectOption( opts[k].value, opts[k].text, opts[k].id ) );
-					};
-				}
+				$button.UISelectOptions( opts );
 
-				$select.off( 'change' );
+				$select.off( 'change' ).on( 'change', action );
+				$button.on( 'focusout', function(e){
+					$button.removeClass( 'focus' );
+				});
+				$select.on( 'focus', function(e){
+					$button.addClass( 'focus' );
+				});
+
 				if( val )
 					$select.val( val );
-				
-				$select.on( 'change', action );
+				if( create )
+					$select.trigger( 'change' );
 
 				return $button;
 
+			}
+			$.fn.UISelect = function(){
+				return this.children( 'select' );
+			}
+			$.UISelectOption = function( value, text, id ){
+
+				return $( '<option value="' + value + '" id="' + ( id || value ) + '">' + ( text || value ) + '</option>' );
+
+			}
+			
+			$.fn.UISelectOptions = function( opts, keep ){
+				return this.each( function(){
+					var $select = $(this).children( 'select' );
+					if( keep ) $select.children().not(':first').remove();
+					else $select.empty();
+					if( opts ){
+				
+						for(var k in opts) {
+							$select.append( $.UISelectOption( opts[k].value, opts[k].label, opts[k].id ) );
+						};
+					}
+				});
+
+			}
+			$.fn.UISelectValue = function( val, trigger ){
+				if( undefined === val )
+					return $(this).UISelect().val();
+				
+				$(this).UISelect().val( val );
+				if( trigger )
+					$(this).UISelect().trigger( 'change' );
+
+				return $(this);
+				
 			}
 
 			// ********************************************** BUTTON
@@ -143,8 +235,8 @@
 
 				if( typeof action == 'string' )
 					$button.attr( 'data-href', action );
-				else
-					$button.click( action );
+				else if( action )
+					$button.on( 'click', action );
 				
 				return $button;
 			}
@@ -161,8 +253,8 @@
 
 					var act_input = function(e){
 
-						var $but_upload = $( this ).siblings( '#upload-' + id );
-						var $lab_upload = $( this ).siblings( '#upload-' + id + '-button' );
+						var $but_upload = $( this ).siblings( '#' + id );
+						var $lab_upload = $( this ).siblings( '#' + id + '-button' );
 
 						var cache = $upload.children();
 
@@ -178,13 +270,184 @@
 					
 					}
 
-					var $send = $.UIButton( action, 'fa-upload', send ).attr( 'id', 'upload-' + id ).addClass( both ).addClass( cls ).addClass( 'hidden disabled' ).addClass('scm-ui-button');
-					var $file = $( '<input id="upload-' + id + '-input" type="file" name="upload-' + id + '-input" />' ).on( 'change', act_input ).addClass( both ).addClass('scm-ui-upload-input');
-					var $upload = $.UILabel( icon, upload, 'label' ).attr( 'id', 'upload-' + id + '-button' ).attr( 'for', 'upload-' + id + '-input' ).addClass( both ).addClass( cls ).addClass('scm-ui-button');
+					var $send = $.UIButton( action, 'fa-upload', send ).attr( 'id', id ).addClass( both ).addClass( cls ).addClass( 'hidden disabled' ).addClass('scm-ui-button');
+					var $file = $( '<input id="' + id + '-input" type="file" name="' + id + '-input" />' ).on( 'change', act_input ).addClass( both ).addClass('scm-ui-upload-input');
+					var $upload = $.UILabel( icon, upload, 'label' ).attr( 'id', id + '-button' ).attr( 'for', id + '-input' ).addClass( both ).addClass( cls ).addClass('scm-ui-button');
 
 
 					return $send.add( $file ).add( $upload );
 				};
+
+		// ********************************************** TOGGLE
+
+			$.UIToggle = function( action, active, icona, iconb, texta, textb, cls ){
+
+				active = active === true;
+
+				var fun = 'UIToggle';
+				if( action && typeof action == 'string' ){
+					fun = fun + capitalizeFirstLetter( action );
+					action = false;
+				}
+
+				return $.UIButton( action, ( active || !iconb ? icona : iconb ), ( active || !textb ? texta : textb ), cls )
+					.addClass( 'scm-ui-toggle' )
+					.toggleClass( 'off', !active )
+					.toggleClass( 'on', active )
+					.data( 'icon-on', icona )
+					.data( 'icon-off', iconb || icona )
+					.data( 'text-on', texta )
+					.data( 'text-off', textb || texta )
+					.on( 'click', function( e ){
+						if( !$(this).hasClass('disabled') ){
+
+							$(this)
+								[fun]()
+								.trigger( 'toggle', [ $(this).hasClass( 'on' ) ] );
+						}
+					} );
+
+			}
+			$.UIToggleButtonOn = function( group, action, active, icona, iconb, texta, textb, cls ){
+				var $toggle = $.UIToggle( action, active, icona, iconb, texta, textb, cls ).data( 'toggle-group', group ).data( 'toggle-group-type', 'on' );
+				group.each( function(){
+					$(this).on( 'toggled', function(e,on){
+						if( !on ) $toggle.UIToggle( false, true )
+					});
+				});
+				return $toggle;
+			}
+
+			$.fn.UIToggleGroup = function( gr, ty ){
+
+				var $group = gr || $( this.data( 'toggle-group' ) ).not( '.no-toggle' );
+				if( $group.length ){
+					var $act = $group.filter( '.' + ( ( ty || this.data( 'toggle-group-type' ) ) == 'on' ? 'off' : 'on' ) );
+					
+					if( $act.length ){
+						$act.each( function(){ $(this).UIToggle() } );
+						this.UIToggle( true, false );
+					}else{
+						$group.each( function(){ $(this).UIToggle() } );
+						this.UIToggle( false, true );
+					}
+
+				}
+
+				return this;
+
+			}
+			$.fn.UIToggleGroups = function( gr, ty ){
+
+				var $group = gr || $( this.data( 'toggle-group' ) ).not( '.no-toggle' );
+				if( $group.length ){
+					var $act = $group.filter( '.' + ( ( ty || this.data( 'toggle-group-type' ) ) == 'on' ? 'off' : 'on' ) );
+
+					var $off = $group.siblings( '.off' ).not( '.no-toggle' ).not( $group ).not( this );
+					var $on = $group.siblings( '.on' ).not( '.no-toggle' ).not( $group ).not( this );
+					
+					if( $act.length ){
+						$act.each( function(){ $(this).UIToggle() } );
+						$on.UIToggle();
+					}else if( $off.length ){
+						$off.UIToggle();
+					}else if( $on.length ){
+						$on.UIToggle();
+					}
+					this.UIToggle( true, false );
+
+				}
+
+				return this;
+
+			}
+			$.fn.UIToggleUnique = function(){
+
+				this.siblings( '.on' ).not( '.no-toggle' ).UIToggle();
+				this.UIToggle();
+
+				return this;
+			}
+			$.fn.UIToggleSiblings = function(){
+
+				var $off = this.siblings( '.off' ).not( '.no-toggle' );
+				var $on = this.siblings( '.on' ).not( '.no-toggle' );
+
+				if( this.hasClass('on') ){
+					if( $off.length && !$on.length )
+						$off.UIToggle();
+					else
+						$on.UIToggle();
+				}else{
+					$on.UIToggle();
+					this.UIToggle();
+				}
+
+				return this;
+			}
+			$.fn.UIToggle = function( on, off ){
+				
+				on = ( undefined !== on ? on : this.hasClass( 'off' ) );
+				off = ( undefined !== off ? off : this.hasClass( 'on' ) );
+				this
+					.toggleClass( 'off', off )
+					.toggleClass( 'on', on );
+
+				if( this.data( 'text-on' ) != this.data( 'text-off' ) ){
+					this.removeText();
+					this.appendText( !on && this.data( 'text-off' ) ? this.data( 'text-off' ) : this.data( 'text-on' ) );
+				}
+
+				if( this.data( 'icon-on' ) != this.data( 'icon-off' ) ){
+					this
+						.find( '.faicon' )
+						.removeClass()
+						.addClass( 'fa ' + ( !on && this.data( 'icon-off' ) ? this.data( 'icon-off' ) : this.data( 'icon-on' ) ) )
+						.FAFIX();
+				}
+
+				this.trigger( 'toggled', [ this.hasClass( 'on' ) ] );
+				
+				return this;
+			}
+			$.fn.UIToggleValue = function( val ){
+				if( undefined !== val )
+					return $(this).UIToggle( val, !val );
+				return this.hasClass( 'on' );
+			}
+
+
+		// ********************************************** CHECKBOX INPUT
+
+		$.UICheckbox = function( action, active, icona, iconb, texta, textb, cls, append ){
+
+			var $input = $( '<input type="checkbox" name="checkbox-input" class="checkbox-input" value="' + ( !active ? 'checked' : '' ) + '"' + ( !active ? ' checked' : '' ) + '>' );
+			
+			var $button = $.UIToggle( action, active, icona, iconb, texta, textb, cls )
+				.addClass( 'scm-ui-input' );
+				//.addClass( 'scm-ui-comp' );
+			
+			if( append )
+				$button.append( $input.addClass( 'append' ) ).addClass( 'input-append' );
+			else
+				$button.prepend( $input.addClass( 'prepend' ) ).addClass( 'input-prepend' );
+
+			$button.on( 'toggle', function(e,on){
+
+				$input.attr( 'checked', on );
+				$input.attr( 'value', ( on ? 'checked' : '' ) );
+
+			});
+			/*$input.on( 'change click keyup', function(e){
+				e.stopPropagation();
+				e.preventDefault();
+			});*/
+
+			return $button;
+		}
+		$.fn.UICheckbox = function(){
+			return this.children( 'input' );
+		}
 
 		// ********************************************** CONTAINER TABS
 
@@ -194,15 +457,14 @@
 				id: ( typeof id == 'string' ? id : 'scm-ui-tabs' ),
 				classes: '',
 				css: {},
-				position:'top',
+				//position:'top',
 			};
 
-			opt = ( opt ? opt : ( id && typeof id != 'string' ? id : {} ) );
+			opt = opt || ( id && typeof id != 'string' ? id : {} );
 
-			var options = $.extend( defaults, opt ),
-				$tabs = $.UIContent( opt ).addClass( 'scm-ui-tabs' ).attr( 'data-from', options.position );
+			var options = $.extend( defaults, opt );
 
-			return $tabs;
+			return $tabs = $.UIContent( options ).addClass( 'scm-ui-tabs' );//.attr( 'data-from', options.position );
 
 		}
 		$.fn.addUITabs = function( opt, prepend ){
@@ -215,30 +477,26 @@
 
 		// ********************************************** TAB
 
-			$.UITab = function( tab, icon, text, cls ){
+			$.UITab = function( tab, act, icon, text, cls ){
 				var action = function(e){
-
-					e.preventDefault();
-					e.stopPropagation();
 
 					var $tab = $(this);
 
-					if( $tab.hasClass('disabled') ){
+					if( $tab.hasClass('off') ){
 						$tab.disableUITab();
 					}else{
 						$tab.enableUITab();
 					}
 				}
-
-				return $.UIButton( action, icon, text, cls ).addClass( 'scm-ui-tab' ).attr( 'data-tab', tab );
+				return $.UIToggle( action, act || false, icon, '', text, '', cls ).addClass( 'scm-ui-tab' ).attr( 'data-tab', tab );
 
 			}
 			$.fn.enableUITab = function( complete ){
 				
 				var $this = this;
-				var $ui = this.parents( '.scm-ui' );
+				var $ui = this.parents( '.scm-ui' ).addClass( 'force-show' );
 
-				var $active = this.siblings( '.disabled' );
+				var $active = this.siblings( '.scm-ui-tab.off' );
 
 				if( $active.length ){
 
@@ -250,9 +508,12 @@
 				var $wrap = $ui.find( '.scm-ui-content#' + this.data('tab') );
 				if( $wrap.length ){
 
-					var dir = ( this.parent().data( 'from' ) ? this.parent().data( 'from' ) : 'top' );
+					var dir = ( this.parent().data( 'from' ) || 'top' );
 					var anim = {};
 					anim[dir] = 0;
+
+					if( dir == 'top' ) $wrap.detach().prependTo( $ui );
+					else if( dir == 'bottom' ) $wrap.detach().appendTo( $ui );
 
 					$wrap.addClass( 'active' ).show();
 
@@ -262,7 +523,7 @@
 
 				}
 
-				$this.addClass( 'disabled' );
+				//$this.addClass( 'off' );
 				
 				return this;
 
@@ -270,29 +531,182 @@
 			$.fn.disableUITab = function( complete ){
 				
 				var $this= this;
-				var $ui = this.parents( '.scm-ui' );
+				var $ui = this.parents( '.scm-ui' ).removeClass( 'force-show' );
 				var $wrap = $ui.find( '.scm-ui-content.active#' + this.data('tab') );
 
 				if( $wrap.length ){
 
-					var dir = ( this.parent().data( 'from' ) ? this.parent().data( 'from' ) : 'top' );
+					var dir = ( this.parent().data( 'from' ) || 'top' );
 					var anim = {};
 					anim[dir] = - $wrap.outerHeight();
 					$ui.animate( anim, 300, 'easeOutSine', function(){
 						$wrap.hide().removeClass( 'active' );
 						$ui.css( dir, 0 );
-						$this.removeClass( 'disabled' );
+						$this.removeClass( 'off' ).addClass( 'on' );
 						if( $.isFunction( complete ) ) complete();
 					} );
 
 				}else{
 
-					this.removeClass( 'disabled' );
+					this.removeClass( 'off' ).addClass( 'on' );
 
 				}
 				
 				return this;
 			}
 
+	// ********************************************** SLIDER
+
+	$.UISlider = function( id, minStep, maxStep, ruler, fun, values, step ){
+
+		if( !$.functionExists( 'slider' ) )
+			return '';
+
+		var defaults = {
+			id: ( typeof id == 'string' ? id : 'scm-ui-slider' ),
+			classes: '',
+			css: {},
+			data: {},
+		};
+
+		var options = $.extend( defaults, ( id && typeof id != 'string' ? id : {} ) );
+
+		var $slider = $.UIContent( options )
+			.addClass( 'scm-ui-slider' )
+			.data( 'start', minStep )
+			.data( 'end', maxStep );
+
+		var $slide = $( '<div class="scm-ui-slide"></div>' )
+			.slider({
+		        min: minStep,
+		        max: maxStep,
+		        animate: true,
+		        range: true,
+		        step: ( step || .1 ),
+		        values: values || [ minStep, maxStep ],
+		        stop: fun,
+		    });
+
+		$slider.append( $slide );
+
+		if( ruler ){
+			var $ruler = $( '<div class="ui-ruler"></div>' );
+			for (var i = minStep-1 || 0; i < maxStep; i++) {
+				if( ruler == 'mini' && i )
+					for (var j = 0; j < 4; j++) 
+						$ruler.append( '<span class="ruler mini"></span>' );
+	            var num = i+1-(i*.5);
+	            $ruler.append( '<span class="ruler ' + ( (i+1) % 2 ? 'odd' : 'even' ) +'">' + num + '</span>' );
+	        }
+			$slider.append( $ruler );
+		}
+
+		return $slider;
+	}
+	$.fn.UISliderReset = function( val ){
+		return this.setUISliderValues( [ this.data('start'), this.data('end') ] );
+	}
+
+	$.fn.isUISliderReset = function(){
+		var values = this.getUISliderValues();
+		return values[0] == this.data( 'start' ) && values[1] == this.data( 'end' );
+	}
+
+	$.fn.getUISliderValues = function(){
+		var $slide = this.children( '.scm-ui-slide' );
+		return $slide.slider( 'values' );
+	}
+	$.fn.setUISliderValues = function( val ){
+		var $slide = this.children( '.scm-ui-slide' );
+		$slide.slider( 'values', val )
+		return this;
+	}
+
+	// **********************************************
+	// GET UI Tools
+	// **********************************************
+
+	// ********************************************** SORTABLE
+
+	$.fn.UISortableOrderAdjust = function(){
+        return this.each( function(){
+            $(this).attr( 'data-order', $(this).index() + 1 );
+        });
+    }
+    $.fn.UISortableOrder = function(){
+        return this.each( function(){
+            if( !$(this).attr( 'data-order' ) )
+                $(this).attr( 'data-order', $(this).index() + 1 );
+        });
+    }
+    $.fn.UISortable = function( action, off ){
+
+    	if( !$.functionExists( 'sortable' ) )
+			return this;
+
+        var $active = $(this).children().UISortableOrder().end().sortChildren( 'data-order' );
+        var $inactive = off;
+
+        //$active.children().UISortableOrderAdjust();
+
+        if( action ) $active.on( 'sorted', action );
+
+        $active.sortable({
+            connectWith: $inactive || false,
+            cancel: ':input,a',
+            containment: $active.parent(),
+            scroll: false,
+            revert: true,
+            over: function(e,ui){
+                $(this).addClass( 'sortover' );
+            },
+            out: function(e,ui){
+                $(this).removeClass( 'sortover' );
+            },
+            start: function(e,ui){
+                $('.tooltip').css( 'visibility', 'hidden' );
+                ui.item.parents('.scm-ui').addClass( 'sorting' );
+            },
+            stop: function(e,ui){
+                ui.item.parents('.scm-ui').removeClass( 'sorting' );
+                if( !ui.item.parent().is( $active ) ){
+                    ui.item.addClass( 'off' );
+                    ui.item.attr( 'data-order', 0 );
+                }else{
+                    ui.item.siblings().andSelf().UISortableOrderAdjust();
+                }
+                $active.trigger( 'sorted' );
+            }
+        });
+                
+        if( $inactive )
+            $inactive.sortable({
+                connectWith: $active,
+                cancel: ':input,a',
+                containment: $active.parent(),
+                scroll: false,
+                revert: true,
+                over: function(e,ui){
+                    $(this).addClass( 'sortover' );
+                },
+                out: function(e,ui){
+                    $(this).removeClass( 'sortover' );
+                },
+                start: function(e,ui){
+                    $('.tooltip').css( 'visibility', 'hidden' );
+                    ui.item.parents('.scm-ui').addClass( 'sorting' );
+                },
+                stop: function(e,ui){
+                    ui.item.parents('.scm-ui').removeClass( 'sorting' );
+                    if( ui.item.parent().is( $active ) ){
+                        ui.item.removeClass( 'off' );
+                        ui.item.siblings().andSelf().UISortableOrderAdjust();
+                    }
+                    $active.trigger( 'sorted' );
+                }
+            });
+        
+        return this;
+    }
 
 } )( jQuery );

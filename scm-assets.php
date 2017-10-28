@@ -3,7 +3,7 @@
  * Plugin Name:         SCM Assets
  * Plugin URI:          http://studiocreativo-m.it/
  * Description:         SCM Javascript Integration
- * Version:             1.9.7
+ * Version:             1.9.8
  * Author:              Studio Creativo M
  * Author URI:          http://studiocreativo-m.it/
  * License:             http://www.gnu.org/licenses/gpl-3.0.html
@@ -229,7 +229,8 @@
             // Tooltip --- You could replace it (probably with _ScrollMagic_)
             $tooltip = apply_filters( 'scm_assets_filter_block_tooltip', false );
             if( !$tooltip && $scm_assets_settings['tooltip'] ){
-                wp_register_script( 'tooltip',  SCM_ASSETS_URI_ASSETS . 'jquery.powertip-1.2.0/jquery.powertip.min.js', array( 'imagesloaded' ), null, true );
+                wp_register_script( 'tooltip',  SCM_ASSETS_URI_ASSETS . 'jquery.powertip-1.3.0/jquery.powertip.min.js', array( 'imagesloaded' ), null, true );
+                //wp_register_script( 'tooltip',  SCM_ASSETS_URI_ASSETS . 'jquery.powertip-1.2.0/jquery.powertip.min.js', array( 'imagesloaded' ), null, true );
                 wp_enqueue_script( 'tooltip' );
             }
 
@@ -364,14 +365,41 @@
         }
     }
 
+    /*function add_async_attribute($tag, $handle) {
+        if ( 'font-awesome' !== $handle && 'font-awesome-shims' !== $handle )
+            return $tag;
+        return str_replace( ' src', ' defer src', $tag );
+    }
+    add_filter('script_loader_tag', 'add_async_attribute', 10, 2);*/
+
     // fontawesome
     if ( ! function_exists( 'scm_assets_register_fontawesome' ) ) {
         function scm_assets_register_fontawesome() {
 
-            //wp_register_script('font-awesome', 'https://use.fontawesome.com/ee6c1736d8.js', null, null, true );
-            //wp_enqueue_script( 'font-awesome' );
-            wp_register_style('font-awesome', SCM_ASSETS_URI_ASSETS . 'font-awesome-4.7.0/css/font-awesome.min.css', false, null );
-            wp_enqueue_style( 'font-awesome' );   
+            /*wp_register_script('font-awesome-shims', SCM_ASSETS_URI_ASSETS . 'font-awesome-5.0.0/v4-shims.min.js', null, null, false );
+            wp_enqueue_script( 'font-awesome-shims' );
+            wp_register_script('font-awesome', SCM_ASSETS_URI_ASSETS . 'font-awesome-5.0.0/bundles/everything.min.js', null, null, false );
+            wp_enqueue_script( 'font-awesome' );*/
+
+            //wp_register_style('font-awesome', SCM_ASSETS_URI_ASSETS . 'font-awesome-4.7.0/css/font-awesome.min.css', false, null );
+            //wp_enqueue_style( 'font-awesome' );
+
+            wp_register_style('font-awesome-solid', SCM_ASSETS_URI_ASSETS . 'font-awesome-5.0.0/css/fontawesome-pro-solid.css', false, null );
+            wp_enqueue_style( 'font-awesome-solid' );
+
+            wp_register_style('font-awesome-regular', SCM_ASSETS_URI_ASSETS . 'font-awesome-5.0.0/css/fontawesome-pro-regular.css', false, null );
+            wp_enqueue_style( 'font-awesome-regular' );
+
+            wp_register_style('font-awesome-light', SCM_ASSETS_URI_ASSETS . 'font-awesome-5.0.0/css/fontawesome-pro-light.css', false, null );
+            wp_enqueue_style( 'font-awesome-light' );
+
+            wp_register_style('font-awesome-brand', SCM_ASSETS_URI_ASSETS . 'font-awesome-5.0.0/css/fontawesome-pro-brands.css', false, null );
+            wp_enqueue_style( 'font-awesome-brand' );
+
+            wp_register_style('font-awesome', SCM_ASSETS_URI_ASSETS . 'font-awesome-5.0.0/css/fontawesome-pro-core.css', false, null );
+            wp_enqueue_style( 'font-awesome' );
+
+
 
         }
     }

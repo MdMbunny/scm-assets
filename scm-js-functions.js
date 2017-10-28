@@ -2,10 +2,6 @@
 // SCROLL
 // **********************************************
 
-// left: 37, up: 38, right: 39, down: 40,
-// spacebar: 32, pageup: 33, pagedown: 34, end: 35, home: 36
-var keys = {37: 1, 38: 1, 39: 1, 40: 1};
-
 function preventDefault(e) {
   e = e || window.event;
   if (e.preventDefault)
@@ -13,7 +9,10 @@ function preventDefault(e) {
   e.returnValue = false;  
 }
 
+// left: 37, up: 38, right: 39, down: 40,
+// spacebar: 32, pageup: 33, pagedown: 34, end: 35, home: 36
 function preventDefaultForScrollKeys(e) {
+    var keys = {37: 1, 38: 1, 39: 1, 40: 1};
     if (keys[e.keyCode]) {
         preventDefault(e);
         return false;
@@ -42,24 +41,41 @@ function enableScroll() {
 // HTML
 // **********************************************
 
+function clearSelection() {
+    if ( document.selection ) {
+        document.selection.empty();
+    } else if ( window.getSelection ) {
+        window.getSelection().removeAllRanges();
+    }
+}
 
-var getit = function( tag, txt, cls, col, bg, data ){
+function getit( tag, txt, cls, col, bg, data ){
     return '<' + ( tag || 'p' ) + ' class="' + ( cls || 'text' ) + ( col || bg ? ' color-it' : '' ) + '"' + ( col ? ' data-color-it="' + col + '"' : '' ) + ( bg ? ' data-color-bg="' + bg + '"' : '' ) + ( data ? ' ' + data : '' ) + '>' + txt + '</' + ( tag || 'p' ) + '>';
 }
 
-var getColumn = function( col, cls ){
+function getImg( url, cls, alt, data ){
+    return '<img src="' + ( url || '' ) + '" class="' + ( cls || 'image' ) + '"' + ( alt ? ' alt="' + alt + '"' : '' ) + ( data ? ' ' + data : '' ) + '>';
+}
+
+function getColumn( col, cls ){
     return getit( 'div', '', 'column-layout' + ( cls ? ' ' + cls : '' ), '', '', 'data-column="' + ( col != '11' ? 'middle' : 'solo' ) + '" data-column-width="' + ( col || '11' ) + '"' );
 }
 
-var getTitle = function( tit, tag, cls, col, bg, data ){
+function getTitle( tit, tag, cls, col, bg, data ){
     return getit( 'h' + ( tag || '1' ), tit, ( cls || 'title' ) + ( col || bg ? ' color-it' : '' ), col, bg, data );
 }
 
-var getSpan = function( txt, cls, col, bg, data ){
+function getSpan( txt, cls, col, bg, data ){
     return getit( 'span', txt, cls, col, bg, data );
 }
 
-var getIcon = function( icon, cls, col, bg, data ){
+function getDiv( cls, col, bg, data ){
+    return getit( 'div', '', cls, col, bg, data );
+}
+
+function getIcon( icon, cls, col, bg, data, tag ){
+
+    if( undefined === icon || !icon ) return '';
 
     var ico = '';
     var second = '';
@@ -75,9 +91,9 @@ var getIcon = function( icon, cls, col, bg, data ){
     if( icon.length > 1 )
         html = '<i class="fa ' + icon + ico + cls + '"' + data + '></i>';
     else if( icon )
-        html = '<span class="letter' + ico + cls + '"' + data + '>' + icon + '</span>';
+        html = '<' + ( tag || 'span' ) + ' class="letter' + ico + cls + '"' + data + '>' + icon + '</' + ( tag || 'span' ) + '>';
     
-    if( second ) html = '<span class="fa-stack fa-lg' + cls + '"' + data + '><i class="fa ' + second + ' fa-stack-2x">' + html + '</i></span>';
+    if( second ) html = '<' + ( tag || 'span' ) + ' class="fa-stack fa-lg' + cls + '"' + data + '><i class="fa ' + second + ' fa-stack-2x">' + html + '</i></' + ( tag || 'span' ) + '>';
 
     return html;
 
@@ -88,6 +104,7 @@ var getIcon = function( icon, cls, col, bg, data ){
 // **********************************************
 
 function rgbToHex(rgb) {
+    if( typeof rgb == 'string' ) return rgb;
     return "#" + ((1 << 24) + (rgb[0] << 16) + (rgb[1] << 8) + rgb[2]).toString(16).slice(1);
 }
 
@@ -162,11 +179,28 @@ function colorsContrast(F, B){
     return [bright, diff];
 }
 
+function getHexBrightness( color ){
+
+    color = color.replace( '#', '' );
+    var r = parseInt( color.substring( 0, 2 ), 16 );
+    var g = parseInt( color.substring( 2, 4 ), 16 );
+    var b = parseInt( color.substring( 4, 6 ), 16 );
+
+    return r*2 + g*2 + b;
+}
+
+function brighterColor( hexa, hexb ){
+    var cola = getHexBrightness( hexa );
+    var colb = getHexBrightness( hexb );
+    if( cola > colb ) return hexa;
+    return hexb;
+}
+
 // **********************************************
 // IMG
 // **********************************************
 
-var isPortrait = function( img ){
+function isPortrait( img ){
     var w = img.naturalWidth || img.width,
         h = img.naturalHeight || img.height;
     return ( h > w );
@@ -178,7 +212,15 @@ var isPortrait = function( img ){
 
 // Utils
 
-var formatDate = function( date, dsep, sep, hsep ){
+function isNumeric(num){
+    return !isNaN(num);
+}
+
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+function formatDate( date, dsep, sep, hsep ){
     dsep = dsep || '';
     sep = sep || '';
     hsep = hsep || '';
@@ -210,7 +252,7 @@ var formatDate = function( date, dsep, sep, hsep ){
     return ret;
 }
 
-var sanitizeTitle = function (str){
+function sanitizeTitle(str){
     str = str.replace(/^\s+|\s+$/g, ''); // trim
     str = str.toLowerCase();
 
@@ -230,12 +272,12 @@ var sanitizeTitle = function (str){
     return str;
 }
 
-var isURL = function(str) {
+function isURL(str) {
     var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
     return regexp.test(str);
 }
 
-var escapeJSON = function( str ) {
+function escapeJSON( str ) {
     return str.replace(/\\n/g, "\\n")
                .replace(/\\'/g, "\\'")
                .replace(/\\"/g, '\\"')
@@ -246,17 +288,19 @@ var escapeJSON = function( str ) {
                .replace(/\\f/g, "\\f");
 };
 
-var oppositePos = function( pos ){
+function oppositePos( pos ){
     return ( pos == 'top' ? 'bottom' : ( pos == 'bottom' ? 'top' : ( pos == 'left' ? 'right' : 'left' ) ) );
+}
+
+function replaceAll( search, replace, txt ){
+    return txt.replace(new RegExp(search, 'g'), replace);
 }
 
 // **********************************************
 // NUMBER
 // **********************************************
 
-// Prototype
-
-var toHHMMSS = function( num ){
+function toHHMMSS( num ){
     num = Math.round( num );
     var hours   = Math.floor( num / 3600 );
     num -= hours*3600;
@@ -270,7 +314,7 @@ var toHHMMSS = function( num ){
     return hours+':'+minutes+':'+seconds;
 }
 
-var toHHMM = function (num) {
+function toHHMM(num) {
     var hours   = Math.floor(num / 3600);
     var minutes = Math.floor((num - (hours * 3600)) / 60);
 
@@ -283,27 +327,7 @@ var toHHMM = function (num) {
 // OBJECT
 // **********************************************
 
-var sortByKey = function( obj, key ) {
-    var keys = [];
-    var nobj = {}
-    for(var k in obj){
-        if (obj.hasOwnProperty(k))
-            keys.push(k);
-    }
-
-    keys.sort( function( a, b ){
-        return obj[a][key] - obj[b][key];
-    
-    });
-    for (var i = 0; i < keys.length; i++) {
-        nobj[keys[i]] = obj[keys[i]];
-    };
-
-    return nobj;
-
-};
-
-var objSize = function(obj) {
+function objSize(obj) {
     var size = 0, key;
     for (key in obj) {
         if (obj.hasOwnProperty(key)) size++;
@@ -311,7 +335,7 @@ var objSize = function(obj) {
     return size;
 };
 
-var objInsert = function(obj,n,k) {
+function objInsert(obj,n,k) {
     var o = {};
     var key, nkey;
     for( key in obj ){
@@ -333,14 +357,14 @@ var objInsert = function(obj,n,k) {
     return o;
 };
 
-var objToArray = function(obj) {
+function objToArray(obj) {
     var arr = [];
     for (var key in obj) {
         if (obj.hasOwnProperty(key)) arr.push( { key: obj[key] } );
     }
     return arr;
 };
-var arrToObject = function(arr) {
+function arrToObject(arr) {
     var obj = {};
     for (var i = 0; i < arr.length; i++) {
         var k,v = '';
@@ -351,23 +375,141 @@ var arrToObject = function(arr) {
     return obj;
 }
 
+function sortObj( obj ) {
+    var nobj = {};
+    
+    var keys = Object.keys( obj ),
+        i, len = keys.length;
+
+    keys.sort();
+
+    for (i = 0; i < len; i++) {
+      k = keys[i];
+      nobj[k] = obj[k];
+    }
+
+    return nobj;
+
+}
+
+function sortByKey( obj, key ) {
+    var keys = [];
+    var nobj = {}
+    for(var k in obj){
+        if (obj.hasOwnProperty(k))
+            keys.push(k);
+    }
+
+    keys.sort( function( a, b ){
+        return obj[a][key] - obj[b][key];
+    
+    });
+    for (var i = 0; i < keys.length; i++) {
+        nobj[keys[i]] = obj[keys[i]];
+    };
+
+    return nobj;
+
+};
+
+function sortKeys( obj ) {
+    var keys = [];
+    for(var key in obj)
+        keys.push(key);
+    return keys.sort(function(a,b){return obj[a]-obj[b]});
+}
+
+function rsortKeys( obj ) {
+    var keys = [];
+    for(var key in obj)
+        keys.push(key);
+    return keys.sort(function(a,b){return obj[b]-obj[a]});
+}
+
+function objByValueKey( obj, value, key ){
+    key = key || 'name';
+    for( var k in obj ){
+        if( obj[k] && obj[k][key] !== undefined && obj[k][key] === value )
+            return k;
+    }
+    return '';
+}
+
+function objNext( obj, key, loop ){
+    var keys = Object.keys( obj );
+    var ind = keys.indexOf(key);
+    if( ind < 0 ) return false;
+    if( ind == keys.length-1 ){
+        if( loop ) ind = 0;
+    }else{
+        ind = ind + 1;
+    }
+    return obj[keys[ind]];
+}
+function objPrev( obj, key, loop ){
+    var keys = Object.keys( obj );
+    var ind = keys.indexOf(key);
+    if( ind < 0 ) return false;
+    if( !ind ){
+        if( loop ) ind = keys.length-1;
+    }else{
+        ind = ind - 1;
+    }
+    return obj[keys[ind]];
+}
+
 // **********************************************
 // ARRAY
 // **********************************************
 
-var arrUnique = function( arr ) {
+function toArray( obj ){
+    return Array.isArray( obj ) ? obj : [ obj ];
+}
+
+function arrClean( arr ){
+    var clean = [];
+    for( var i = 0; i < arr.length; i++ ){
+        if( arr[i] || arr[i] === 0 )
+            clean.push( arr[i] );
+    }
+    return clean;
+}
+
+function arrEqual( a, b ){
+    if( a === b ) return true;
+    if( a == null || b == null ) return false;
+    if( a.length != b.length ) return false;
+
+    a = a.concat().sort();
+    b = b.concat().sort();
+
+    for( var i = 0; i < a.length; ++i ){
+        if( a[i] !== b[i] ) return false;
+    }
+    return true;
+}
+
+function arrUnique( arr ){
     var a = arr.concat();
-    for(var i=0; i<a.length; ++i) {
-        for(var j=i+1; j<a.length; ++j) {
-            if(a[i] === a[j])
-                a.splice(j--, 1);
+    for( var i = 0; i < a.length; ++i ){
+        for( var j = i + 1 ; j < a.length; ++j ){
+            if( a[i] === a[j] )
+                a.splice( j--, 1 );
         }
     }
-
     return a;
-};
+}
 
-var arrMove = function( arr, from, to ){
+function arrMerge(){
+    var args = Array.prototype.slice.call( arguments );
+    var a = [];
+    for( var i = 0; i < args.length; ++i ){
+       a = a.concat( args[i] );
+    }
+    return arrUnique( a );
+}
+
+function arrMove( arr, from, to ){
     while(from < 0) {
         from += arr.length;
     }
@@ -383,20 +525,8 @@ var arrMove = function( arr, from, to ){
     arr.splice(to, 0, arr.splice(from, 1)[0]);
     return arr;
 };
-/*var arrMove = function( arr, from, to ){
-    if (to >= arr.length) {
-        var k = to - arr.length;
-        while ((k--) + 1) {
-            arr.push(undefined);
-        }
-    }
-    
-    arr.splice(to, 0, arr.splice(from, 1)[0]);
-    return arr;
-};*/
 
-
-var arrSwap = function( arr, a, b ){
+function arrSwap( arr, a, b ){
 
     var temp = arr[a];
     arr[a] = arr[b];
@@ -405,7 +535,7 @@ var arrSwap = function( arr, a, b ){
 
 };
 
-var arrCombinations = function(input,permArr,usedChars) {
+function arrCombinations(input,permArr,usedChars) {
     if( !permArr ) permArr = [];
     if( !usedChars ) usedChars = [];
 
@@ -420,24 +550,66 @@ var arrCombinations = function(input,permArr,usedChars) {
         input.splice(i, 0, ch);
         usedChars.pop();
     }
-    return permArr
+    return permArr;
 };
 
-var csvSwapColumn = function( arr, a, b ){
+function getAllByValueKey( arr, value, key ){
+    key = key || 'name';
+    var res = [];
+    for( var k in arr ){
+        if( arr[k] && arr[k][key] !== undefined && arr[k][key] === value )
+            res.push( k );
+    }
+    return res;
+}
+
+function getByValueKey( arr, value, key ){
+    key = key || 'name';
+    for( var k in arr ){
+        if( arr[k] && arr[k][key] !== undefined && arr[k][key] === value )
+            return k;
+    }
+    return -1;
+}
+
+function arrNext( arr, val, attr, loop ){
+
+    var ind = parseInt( getByValueKey( arr, val, attr ) );
+    if( ind < 0 ) return false;
+    if( ind == arr.length-1 ){
+        if( loop ) ind = 0;
+    }else{
+        ind = ind + 1;
+    }
+    return arr[ind];
+}
+function arrPrev( arr, val, attr, loop ){
+
+    var ind = parseInt( getByValueKey( arr, val, attr ) );
+    if( ind < 0 ) return false;
+    if( !ind ){
+        if( loop ) ind = arr.length-1;
+    }else{
+        ind = ind - 1;
+    }
+    return arr[ind];
+}
+
+function csvSwapColumn( arr, a, b ){
     for (var i = 0; i < arr.length; i++) {
         arr = arrSwap( arr[i], a, b );
     }
     return arr;
 }
 
-var csvMoveColumn = function( arr, from, to ){
+function csvMoveColumn( arr, from, to ){
     for (var i = 0; i < arr.length; i++) {
         arr = arrMove( arr[i], from, to );
     }
     return arr;
 }
 
-var csvInsertColumn = function( arr, col, index ){
+function csvInsertColumn( arr, col, index ){
     index = ( undefined == index ? arr.length : index );
     for (var i = 0; i < arr.length; i++) {
         arr[i].splice(index, 0, col);
@@ -445,22 +617,5 @@ var csvInsertColumn = function( arr, col, index ){
     }
     return arr;
 }
-
-// Utils
-
-var sortKeys = function( obj ) {
-    var keys = [];
-    for(var key in obj)
-    	keys.push(key);
-    return keys.sort(function(a,b){return obj[a]-obj[b]});
-}
-
-var rsortKeys = function( obj ) {
-    var keys = [];
-    for(var key in obj)
-    	keys.push(key);
-    return keys.sort(function(a,b){return obj[b]-obj[a]});
-}
-
 
 // **********************************************
