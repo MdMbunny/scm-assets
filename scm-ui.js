@@ -107,7 +107,7 @@
 
 			// ********************************************** TEXT INPUT
 
-			$.UIInput = function( action, icon, text, cls, min, max ){
+			$.UIInput = function( action, icon, text, cls, min, max, before ){
 
 				var type = 'text';
 				if( typeof text == 'number' ){
@@ -115,9 +115,13 @@
 					min = ( undefined !== min ? min : 0 );
 				}
 
-				var $input = $( '<input type="' + type + '" name="' + type + '-input" class="' + type + '-input" value="' + text + '"' + ( undefined !== min ? ' min="' + min + '"' : '' ) + ( undefined !== max ? ' max="' + max + '"' : '' ) + '>' );
+				var $input = $( '<input type="' + type + '" name="' + type + '-input" class="' + type + '-input" value="' + text + '"' + ( undefined !== min && $.isNumeric( min ) ? ' min="' + min + '"' : '' ) + ( undefined !== max && $.isNumeric( max ) ? ' max="' + max + '"' : '' ) + '>' );
 
-				var $button = $.UILabel( icon, '', 'button', 'scm-ui-button scm-ui-input scm-ui-comp' ).addClass( cls ).prepend( $input );
+				var $button = $.UILabel( icon, '', 'button', 'scm-ui-button scm-ui-input scm-ui-comp' ).addClass( cls );
+				if( before )
+					$button.append( $input.addClass('before') );
+				else
+					$button.prepend( $input.addClass('after') );
 
 				//if( icon ){
 					$button.on( 'click', action );
@@ -133,7 +137,7 @@
 					});
 					$input.on( 'click keyup', function(e){
 						e.stopPropagation();
-						e.preventDefault();
+						//e.preventDefault();
 						if( e.key == 'Enter' ){
 							$button.trigger( 'click' ).next().focus();
 						}else if ( e.key ){
@@ -653,7 +657,7 @@
 
         $active.sortable({
             connectWith: $inactive || false,
-            cancel: ':input,a',
+            cancel: '',
             containment: $active.parent(),
             scroll: false,
             revert: true,
@@ -682,7 +686,7 @@
         if( $inactive )
             $inactive.sortable({
                 connectWith: $active,
-                cancel: ':input,a',
+                cancel: '',
                 containment: $active.parent(),
                 scroll: false,
                 revert: true,

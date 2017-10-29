@@ -2,7 +2,7 @@
 // SCROLL
 // **********************************************
 
-function preventDefault(e) {
+function preventDefault(e){
   e = e || window.event;
   if (e.preventDefault)
       e.preventDefault();
@@ -11,15 +11,15 @@ function preventDefault(e) {
 
 // left: 37, up: 38, right: 39, down: 40,
 // spacebar: 32, pageup: 33, pagedown: 34, end: 35, home: 36
-function preventDefaultForScrollKeys(e) {
-    var keys = {37: 1, 38: 1, 39: 1, 40: 1};
-    if (keys[e.keyCode]) {
+function preventDefaultForScrollKeys(e){
+    var keys ={37: 1, 38: 1, 39: 1, 40: 1};
+    if (keys[e.keyCode]){
         preventDefault(e);
         return false;
     }
 }
 
-function disableScroll() {
+function disableScroll(){
   if (window.addEventListener) // older FF
       window.addEventListener('DOMMouseScroll', preventDefault, false);
   window.onwheel = preventDefault; // modern standard
@@ -28,7 +28,7 @@ function disableScroll() {
   document.onkeydown  = preventDefaultForScrollKeys;
 }
 
-function enableScroll() {
+function enableScroll(){
     if (window.removeEventListener)
         window.removeEventListener('DOMMouseScroll', preventDefault, false);
     window.onmousewheel = document.onmousewheel = null; 
@@ -41,10 +41,10 @@ function enableScroll() {
 // HTML
 // **********************************************
 
-function clearSelection() {
-    if ( document.selection ) {
+function clearSelection(){
+    if ( document.selection ){
         document.selection.empty();
-    } else if ( window.getSelection ) {
+    } else if ( window.getSelection ){
         window.getSelection().removeAllRanges();
     }
 }
@@ -103,20 +103,20 @@ function getIcon( icon, cls, col, bg, data, tag ){
 // COLORS
 // **********************************************
 
-function rgbToHex(rgb) {
+function rgbToHex(rgb){
     if( typeof rgb == 'string' ) return rgb;
     return "#" + ((1 << 24) + (rgb[0] << 16) + (rgb[1] << 8) + rgb[2]).toString(16).slice(1);
 }
 
-function hexToRgb(hex) {
+function hexToRgb(hex){
     // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
     var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
-    hex = hex.replace(shorthandRegex, function(m, r, g, b) {
+    hex = hex.replace(shorthandRegex, function(m, r, g, b){
         return r + r + g + g + b + b;
     });
 
     var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result ? {
+    return result ?{
         r: parseInt(result[1], 16),
         g: parseInt(result[2], 16),
         b: parseInt(result[3], 16)
@@ -148,18 +148,18 @@ function hslToRgb(h, s, l){
         return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
     }
 
-function colorLuminance(hex, lum) {
+function colorLuminance(hex, lum){
 
     // validate hex string
     hex = String(hex).replace(/[^0-9a-f]/gi, '');
-    if (hex.length < 6) {
+    if (hex.length < 6){
         hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
     }
     lum = lum || 0;
 
     // convert to decimal and change luminosity
     var rgb = "#", c, i;
-    for (i = 0; i < 3; i++) {
+    for (i = 0; i < 3; i++){
         c = parseInt(hex.substr(i*2,2), 16);
         c = Math.round(Math.min(Math.max(0, c + (c * lum)), 255)).toString(16);
         rgb += ("00"+c).substr(c.length);
@@ -216,7 +216,7 @@ function isNumeric(num){
     return !isNaN(num);
 }
 
-function capitalizeFirstLetter(string) {
+function capitalizeFirstLetter(string){
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
@@ -261,7 +261,7 @@ function sanitizeTitle(str){
     var to   = "aaaaeeeeiiiioooouuuunc------";
 
     for (var i=0, l=from.length ; i<l ; i++)
-    {
+   {
         str = str.replace(new RegExp(from.charAt(i), 'g'), to.charAt(i));
     }
 
@@ -272,12 +272,12 @@ function sanitizeTitle(str){
     return str;
 }
 
-function isURL(str) {
+function isURL(str){
     var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
     return regexp.test(str);
 }
 
-function escapeJSON( str ) {
+function escapeJSON( str ){
     return str.replace(/\\n/g, "\\n")
                .replace(/\\'/g, "\\'")
                .replace(/\\"/g, '\\"')
@@ -308,18 +308,18 @@ function toHHMMSS( num ){
     num -= minutes*60;
     var seconds = Math.floor(num - (hours * 3600) - (minutes * 60));
 
-    if (hours   < 10) {hours   = "0"+hours;}
-    if (minutes < 10) {minutes = "0"+minutes;}
-    if (seconds < 10) {seconds = "0"+seconds;}
+    if (hours   < 10){hours   = "0"+hours;}
+    if (minutes < 10){minutes = "0"+minutes;}
+    if (seconds < 10){seconds = "0"+seconds;}
     return hours+':'+minutes+':'+seconds;
 }
 
-function toHHMM(num) {
+function toHHMM(num){
     var hours   = Math.floor(num / 3600);
     var minutes = Math.floor((num - (hours * 3600)) / 60);
 
-    if (hours   < 10) {hours   = "0"+hours;}
-    if (minutes < 10) {minutes = "0"+minutes;}
+    if (hours   < 10){hours   = "0"+hours;}
+    if (minutes < 10){minutes = "0"+minutes;}
     return hours+':'+minutes;
 }
 
@@ -327,16 +327,22 @@ function toHHMM(num) {
 // OBJECT
 // **********************************************
 
-function objSize(obj) {
+function objValues(obj){
+    return Object.keys(obj).map(function(key){
+        return obj[key];
+    });
+}
+
+function objSize(obj){
     var size = 0, key;
-    for (key in obj) {
+    for (key in obj){
         if (obj.hasOwnProperty(key)) size++;
     }
     return size;
 };
 
-function objInsert(obj,n,k) {
-    var o = {};
+function objInsert(obj,n,k){
+    var o ={};
     var key, nkey;
     for( key in obj ){
         if( obj.hasOwnProperty(key) ){
@@ -357,16 +363,16 @@ function objInsert(obj,n,k) {
     return o;
 };
 
-function objToArray(obj) {
+function objToArray(obj){
     var arr = [];
-    for (var key in obj) {
-        if (obj.hasOwnProperty(key)) arr.push( { key: obj[key] } );
+    for (var key in obj){
+        if (obj.hasOwnProperty(key)) arr.push({ key: obj[key] } );
     }
     return arr;
 };
-function arrToObject(arr) {
-    var obj = {};
-    for (var i = 0; i < arr.length; i++) {
+function arrToObject(arr){
+    var obj ={};
+    for (var i = 0; i < arr.length; i++){
         var k,v = '';
         k = Object.keys(arr[i])[0];
         v = arr[i][k];
@@ -375,15 +381,15 @@ function arrToObject(arr) {
     return obj;
 }
 
-function sortObj( obj ) {
-    var nobj = {};
+function sortObj( obj ){
+    var nobj ={};
     
     var keys = Object.keys( obj ),
         i, len = keys.length;
 
     keys.sort();
 
-    for (i = 0; i < len; i++) {
+    for (i = 0; i < len; i++){
       k = keys[i];
       nobj[k] = obj[k];
     }
@@ -392,9 +398,9 @@ function sortObj( obj ) {
 
 }
 
-function sortByKey( obj, key ) {
+function sortByKey( obj, key ){
     var keys = [];
-    var nobj = {}
+    var nobj ={}
     for(var k in obj){
         if (obj.hasOwnProperty(k))
             keys.push(k);
@@ -404,7 +410,7 @@ function sortByKey( obj, key ) {
         return obj[a][key] - obj[b][key];
     
     });
-    for (var i = 0; i < keys.length; i++) {
+    for (var i = 0; i < keys.length; i++){
         nobj[keys[i]] = obj[keys[i]];
     };
 
@@ -412,14 +418,14 @@ function sortByKey( obj, key ) {
 
 };
 
-function sortKeys( obj ) {
+function sortKeys( obj ){
     var keys = [];
     for(var key in obj)
         keys.push(key);
     return keys.sort(function(a,b){return obj[a]-obj[b]});
 }
 
-function rsortKeys( obj ) {
+function rsortKeys( obj ){
     var keys = [];
     for(var key in obj)
         keys.push(key);
@@ -510,15 +516,15 @@ function arrMerge(){
 }
 
 function arrMove( arr, from, to ){
-    while(from < 0) {
+    while(from < 0){
         from += arr.length;
     }
-    while (to < 0) {
+    while (to < 0){
         to += arr.length;
     }
-    if (to >= arr.length) {
+    if (to >= arr.length){
         var k = to - arr.length;
-        while ((k--) + 1) {
+        while ((k--) + 1){
             arr.push(undefined);
         }
     }
@@ -535,15 +541,15 @@ function arrSwap( arr, a, b ){
 
 };
 
-function arrCombinations(input,permArr,usedChars) {
+function arrCombinations(input,permArr,usedChars){
     if( !permArr ) permArr = [];
     if( !usedChars ) usedChars = [];
 
     var i, ch;
-    for (i = 0; i < input.length; i++) {
+    for (i = 0; i < input.length; i++){
         ch = input.splice(i, 1)[0];
         usedChars.push(ch);
-        if (input.length == 0) {
+        if (input.length == 0){
             permArr.push(usedChars.slice());
         }
         arrCombinations(input,permArr,usedChars);
@@ -596,14 +602,14 @@ function arrPrev( arr, val, attr, loop ){
 }
 
 function csvSwapColumn( arr, a, b ){
-    for (var i = 0; i < arr.length; i++) {
+    for (var i = 0; i < arr.length; i++){
         arr = arrSwap( arr[i], a, b );
     }
     return arr;
 }
 
 function csvMoveColumn( arr, from, to ){
-    for (var i = 0; i < arr.length; i++) {
+    for (var i = 0; i < arr.length; i++){
         arr = arrMove( arr[i], from, to );
     }
     return arr;
@@ -611,7 +617,7 @@ function csvMoveColumn( arr, from, to ){
 
 function csvInsertColumn( arr, col, index ){
     index = ( undefined == index ? arr.length : index );
-    for (var i = 0; i < arr.length; i++) {
+    for (var i = 0; i < arr.length; i++){
         arr[i].splice(index, 0, col);
         if(!i) col = '';
     }

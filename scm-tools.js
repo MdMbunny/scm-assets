@@ -3490,9 +3490,9 @@ var $MAGIC;
 		if( !colors ) return '';
 		palette = ( $.isNumeric( palette ) ? +palette : 0 );
 		
-		if( undefined !== color && $.isNumeric( color ) && colors )
+		if( undefined !== color && $.isNumeric( color ) && colors && undefined !== colors[ parseInt( palette ) ] )
 			return colors[ parseInt( palette ) ][ parseInt( +color ) ];
-		else if( typeof color == 'string' )
+		else if( typeof color == 'string' && undefined !== colors[ color ] )
 			return colors[ color ];
 		return '';
 	}
