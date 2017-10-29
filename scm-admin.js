@@ -446,8 +446,8 @@
 		"fa-thermometer-0":			[ "fas", "thermometer-empty" ],
 		"fa-bathtub":				[ "fas", "bath" ],
 		"fa-s15":					[ "fas", "bath" ],
-		"fa-window-maximize":		[ "far", "window-maximize" ],
-		"fa-window-restore":		[ "far", "window-restore" ],
+		//"fa-window-maximize":		[ "far", "window-maximize" ],
+		//"fa-window-restore":		[ "far", "window-restore" ],
 		"fa-times-rectangle":		[ "fas", "times-square" ],
 		"fa-window-close-o":		[ "far", "times-square" ],
 		"fa-times-rectangle-o":		[ "far", "times-square" ],
@@ -465,7 +465,7 @@
 
 	jQuery.FAFIX_DEBUG = function( c, el ){
 		if( undefined !== FA5[c] ){
-			console.log( '[#] FAFIX: ' + c );
+			console.log( '[#] FAFIX: ' + c + ' > ' + 'fa-' + FA5[c][1] );
 			console.log( el );
 			console.log( '[#################]' );
 			return [ FA5[c][0], 'fa-' + FA5[c][1] ];
@@ -483,7 +483,10 @@
 
 			for( var i in cls ){
 
-				if( cls[i].indexOf( 'fa-' ) < 0 ) continue;
+				if( !cls[i].startsWith( 'fa-' ) ||
+					cls[i] == 'fa-spin' ||
+					cls[i].startsWith( 'fa-stack' ) )
+					continue;
 
 				fa = cls[i];
 				
@@ -566,8 +569,8 @@
 	// CONTROL MENU
 
 	var $publish = jQuery( '#publishing-action, #edittag p.submit' );
-	$publish.prepend( '<i class="fa fa-floppy-o"></i>' );
-	$publish.prepend( '<i class="fa fa-spin fa-cog"></i>' );
+	$publish.prepend( '<i class="fa fa-save-r"></i>' );
+	$publish.prepend( '<i class="fa fa-spin fa-cog-s"></i>' );
 
 	jQuery( '#major-publishing-actions' ).append( '<div id="options-action" style="cursor:pointer;"><i class="fa fa-bars"></i><div>' );
 	jQuery( 'body:not(.post-new-php):not(.post-php) #options-action' ).css( 'display', 'none' );
@@ -587,8 +590,8 @@
 	} );
 
 
-	jQuery( '#delete-action a' ).prepend( '<i class="fa fa-trash-o"></i>' );
-	jQuery( '#delete-action a' ).prepend( '<i class="fa fa-spin fa-cog"></i>' );
+	jQuery( '#delete-action a' ).prepend( '<i class="fa fa-trash-r"></i>' );
+	jQuery( '#delete-action a' ).prepend( '<i class="fa fa-spin fa-cog-s"></i>' );
 
 
 	function htmlEntities(str) {
@@ -598,14 +601,14 @@
 
 	var $save = jQuery( '#save-action' );
 	if( $save.find( '.button' ).length > 0 ){
-		$save.prepend( '<i class="fa fa-file-o"></i>' );
-		$save.prepend( '<i class="fa fa-spin fa-cog"></i>' );
+		$save.prepend( '<i class="fa fa-file-r"></i>' );
+		$save.prepend( '<i class="fa fa-spin fa-cog-s"></i>' );
 	}
 
 	jQuery( '#preview-action a' ).prepend( '<i class="fa fa-search"></i>' );
 
 
-	jQuery( '#delete-action .deletion, #save-action .button input, #publishing-action .button input, #edittag p.submit input' ).on( 'click', function(e){
+	jQuery( '#delete-action .deletion, #save-action input, #publishing-action input, #edittag p.submit input' ).on( 'click', function(e){
 		jQuery( 'div' ).remove( '.acf-error-message' );
 		$body.addClass( 'loading' );
 		checkDOMChange();

@@ -14,7 +14,7 @@ var PANELS = false;
 
 	$.fn.showPanel = function( id, cls, content, dir, cover, dur ){
 
-		var dir = ( dir ? dir : 'bottom' );
+		var dir = dir || '';
 		//var opp = oppositePos( dir );
 		//var mov = ( dir == 'top' ? 'bottom' : ( dir == 'bottom' ? 'top' : ( dir == 'left' ? 'right' : 'left' ) ) );
 		var cls = ( cls ? ' ' + cls : '' );
@@ -77,7 +77,7 @@ var PANELS = false;
 			
 			var $img = $(this);
 			var time = ( $img.data( 'preload' ) ? parseInt( $img.data( 'preload' ) ) : 500 );
-			$img.removeClass('preload').show();//.css({/*'margin-top':'-5em', 'margin-bottom':'5em', */'opacity':'0'}).delay(150).show().animate({'opacity':'1'/*, 'margin-top':'0em', 'margin-bottom':'0em'*/}, time ).siblings('.scm-loading').remove();
+			$img.removeClass('preload').fadeIn( time );//.css({/*'margin-top':'-5em', 'margin-bottom':'5em', */'opacity':'0'}).delay(150).show().animate({'opacity':'1'/*, 'margin-top':'0em', 'margin-bottom':'0em'*/}, time ).siblings('.scm-loading').remove();
 			
 		});
 
@@ -111,8 +111,10 @@ var PANELS = false;
 			$content.slideIn( $prev, movein, dir.substring( 6 ), '', duration, 'inout' );
 		else if( open_anim )
 			$content.openIn( movein, dir.substring( 5 ), '0', duration );
-		else
+		else if( dir )
 			$content.moveIn( movein, dir, '', duration );
+		else
+			$content.fadeIn( duration, movein );
 
 		return $content;
 		

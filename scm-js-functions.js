@@ -91,7 +91,7 @@ function getIcon( icon, cls, col, bg, data, tag ){
     if( icon.length > 1 )
         html = '<i class="fa ' + icon + ico + cls + '"' + data + '></i>';
     else if( icon )
-        html = '<' + ( tag || 'span' ) + ' class="letter' + ico + cls + '"' + data + '>' + icon + '</' + ( tag || 'span' ) + '>';
+        html = '<' + ( tag || 'i' ) + ' class="fa text letter' + ico + cls + '"' + data + '>' + icon + '</' + ( tag || 'i' ) + '>';
     
     if( second ) html = '<' + ( tag || 'span' ) + ' class="fa-stack fa-lg' + cls + '"' + data + '><i class="fa ' + second + ' fa-stack-2x">' + html + '</i></' + ( tag || 'span' ) + '>';
 

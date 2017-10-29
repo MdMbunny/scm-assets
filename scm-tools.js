@@ -479,8 +479,8 @@ var $MAGIC;
 		"fa-thermometer-0":			[ "fas", "thermometer-empty" ],
 		"fa-bathtub":				[ "fas", "bath" ],
 		"fa-s15":					[ "fas", "bath" ],
-		"fa-window-maximize":		[ "far", "window-maximize" ],
-		"fa-window-restore":		[ "far", "window-restore" ],
+		//"fa-window-maximize":		[ "far", "window-maximize" ],
+		//"fa-window-restore":		[ "far", "window-restore" ],
 		"fa-times-rectangle":		[ "fas", "times-square" ],
 		"fa-window-close-o":		[ "far", "times-square" ],
 		"fa-times-rectangle-o":		[ "far", "times-square" ],
@@ -507,7 +507,7 @@ var $MAGIC;
 
 	$.FAFIX_DEBUG = function( c, el ){
 		if( undefined !== FA5[c] ){
-			console.log( '[#] FAFIX: ' + c );
+			console.log( '[#] FAFIX: ' + c + ' > ' + 'fa-' + FA5[c][1] );
 			console.log( el );
 			console.log( '[#################]' );
 			return [ FA5[c][0], 'fa-' + FA5[c][1] ];
@@ -524,7 +524,10 @@ var $MAGIC;
 
 			for( var i in cls ){
 
-				if( cls[i].indexOf( 'fa-' ) < 0 ) continue;
+				if( !cls[i].startsWith( 'fa-' ) ||
+					cls[i] == 'fa-spin' ||
+					cls[i].startsWith( 'fa-stack' ) )
+					continue;
 
 				fa = cls[i];
 				
