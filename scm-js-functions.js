@@ -323,6 +323,10 @@ function toHHMM(num){
     return hours+':'+minutes;
 }
 
+function toMS( hrs, min, sec ){
+    return( ( (+hrs||0) * 60 * 60 + (+min||0) * 60 + (+sec||0) ) * 1000 );
+}
+
 // **********************************************
 // OBJECT
 // **********************************************

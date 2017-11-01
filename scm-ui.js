@@ -75,14 +75,14 @@
 
 			// ********************************************** LABEL
 
-			$.UILabel = function( icon, text, tag, cls ){
+			$.UILabel = function( icon, text, tag, cls, icls ){
 				cls = ( cls ? cls : ( tag ? tag : 'label' ) );
 				tag = ( tag ? tag : 'span' );
 				text = ( text ? text : '' );
 
 				icon = ( icon == 'none' ? '' : icon );
 				
-				var html = getIcon( icon ) + text;
+				var html = getIcon( icon, icls ) + text;
 
 				return $( '<' + tag + ' class="scm-ui-label">' + html + '</' + tag + '>' ).addClass( cls ).addClass( text ? ' text' : ( icon ? ' icon' : ' noicon' ) );
 			}
@@ -117,38 +117,34 @@
 
 				var $input = $( '<input type="' + type + '" name="' + type + '-input" class="' + type + '-input" value="' + text + '"' + ( undefined !== min && $.isNumeric( min ) ? ' min="' + min + '"' : '' ) + ( undefined !== max && $.isNumeric( max ) ? ' max="' + max + '"' : '' ) + '>' );
 
-				var $button = $.UILabel( icon, '', 'button', 'scm-ui-button scm-ui-input scm-ui-comp' ).addClass( cls );
+				var $button = $.UILabel( icon, '', 'div', 'scm-ui-button scm-ui-input scm-ui-comp' ).addClass( cls );
 				if( before )
 					$button.append( $input.addClass('before') );
 				else
 					$button.prepend( $input.addClass('after') );
 
-				//if( icon ){
-					$button.on( 'click', action );
-					$button.on( 'focusout', function(e){
+				$button
+					.on( 'click', action )
+					.on( 'focusout', function(e){
 						$button.removeClass( 'focus' );
 					});
-					$input.on( 'focus', function(e){
+				$input
+					.on( 'focus', function(e){
 						$button.addClass( 'focus' );
-					});
-					$input.on( 'focusout', function(e){
+					})
+					.on( 'focusout', function(e){
 						if( !icon )
 							$button.trigger( 'click' );
-					});
-					$input.on( 'click keyup', function(e){
+					})
+					.on( 'click keyup', function(e){
 						e.stopPropagation();
 						//e.preventDefault();
-						if( e.key == 'Enter' ){
-							$button.trigger( 'click' ).next().focus();
-						}else if ( e.key ){
+						if( e.key == 'Enter' )
+							$button.trigger( 'click' ).UIInput();//.focusout().end().next().focus();
+						else if ( e.key )
 							$button.trigger( 'change', [ $input.val() ] );
-						}
-					} );
-					//$input.on( 'change', function(){  } );
-				//}else{
-					//$input.on( 'change', action );
-				//}
-				
+					});
+
 				return $button;
 
 			}
@@ -170,13 +166,116 @@
 
 			}
 
+			$.fn.UIInputError = function( msg, cls, ico ){
+	    		if( !$(this).hasClass( 'error' ) )
+					$(this).addClass( 'error' ).append( $.getIcon( ico || 'fa-exclamation-circle-s', 'error-icon appended' ).addClass( cls ).addTooltip( '<span class="tip ' + cls + '">' + ( msg || 'Entry is not valid' ) + '</span>', false, '', 'nw' ).setTooltip() );
+			}
+			$.fn.UIInputValid = function(){
+				if( $(this).hasClass( 'error' ) )
+					$(this).removeClass( 'error' ).children( '.error-icon' ).remove();
+			}
+
+			// ********************************************** CALENDAR INPUT
+
+			$.UICalendar = function( action, icon, text, cls, min, max, before ){
+
+				var $button = $.UIInput( action, icon, text, 'date-picker scm-ui-calendar', min, max, before ).addClass( cls )
+					.UIInput()
+					.off( 'keyup' ).on( 'keyup', function(e){
+						e.stopPropagation();
+						if ( e.key && e.key != 'Enter' )
+							$button.trigger( 'change', [ $(this).val() ] );
+					})
+					.datepicker({
+						dateFormat: 'dd-mm-yy',
+						constrainInput: true,
+						onSelect: function(d){ $button.trigger( 'click', [ d ] ) },
+					})
+					.end().on( 'click', function(e){
+						$button.datepicker( 'setDate', $button.UIInputValue() ).datepicker( 'hide' );
+					});
+
+				return $button;
+			}
+
+			// ********************************************** TIMER INPUT
+
+			$.UITimer = function( action, icon, text, sep, cls, mh, mm, before ){
+				var $hours = $( '<input type="number" name="number-input" class="number-input hours" value="0" min="0"' + ( undefined !== mh && $.isNumeric( mh ) ? ' max="' + mh + '"' : '' ) + '>' );
+				var $mins = $( '<input type="number" name="number-input" class="number-input mins" value="0" min="0"' + ( undefined !== mm && $.isNumeric( mm ) ? ' max="' + mm + '"' : '' ) + '>' );
+
+				var $sep = $( '<span class="separator">' + ( sep || ':' ) + '</span>' );
+
+				var $button = $.UILabel( icon, '', 'div', 'scm-ui-timer scm-ui-button scm-ui-input scm-ui-comp' ).addClass( cls );
+				if( before )
+					$button.append( $hours.addClass('square') ).append( $sep ).append( $mins.addClass('before') );
+				else
+					$button.prepend( $mins.addClass('after') ).prepend( $sep ).prepend( $hours.addClass('square') );
+
+				$button.UITimerValue( text );
+
+				$button
+					.on( 'click', action )
+					.on( 'focusout', function(e){
+						$button.removeClass( 'focus' );
+					})
+				.UITimer()
+					.on( 'focus', function(e){
+						$button.addClass( 'focus' );
+					})
+					.on( 'focusout', function(e){
+						if( !icon )
+							$button.trigger( 'click' );
+					})
+					.on( 'change', function(e){
+						$(this).val( parseInt( $(this).val() ) );
+					})
+					.on( 'click keyup', function(e){
+						e.stopPropagation();
+
+						if( e.key == 'Enter' )
+							$button.trigger( 'click' ).UIInput();//.focusout().end().next().focus();
+						else if ( e.key )
+							$button.trigger( 'change', [ $(this).val() ] );
+					});
+
+				return $button;
+
+			}
+			$.fn.UITimer = function(){
+				return this.children( 'input' );
+			}
+			$.fn.UITimerHours = function(){
+				return this.children( 'input.hours' );
+			}
+			$.fn.UITimerMins = function(){
+				return this.children( 'input.mins' );
+			}
+			$.fn.UITimerSeparator = function(){
+				return this.children( 'span.separator' );
+			}
+			$.fn.UITimerValue = function( val, trigger ){
+				var sep = $(this).UITimerSeparator().text()
+				if( undefined === val )
+					return parseInt( $(this).UITimerHours().val() ) + sep + parseInt( $(this).UITimerMins().val() );
+
+				val = val ? val.split( sep || ':' ) : [ 0, 0 ];
+				$(this).UITimerHours().val( parseInt( val[0] ) );
+				$(this).UITimerMins().val( parseInt( val[1] ) );
+				if( trigger )
+					$(this).trigger( 'click' );
+				
+				return $(this);
+
+			}
+
 			// ********************************************** SELECT INPUT
 
 			$.UISelect = function( action, icon, val, cls, opts, create ){
 
 				var $select = $( '<select></select>' );
 
-				var $button = $.UILabel( icon, '', 'button', 'scm-ui-button scm-ui-select scm-ui-comp' ).addClass( cls ).prepend( $select );
+				var $button = $.UILabel( icon, '', 'div', 'scm-ui-button scm-ui-select scm-ui-comp', 'appended' ).addClass( cls ).prepend( $select );
 
 				$button.UISelectOptions( opts );
 
@@ -229,6 +328,18 @@
 
 				return $(this);
 				
+			}
+
+			// ********************************************** LINK
+
+			$.UILink = function( href, target, icon, text, cls ){
+
+				var $button = $.UILabel( icon, text, 'a', 'scm-ui-link scm-ui-button' ).addClass( cls );
+
+				$button.attr( 'href', href || '' );
+				$button.attr( 'target', target || '_self' );
+				
+				return $button;
 			}
 
 			// ********************************************** BUTTON
@@ -317,6 +428,7 @@
 				group.each( function(){
 					$(this).on( 'toggled', function(e,on){
 						if( !on ) $toggle.UIToggle( false, true )
+						else if( !$(this).siblings('.filter.off').length ) $toggle.UIToggle( true, false )
 					});
 				});
 				return $toggle;
@@ -498,7 +610,7 @@
 			$.fn.enableUITab = function( complete ){
 				
 				var $this = this;
-				var $ui = this.parents( '.scm-ui' ).addClass( 'force-show' );
+				var $ui = this.parents( '.scm-ui' );
 
 				var $active = this.siblings( '.scm-ui-tab.off' );
 
