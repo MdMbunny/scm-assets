@@ -3408,7 +3408,7 @@ var $MAGIC;
 					mouseOnToPopup: $this.data('tooltip-mouse') || false,
 					smartPlacement: $this.data('tooltip-smart') || true,
 					offset: 20,
-					closeDelay: 300
+					closeDelay: 300 + ( $this.data('tooltip-mouse') ? 300 : 0 ),
 				})
 				.on( {
 					powerTipRender: function(){

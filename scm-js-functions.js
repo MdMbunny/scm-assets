@@ -212,10 +212,6 @@ function isPortrait( img ){
 
 // Utils
 
-function isNumeric(num){
-    return !isNaN(num);
-}
-
 function capitalizeFirstLetter(string){
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
@@ -296,9 +292,18 @@ function replaceAll( search, replace, txt ){
     return txt.replace(new RegExp(search, 'g'), replace);
 }
 
+function validateEmail( email ){
+    var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test( email );
+}
+
 // **********************************************
 // NUMBER
 // **********************************************
+
+function isNumeric(n){
+  return !isNaN(parseFloat(n)) && isFinite(n);
+}
 
 function toHHMMSS( num ){
     num = Math.round( num );
@@ -474,6 +479,16 @@ function objPrev( obj, key, loop ){
 
 function toArray( obj ){
     return Array.isArray( obj ) ? obj : [ obj ];
+}
+
+function inArray( arr, elem ){
+    return arr.indexOf( elem ) > -1;
+}
+
+function arrRemove( arr, elem ){
+    var index = arr.indexOf( elem );
+    if( index > -1 )
+        arr.splice( index, 1 );
 }
 
 function arrClean( arr ){

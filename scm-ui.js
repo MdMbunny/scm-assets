@@ -115,7 +115,7 @@
 					min = ( undefined !== min ? min : 0 );
 				}
 
-				var $input = $( '<input type="' + type + '" name="' + type + '-input" class="' + type + '-input" value="' + text + '"' + ( undefined !== min && $.isNumeric( min ) ? ' min="' + min + '"' : '' ) + ( undefined !== max && $.isNumeric( max ) ? ' max="' + max + '"' : '' ) + '>' );
+				var $input = $( '<input type="' + type + '" name="' + type + '-input" class="' + type + '-input" value="' + text + '"' + ( undefined !== min && $.isNumeric( min ) ? ' min' + ( type == 'number' ? 'length' : '' ) + '="' + min + '"' : '' ) + ( undefined !== max && $.isNumeric( max ) ? ' max' + ( type == 'number' ? 'length' : '' ) + '="' + max + '"' : '' ) + '>' );
 
 				var $button = $.UILabel( icon, '', 'div', 'scm-ui-button scm-ui-input scm-ui-comp' ).addClass( cls );
 				if( before )
@@ -140,7 +140,7 @@
 						e.stopPropagation();
 						//e.preventDefault();
 						if( e.key == 'Enter' )
-							$button.trigger( 'click' ).UIInput();//.focusout().end().next().focus();
+							$button.UIInput().blur();//.end().next().focus();
 						else if ( e.key )
 							$button.trigger( 'change', [ $input.val() ] );
 					});
@@ -166,11 +166,17 @@
 
 			}
 
-			$.fn.UIInputError = function( msg, cls, ico ){
+			$.fn.UIInputError = function( msg, cls, mouse, ico ){
 	    		if( !$(this).hasClass( 'error' ) )
-					$(this).addClass( 'error' ).append( $.getIcon( ico || 'fa-exclamation-circle-s', 'error-icon appended' ).addClass( cls ).addTooltip( '<span class="tip ' + cls + '">' + ( msg || 'Entry is not valid' ) + '</span>', false, '', 'nw' ).setTooltip() );
+					$(this).addClass( 'error' ).append( $.getIcon( ico || 'fa-exclamation-circle-s', 'input-icon error-icon appended' ).addClass( cls ).addTooltip( '<span class="tip ' + cls + '">' + ( msg || 'Entry is not valid' ) + '</span>', mouse, ( mouse ? 'mouse' : '' ), 'nw' ).setTooltip() );
+			}
+			$.fn.UIInputSuccess = function( cls, ico ){
+	    		if( !$(this).hasClass( 'success' ) )
+					$(this).addClass( 'success' ).append( $.getIcon( ico || 'fa-check-circle-s', 'input-icon success-icon appended' ).addClass( cls ) );
 			}
 			$.fn.UIInputValid = function(){
+				if( $(this).hasClass( 'success' ) )
+					$(this).removeClass( 'success' ).children( '.success-icon' ).remove();
 				if( $(this).hasClass( 'error' ) )
 					$(this).removeClass( 'error' ).children( '.error-icon' ).remove();
 			}
@@ -255,17 +261,17 @@
 				return this.children( 'span.separator' );
 			}
 			$.fn.UITimerValue = function( val, trigger ){
-				var sep = $(this).UITimerSeparator().text()
+				var sep = this.UITimerSeparator().text()
 				if( undefined === val )
-					return parseInt( $(this).UITimerHours().val() ) + sep + parseInt( $(this).UITimerMins().val() );
-
-				val = val ? val.split( sep || ':' ) : [ 0, 0 ];
-				$(this).UITimerHours().val( parseInt( val[0] ) );
-				$(this).UITimerMins().val( parseInt( val[1] ) );
-				if( trigger )
-					$(this).trigger( 'click' );
+					return parseInt( this.UITimerHours().val() ) + sep + parseInt( this.UITimerMins().val() );
 				
-				return $(this);
+				val = val ? val.split( sep || ':' ) : [ 0, 0 ];
+				this.UITimerHours().val( parseInt( val[0] ) );
+				this.UITimerMins().val( parseInt( val[1] ) );
+				if( trigger )
+					this.trigger( 'click' );
+				
+				return this;
 
 			}
 
@@ -532,38 +538,63 @@
 				return this.hasClass( 'on' );
 			}
 
+		// ********************************************** CONTAINER RADIOS
 
-		// ********************************************** CHECKBOX INPUT
+		$.UIRadios = function( action, id, cls ){
 
-		$.UICheckbox = function( action, active, icona, iconb, texta, textb, cls, append ){
+			var $list = $( '<div' + ( id ? ' id="' + id + '"' : '' ) + ( cls ? ' class="' + cls + '"' : '' ) + '></div>' )
+				.addClass( 'scm-ui-radios' )
+				.addClass( 'scm-ui-comp' );
 
-			var $input = $( '<input type="checkbox" name="checkbox-input" class="checkbox-input" value="' + ( !active ? 'checked' : '' ) + '"' + ( !active ? ' checked' : '' ) + '>' );
-			
-			var $button = $.UIToggle( action, active, icona, iconb, texta, textb, cls )
-				.addClass( 'scm-ui-input' );
-				//.addClass( 'scm-ui-comp' );
-			
-			if( append )
-				$button.append( $input.addClass( 'append' ) ).addClass( 'input-append' );
-			else
-				$button.prepend( $input.addClass( 'prepend' ) ).addClass( 'input-prepend' );
+			$list.on( 'select', action );
 
-			$button.on( 'toggle', function(e,on){
+			return $list;
 
-				$input.attr( 'checked', on );
-				$input.attr( 'value', ( on ? 'checked' : '' ) );
-
-			});
-			/*$input.on( 'change click keyup', function(e){
-				e.stopPropagation();
-				e.preventDefault();
-			});*/
-
-			return $button;
 		}
-		$.fn.UICheckbox = function(){
-			return this.children( 'input' );
+		$.fn.UIRadiosValue = function( val, trigger ){
+			if( undefined !== val ){
+				var $input = this.find( '.scm-ui-radio[value="' + val + '"]' );
+				if( $input.length ){
+					if( trigger )
+						$input.trigger( 'click' );
+					else
+						$input.UIToggle();
+				}
+				return this;
+			}
+			return this.find( '.scm-ui-radio.off' ).attr( 'value' );
 		}
+
+			// ********************************************** RADIO INPUT
+
+			$.UIRadio = function( action, value, active, icona, iconb, texta, textb, cls ){
+				
+				var $button = $.UIToggle( action, !active, iconb, icona, texta, textb, cls )
+					.addClass( 'scm-ui-radio' )
+					.attr( 'value', value );
+
+				$button
+					.off( 'click' )
+					.on( 'click', function( e ){
+						if( !$(this).hasClass('disabled') && !$(this).hasClass('off') ){
+
+							$(this)
+								.UIToggle()
+								.trigger( 'toggle', [ $(this).attr( 'value' ) ] )
+								.siblings( '.off' ).not( '.no-toggle' ).UIToggle();
+								
+
+							var $parent = $(this).parents( '.scm-ui-radios' );
+							if( $parent.length )
+								$parent.trigger( 'select', [ $(this).attr( 'value' ) ] );
+						}
+					} );
+
+				return $button;
+			}
+			$.fn.UIRadioValue = function( val ){
+				return this.UIToggleValue( val );
+			}
 
 		// ********************************************** CONTAINER TABS
 
@@ -824,5 +855,79 @@
         
         return this;
     }
+
+
+    // ********************************************** CHECKBOX INPUT
+
+	$.UICheckbox = function( action, active, icona, iconb, texta, textb, cls, append ){
+
+		var $input = $( '<input type="checkbox" name="checkbox-input" class="checkbox-input" value="' + ( !active ? 'checked' : '' ) + '"' + ( !active ? ' checked' : '' ) + '>' );
+		
+		var $button = $.UIToggle( action, active, icona, iconb, texta, textb, cls )
+			.addClass( 'scm-ui-input' );
+			//.addClass( 'scm-ui-comp' );
+		
+		if( append )
+			$button.append( $input.addClass( 'append' ) ).addClass( 'input-append' );
+		else
+			$button.prepend( $input.addClass( 'prepend' ) ).addClass( 'input-prepend' );
+
+		$button.on( 'toggle', function(e,on){
+
+			if( on ) $input.attr( 'checked', '' );
+			else $input.removeAttr( 'checked' );
+			$input.attr( 'value', ( on ? 'checked' : '' ) );
+
+		});
+
+		return $button;
+	}
+	$.fn.UICheckbox = function(){
+		return this.children( 'input' );
+	}
+
+	// ********************************************** RADIO BUTTONS INPUT
+	
+	$.UIRadioButtons = function( action, id, opt ){
+
+		var $list = $.UIContent( id, opt )
+			.addClass( 'scm-ui-radiolist' )
+			.addClass( 'scm-ui-comp' );
+
+		$list.on( 'select', action );
+
+		return $list;
+
+	}
+	$.UIRadioButton = function( action, name, value, active, icon, text, cls, append ){
+
+		var $input = $( '<input type="radio" name="' + ( name || 'radio-input' ) + '" class="radio-input" value="' + ( value || '' ) + '"' + ( active ? ' checked' : '' ) + '>' )
+			.addClass( cls );
+		
+		var $button = $.UILabel( icon, text, 'div', cls )
+			.addClass( 'scm-ui-input' );
+		
+		if( append )
+			$button.append( $input.addClass( 'append' ) ).addClass( 'input-append' );
+		else
+			$button.prepend( $input.addClass( 'prepend' ) ).addClass( 'input-prepend' );
+
+		$input.on( 'change', function(e){
+			$input.attr( 'checked', '' );
+			var $parent = $input.parents( '.scm-ui-radiolist' );
+			if( $parent.length ){
+				var $sib = $parent.find( '.radio-input[name="' + ( name || 'radio-input' ) + '"]' ).not( $input );
+				if( $sib.length ) $sib.removeAttr( 'checked' );
+				$parent.trigger( 'select', [ $input.attr( 'value' ) ] );
+			}
+		});
+
+		return $input;
+	}
+	$.fn.UIRadioButton = function(){
+		return this.children( 'input' );
+	}
+
+	
 
 } )( jQuery );
