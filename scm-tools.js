@@ -723,7 +723,7 @@ var $MAGIC;
 
 	$.fn.eventTools = function(){
 		$.consoleDebug( DEBUG, '-- tools events');
-		this.find( '.scm-chart' ).googleChart();
+		//this.find( '.scm-chart' ).googleCharts();
 		this.find( '.scm-map' ).googleMap();
 		this.find( '.addtocalendar' ).AddToCalendar();
 		this.find( '[data-content-fade]' ).fadeContent();
@@ -2272,6 +2272,42 @@ var $MAGIC;
 
 	$.fn.googleChart = function() {
 
+		var $this = this;
+		var $body = $( 'body' );
+
+		if( $this.data( 'line-chart' ) ){
+			$this.trigger( 'update' );
+		}
+
+		google.charts.setOnLoadCallback( function(){
+
+			var data = google.visualization.arrayToDataTable( $this.data( 'chart' ) || [] );
+	        var options = $this.data( 'chart-options' ) || {};
+
+	        var chart = new google.visualization.LineChart(document.getElementById($this.attr('id')));
+	        //var chart = new google.visualization.ColumnChart(document.getElementById($this.attr('id')));
+
+	        $this.data( 'line-chart', chart );
+	        $this.data( 'chart-data', data );
+	        $this.data( 'chart-options', options );
+
+	        chart.draw(data, options);
+
+	        $this.on( 'update', function(){
+	        	$(this).data( 'line-chart' ).draw( $(this).data( 'chart-data' ), $(this).data( 'chart-options' ) );
+	        } );
+	        $body.on( 'resized', function(){
+	        	$(this).data( 'line-chart' ).draw( $(this).data( 'chart-data' ), $(this).data( 'chart-options' ) );
+	        } );
+
+		} );
+
+		return this;
+
+	}
+
+	$.fn.googleCharts = function() {
+
 		var $charts = this;
 		if( $charts.length ){
 
@@ -2280,44 +2316,18 @@ var $MAGIC;
 	            $.getScript( 'https://www.gstatic.com/charts/loader.js', function( data, textStatus, jqxhr ) {
 	                window.ifgooglecharts = 1;
 	                google.charts.load( 'current', { packages: ['corechart'] } ); // variabile da elementi esistenti data-packages
-	                $charts.googleChart();
+	                $charts.googleCharts();
 
 	            });
 	            return this;
 	        }else{
 
-				var $body = $( 'body' );
-				var countCharts = 0;
-				var totCharts = this.length;
+				return this.each( function(){
 
-				return this.each(function() {
+					$(this).googleChart();
 
-					var $this 		= $( this );
+				});
 
-					google.charts.setOnLoadCallback( function(){
-
-						var data = google.visualization.arrayToDataTable( $this.data( 'chart' ) || [] );
-				        var options = $this.data( 'chart-options' ) || {};
-
-				        var chart = new google.visualization.LineChart(document.getElementById($this.attr('id')));
-				        //var chart = new google.visualization.ColumnChart(document.getElementById($this.attr('id')));
-
-				        chart.draw(data, options);
-
-				        $this.on( 'update', function(){
-				        	chart.draw(data, options);
-				        } );
-
-				        $body.on( 'resized', function(){
-				        	chart.draw(data, options);
-				        } );
-
-
-					} );
-					
-
-
-				} );
 			}
 		}else{
 			return this;

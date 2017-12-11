@@ -332,6 +332,16 @@ function toMS( hrs, min, sec ){
     return( ( (+hrs||0) * 60 * 60 + (+min||0) * 60 + (+sec||0) ) * 1000 );
 }
 
+function Round( num, rnd ){
+    rnd = rnd && rnd !== true ? rnd : 0;
+    var mlt = '1';
+    for( var i = 0; i < rnd; i++){
+        mlt = mlt + '0';
+    }
+    mlt = parseInt( mlt );
+    return Math.round( num * mlt ) / mlt;
+}
+
 // **********************************************
 // OBJECT
 // **********************************************
