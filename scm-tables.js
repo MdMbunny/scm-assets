@@ -462,11 +462,18 @@
 		
 		// Change Event = back to original text if Event returned false
 		orig = $cell.html();
-		$cell.text( val.toString() ).trigger( evt, [ val, $input ] );
-		if( evt.result === false )
+		/*$cell.removeText();
+		$cell.insertText( val.toString() );*/
+		$cell.trigger( evt, [ val, $input ] );
+		/*console.log( $cell.html() );
+		console.log( evt.result );*/
+		if( evt.result === false ){
 			$cell.html( orig );
-		else
-			$cell.html( evt.result );
+		}else{
+			val = evt.result !== undefined ? evt.result : val;
+			$cell.removeText();
+			$cell.insertText( val.toString() );
+		}
 
 		return this;
 	}
@@ -639,7 +646,7 @@
 
 						if( e.which === ENTER ){
 							hideEditor( value, $cell );
-							$cell.focus();
+							//$cell.focus();
 							e.preventDefault();
 							e.stopPropagation();
 						}else if( e.which === ESC ){

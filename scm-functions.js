@@ -413,6 +413,17 @@ if ( !$.fn.getText ) {
 	};
 }
 
+if ( !$.fn.insertText ) {
+	$.fn.insertText = function( txt, ind ) {
+		var children = this.children();
+		if( children.length )
+			$( children[ind || 0] ).after( document.createTextNode( txt || '' ) );
+		else
+			this.append( document.createTextNode( txt || '' ) );
+		return this;
+	};
+}
+
 if ( !$.fn.appendText ) {
 	$.fn.appendText = function( txt ) {
 		return this.append( document.createTextNode( txt || '' ) );
@@ -426,13 +437,22 @@ if ( !$.fn.prependText ) {
 }
 
 if ( !$.fn.removeText ) {
-	$.fn.removeText = function( txt ) {
+	$.fn.removeText = function() {
 		return this.contents().filter(function(){
 		    return (this.nodeType == 3);
 		}).remove();
 	};
 }
 
+if ( !$.fn.replaceText ) {
+	$.fn.replaceText = function( txt ) {
+		this.contents().filter(function(){
+			if( this.nodeType == 3 ) this.nodeValue = txt;
+		    return;
+		});
+		return this;
+	};
+}
 
 if ( !$.fn.prevLoop ) {
 	$.fn.prevLoop = function() {

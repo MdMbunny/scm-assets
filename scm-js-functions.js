@@ -341,6 +341,24 @@ function Round( num, rnd ){
     mlt = parseInt( mlt );
     return Math.round( num * mlt ) / mlt;
 }
+function Floor( num, rnd ){
+    rnd = rnd && rnd !== true ? rnd : 0;
+    var mlt = '1';
+    for( var i = 0; i < rnd; i++){
+        mlt = mlt + '0';
+    }
+    mlt = parseInt( mlt );
+    return Math.floor( num * mlt ) / mlt;
+}
+function Ceil( num, rnd ){
+    rnd = rnd && rnd !== true ? rnd : 0;
+    var mlt = '1';
+    for( var i = 0; i < rnd; i++){
+        mlt = mlt + '0';
+    }
+    mlt = parseInt( mlt );
+    return Math.ceil( num * mlt ) / mlt;
+}
 
 // **********************************************
 // OBJECT
