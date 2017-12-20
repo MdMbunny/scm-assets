@@ -177,39 +177,20 @@
 // *****************************************************
 // *****************************************************
 
+// *****************************************************
+// *	FIXED THEAD
+// *****************************************************
+
+	$.fn.fixHead = function( offset, parent, absolute ){
+
+		this.find('thead').affixIn( offset, parent, absolute );
+
+		return this;
+	}
 
 // *****************************************************
 // *	SORTABLE TABLE
 // *****************************************************
-
-	var sortAsc = function (a, b) {
-		if (a > b) return 1;
-		if (a < b) return -1;
-		return 0;
-	};
-
-	var sortDesc = function (a, b) {
-		if (a > b) return -1;
-		if (a < b) return 1;
-		return 0;
-	};
-
-	var dateSortAsc = function (a, b) {
-		var date1 = toDate(a);
-		var date2 = toDate(b);
-		return sortAsc( date1, date2 );
-	};
-
-	var dateSortDesc = function (a, b) {
-		var date1 = toDate(a);
-		var date2 = toDate(b);
-		return sortDesc( date1, date2 );
-	};
-
-	var toDate = function(val) {
-	    var date = val.split('-');
-	    return new Date(date[2], date[1] - 1, date[0]).getTime();
-	}
 
 	$.fn.sortCells = function( format, opt ){
 		var $cells = $(this),

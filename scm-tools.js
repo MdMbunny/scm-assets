@@ -31,7 +31,8 @@ var $MAGIC;
 ( function($){
 
 	var CONTENTS = {};
-	$MAGIC = new $.ScrollMagic.Controller();
+	if( $.ScrollMagic )
+		$MAGIC = new $.ScrollMagic.Controller();
 
 	var FA5 = {
 		"fa-glass":					[ "fas", "glass-martini" ],
@@ -560,7 +561,7 @@ var $MAGIC;
 
 	$.fn.eventsInit = function( links, tools, css, images, responsive ){
 		
-		$MAGIC.update();
+		if( $MAGIC ) $MAGIC.update();
 
 		this.FAFIX();
 		
@@ -1840,6 +1841,8 @@ var $MAGIC;
 
 		return this.each(function() {
 
+			if( !$MAGIC ) return this;
+
 			var $this = $( this );
 
 			if( $this.attr( 'data-magic' ) ) return this;
@@ -1978,6 +1981,8 @@ var $MAGIC;
 	$.fn.fadeContent = function(off,aff){
 
 		return this.each(function() {
+
+			if( !$MAGIC ) return this;
 
 			var $this 	= $( this ),
 				$cont = $this.find( $this.attr( 'data-content-fade' ) ),
@@ -2171,6 +2176,36 @@ var $MAGIC;
 	// *      AFFIX IT
 	// *****************************************************
 
+	$.fn.affixIn = function( offset, container, absolute ){
+
+		return this.each(function() {
+		
+			var $this = $(this);
+			var $parent = $this.parent();
+
+			var $container = container || $( '#site-page' );
+			var add = $container.find( '.fixedin' ).not( $this ).totalHeight();
+			var off = ( offset || 0 ) + ( add || 0 );
+			
+			var top = ( container ? container.offset().top : $(document).scrollTop() ) - $parent.offset().top + off;
+			var bottom = top - $parent.outerHeight() + $this.outerHeight();
+
+			if( bottom > 0 ){
+				if( $this.hasClass( 'fixedin' ) ){
+					$this.css( { 'top': 'initial', 'bottom': 0, 'position': 'absolute' } );
+					$this.removeClass( 'fixedin' );
+				}
+			}else if( top > 0 && ( absolute || !$this.hasClass( 'fixedin' ) ) ){
+				$this.css( { 'top': ( absolute ? top : off ) + 'px', 'bottom': 'initial', 'position': ( absolute ? 'absolute' : 'fixed' ) } );
+				$this.addClass( 'fixedin' );
+			}else if( top < 0 && $this.hasClass( 'fixedin' ) ){
+				$this.css( { 'top': 0, 'bottom': 'initial', 'position': 'absolute' } );
+				$this.removeClass( 'fixedin' );
+			}
+		});
+
+	}
+
 	$.getStickyHeight = function( off ){
 		return $( '#site-navigation-sticky' ).getHighest() + $( '#site-header.sticky' ).getHighest() - ( off ? off : 1 );
 	}
@@ -2178,6 +2213,8 @@ var $MAGIC;
 	$.fn.affixIt = function(off,tri,sel){
 
 		return this.each(function() {
+
+			if( !$MAGIC ) return this;
 
 			var $this 	= $( this ),
 				trig 	= ( tri ? tri : ( $this.attr( 'data-affix' ) ? $this.attr( 'data-affix' ) : 'top' ) ),
@@ -2294,10 +2331,10 @@ var $MAGIC;
 	        chart.draw(data, options);
 
 	        $this.on( 'update', function(){
-	        	$(this).data( 'line-chart' ).draw( $(this).data( 'chart-data' ), $(this).data( 'chart-options' ) );
+	        	if( $this.data( 'line-chart' ) ) $this.data( 'line-chart' ).draw( $this.data( 'chart-data' ), $this.data( 'chart-options' ) );
 	        } );
 	        $body.on( 'resized', function(){
-	        	$(this).data( 'line-chart' ).draw( $(this).data( 'chart-data' ), $(this).data( 'chart-options' ) );
+	        	if( $this.data( 'line-chart' ) ) $this.data( 'line-chart' ).draw( $this.data( 'chart-data' ), $this.data( 'chart-options' ) );
 	        } );
 
 		} );

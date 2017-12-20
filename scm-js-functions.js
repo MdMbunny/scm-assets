@@ -38,6 +38,39 @@ function enableScroll(){
 }
 
 // **********************************************
+// SORT
+// **********************************************
+
+function sortAsc(a, b){
+    if (a > b) return 1;
+    if (a < b) return -1;
+    return 0;
+}
+
+function sortDesc(a, b){
+    if (a > b) return -1;
+    if (a < b) return 1;
+    return 0;
+}
+
+function dateSortAsc(a, b){
+    var date1 = toDate(a);
+    var date2 = toDate(b);
+    return sortAsc( date1, date2 );
+}
+
+function dateSortDesc(a, b){
+    var date1 = toDate(a);
+    var date2 = toDate(b);
+    return sortDesc( date1, date2 );
+}
+
+function toDate(val){
+    var date = val.split('-');
+    return new Date(date[2], date[1] - 1, date[0]).getTime();
+}
+
+// **********************************************
 // HTML
 // **********************************************
 
