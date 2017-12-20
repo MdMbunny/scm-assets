@@ -2184,8 +2184,8 @@ var $MAGIC;
 			var $parent = $this.parent();
 
 			var $container = container || $( '#site-page' );
-			var add = $container.find( '.fixedin' ).not( $this ).totalHeight();
-			var off = ( offset || 0 ) + ( add || 0 );
+			//var add = $container.find( '.fixedin' ).not( $this ).totalHeight();
+			var off = ( offset || 0 );// + ( add || 0 );
 			
 			var top = ( container ? container.offset().top : $(document).scrollTop() ) - $parent.offset().top + off;
 			var bottom = top - $parent.outerHeight() + $this.outerHeight();
