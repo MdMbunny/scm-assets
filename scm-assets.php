@@ -3,7 +3,7 @@
  * Plugin Name:         SCM Assets
  * Plugin URI:          http://studiocreativo-m.it/
  * Description:         SCM Javascript Integration
- * Version:             2.0.7
+ * Version:             2.0.8
  * Author:              Studio Creativo M
  * Author URI:          http://studiocreativo-m.it/
  * License:             http://www.gnu.org/licenses/gpl-3.0.html
@@ -376,30 +376,11 @@
     if ( ! function_exists( 'scm_assets_register_fontawesome' ) ) {
         function scm_assets_register_fontawesome() {
 
-            /*wp_register_script('font-awesome-shims', SCM_ASSETS_URI_ASSETS . 'font-awesome-5.0.0/v4-shims.min.js', null, null, false );
-            wp_enqueue_script( 'font-awesome-shims' );
-            wp_register_script('font-awesome', SCM_ASSETS_URI_ASSETS . 'font-awesome-5.0.0/bundles/everything.min.js', null, null, false );
-            wp_enqueue_script( 'font-awesome' );*/
-
             //wp_register_style('font-awesome', SCM_ASSETS_URI_ASSETS . 'font-awesome-4.7.0/css/font-awesome.min.css', false, null );
             //wp_enqueue_style( 'font-awesome' );
 
-            wp_register_style('font-awesome-solid', SCM_ASSETS_URI_ASSETS . 'font-awesome-5.0.0/css/fontawesome-pro-solid.css', false, null );
-            wp_enqueue_style( 'font-awesome-solid' );
-
-            wp_register_style('font-awesome-regular', SCM_ASSETS_URI_ASSETS . 'font-awesome-5.0.0/css/fontawesome-pro-regular.css', false, null );
-            wp_enqueue_style( 'font-awesome-regular' );
-
-            wp_register_style('font-awesome-light', SCM_ASSETS_URI_ASSETS . 'font-awesome-5.0.0/css/fontawesome-pro-light.css', false, null );
-            wp_enqueue_style( 'font-awesome-light' );
-
-            wp_register_style('font-awesome-brand', SCM_ASSETS_URI_ASSETS . 'font-awesome-5.0.0/css/fontawesome-pro-brands.css', false, null );
-            wp_enqueue_style( 'font-awesome-brand' );
-
-            wp_register_style('font-awesome', SCM_ASSETS_URI_ASSETS . 'font-awesome-5.0.0/css/fontawesome-pro-core.css', false, null );
+            wp_register_style('font-awesome', SCM_ASSETS_URI_ASSETS . 'font-awesome-pro-5.0.2/css/fontawesome-all.min.css', false, null );
             wp_enqueue_style( 'font-awesome' );
-
-
 
         }
     }
