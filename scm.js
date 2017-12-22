@@ -10,6 +10,7 @@
 
 	var $window;
 	var $body;
+	var $page;
 
 	var start;
 	var wait;
@@ -207,7 +208,7 @@
 			}
 		} );*/
 
-		$forms = $( '#scm-forms' );
+		var $forms = $( '#scm-forms' );
 
 		if( $forms.length ){
 

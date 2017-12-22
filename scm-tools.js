@@ -583,7 +583,7 @@ var $MAGIC;
 
 	$.fn.eventResponsive = function( option ) {
 
-		var w 			= $( window ).width();
+		var w 			= $( window ).width(),
 			a 			= '',
 			r 			= '',
 			state 		= 'all',
@@ -591,14 +591,15 @@ var $MAGIC;
 			tofull 		= this.attr( 'data-tofull' ),
 			tocolumn 	= this.attr( 'data-tocolumn' ),
 			sizes 		= {
-			wide 		: 1401,
-			landscape	: 1121,
-			tablet		: 1121,
-			notebook 	: 1031,
-			portrait 	: 801,
-			smart 		: 701,
-			smartmid	: 601,
-			smartmin	: 501, };
+				wide 		: 1401,
+				landscape	: 1121,
+				tablet		: 1121,
+				notebook 	: 1031,
+				portrait 	: 801,
+				smart 		: 701,
+				smartmid	: 601,
+				smartmin	: 501
+			};
 
 		if( w > 700 ){
 
@@ -3565,8 +3566,6 @@ var $MAGIC;
 			if( border ) $( this ).css( 'border-color', border );
 
 		});
-
-		return this;
 	}
 
 	$.fn.setColorIt = function( colors, palette, self ){

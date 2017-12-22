@@ -499,11 +499,11 @@ if ( !$.fn.changeIcon ) {
 */
 
 	$.functionExists = function( str ){
-		return typeof $.fn[str] !== undefined && $.isFunction($.fn[str]);
+		return undefined !== typeof $.fn[str] && $.isFunction($.fn[str]);
 	}
 	
 	$.funExists = function( str ){
-		return typeof $[str] !== undefined && $.isFunction($[str]);
+		return undefined !== typeof $[str] && $.isFunction($[str]);
 	}
 	
 	$.consoleDebug = function( db, lg ){
