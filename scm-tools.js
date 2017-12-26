@@ -2531,12 +2531,12 @@ var $MAGIC;
 			markers.markerMap( map, infowindow, zoom, countMaps );
 
 			var markerCluster = new MarkerClusterer(map, map.markers, {
-				imagePath: '',
-				//imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m',
+				imagePath: '../wp-content/plugins/scm-assets/empty.png',
+				//imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m1.png',
 				gridSize: 50,
 				styles: [
 					{
-						url: '',
+						url: '../wp-content/plugins/scm-assets/empty.png',
 						textColor: ( color ? color : '#000000' ),
 						textSize: 24,
 						width: 35,
@@ -2544,7 +2544,7 @@ var $MAGIC;
 
 					},
 					{
-						url: '',
+						url: '../wp-content/plugins/scm-assets/empty.png',
 						textColor: ( color ? color : '#000000' ),
 						textSize: 32,
 						width: 50,
@@ -2552,7 +2552,7 @@ var $MAGIC;
 
 					},
 					{
-						url: '',
+						url: '../wp-content/plugins/scm-assets/empty.png',
 						textColor: ( color ? color : '#000000' ),
 						textSize: 40,
 						width: 70,
@@ -2684,7 +2684,7 @@ var $MAGIC;
 			var $this 			= $( this ),
 				marker_img 		= $this.data( 'img' ),
 				marker_color	= $this.data( 'icon-color' ),
-				marker_icon		= ( $this.data( 'icon' ) && !marker_img ? '<i class="fa ' + $this.data( 'icon' ) + '"' + ( marker_color ? ' style="color:' + marker_color + ';"' : '' ) + '></i>' : '' ),
+				marker_icon		= ( $this.data( 'icon' ) && !marker_img ? '<i class="faicon fas ' + $this.data( 'icon' ) + '"' + ( marker_color ? ' style="color:' + marker_color + ';"' : '' ) + '></i>' : '' ),
 				classes 		= $this.attr('class') + ' ',
 				id 				= classes.substr( classes.indexOf( 'scm-marker marker marker-' ) + 25, classes.substr( 25 ).indexOf( ' ' ) ),
 				$map 			= $( '#map-' + count );
