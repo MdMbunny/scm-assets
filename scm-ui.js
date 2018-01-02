@@ -406,12 +406,18 @@
 				active = active === true;
 
 				var fun = 'UIToggle';
+				var plus = false;
 				if( action && typeof action == 'string' ){
+					if( action == 'plus' ){
+						plus = true;
+						action = 'siblings';
+					}
 					fun = fun + capitalizeFirstLetter( action );
 					action = false;
 				}
 
-				return $.UIButton( action, ( active || !iconb ? icona : iconb ), ( active || !textb ? texta : textb ), cls )
+
+				var $but = $.UIButton( action, ( active || !iconb ? icona : iconb ), ( active || !textb ? texta : textb ), cls )
 					.addClass( 'scm-ui-toggle' )
 					.toggleClass( 'off', !active )
 					.toggleClass( 'on', active )
@@ -422,11 +428,19 @@
 					.on( 'click', function( e ){
 						if( !$(this).hasClass('disabled') ){
 
-							$(this)
-								[fun]()
-								.trigger( 'toggle', [ $(this).hasClass( 'on' ) ] );
+							if( !plus )
+								$(this)[fun]();
+							else
+								$(this)[fun]( $(e.target).hasClass( 'toggle-plus' ) );
+							
+							$(this).trigger( 'toggle', [ $(this).hasClass( 'on' ) ] );
 						}
 					} );
+
+				if( plus )
+					$but.addClass( 'scm-ui-toggle-plus' ).prepend( getIcon( ( !active ? 'fa-plus' : 'fa-minus' ), 'fal faicon prepend toggle-plus' ) );
+
+				return $but;
 
 			}
 			$.UIToggleButtonOn = function( group, action, active, icona, iconb, texta, textb, cls ){
@@ -483,30 +497,38 @@
 				return this;
 
 			}
-			$.fn.UIToggleUnique = function(){
+			
+			// ************
+
+			$.fn.UIToggleUnique = function( opt ){
 
 				this.siblings( '.on' ).not( '.no-toggle' ).UIToggle();
 				this.UIToggle();
 
 				return this;
 			}
-			$.fn.UIToggleSiblings = function(){
+			$.fn.UIToggleSiblings = function( opt ){
 
 				var $off = this.siblings( '.off' ).not( '.no-toggle' );
 				var $on = this.siblings( '.on' ).not( '.no-toggle' );
 
 				if( this.hasClass('on') ){
 					if( $off.length && !$on.length )
-						$off.UIToggle();
+						$off.UIToggle();//.find( '.toggle-plus' ).addClass( 'hidden' );
+					else if( opt )
+						this.UIToggle();
 					else
-						$on.UIToggle();
+						$on.UIToggle();//.find( '.toggle-plus' ).removeClass( 'hidden' );
 				}else{
-					$on.UIToggle();
-					this.UIToggle();
+					if( !opt ) $on.UIToggle();//.find( '.toggle-plus' ).removeClass( 'hidden' );
+					this.UIToggle();//.find( '.toggle-plus' ).addClass( 'hidden' );
 				}
 
 				return this;
 			}
+
+			// ************
+
 			$.fn.UIToggle = function( on, off ){
 				
 				on = ( undefined !== on ? on : this.hasClass( 'off' ) );
@@ -522,11 +544,13 @@
 
 				if( this.data( 'icon-on' ) != this.data( 'icon-off' ) ){
 					this
-						.find( '.faicon' )
+						.find( '.faicon:not(.toggle-plus)' )
 						.removeClass()
 						.addClass( 'fa ' + ( !on && this.data( 'icon-off' ) ? this.data( 'icon-off' ) : this.data( 'icon-on' ) ) )
 						.FAFIX();
 				}
+
+				this.find( '.toggle-plus' ).toggleClass( 'fa-minus' ).toggleClass( 'fa-plus' );
 
 				this.trigger( 'toggled', [ this.hasClass( 'on' ) ] );
 				
