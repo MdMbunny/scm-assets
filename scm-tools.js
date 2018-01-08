@@ -2191,15 +2191,19 @@ var $MAGIC;
 			var top = ( container ? container.offset().top : $(document).scrollTop() ) - $parent.offset().top + off;
 			var bottom = top - $parent.outerHeight() + $this.outerHeight();
 
+
+
 			if( bottom > 0 ){
 				if( $this.hasClass( 'fixedin' ) ){
 					$this.css( { 'top': 'initial', 'bottom': 0, 'position': 'absolute' } );
 					$this.removeClass( 'fixedin' );
 				}
-			}else if( top > 0 && ( absolute || !$this.hasClass( 'fixedin' ) ) ){
+			}else if( top > 0 /*&& ( absolute || !$this.hasClass( 'fixedin' ) )*/ ){
 				$this.css( { 'top': ( absolute ? top : off ) + 'px', 'bottom': 'initial', 'position': ( absolute ? 'absolute' : 'fixed' ) } );
 				$this.addClass( 'fixedin' );
-			}else if( top < 0 && $this.hasClass( 'fixedin' ) ){
+			}else if( top < 0 /*&& $this.hasClass( 'fixedin' )*/ ){
+
+				//console.log( top );
 				$this.css( { 'top': 0, 'bottom': 'initial', 'position': 'absolute' } );
 				$this.removeClass( 'fixedin' );
 			}

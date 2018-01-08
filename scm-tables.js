@@ -123,6 +123,7 @@
 		if( options.header.length ) Head();
 		Body();
 
+		if( options.sortable_rows ) $table.addClass( 'sortable_rows' ).sortRows( options.sortable_rows );
 		if( options.sortable ) $table.addClass( 'sortable' ).sortTable();
 		if( options.editable ) $table.addClass( 'editable' ).editTable({
 			editor: $('<input class="editable-input">'),
@@ -204,8 +205,8 @@
 					va = $(a).data('cell-row');
 					vb = $(b).data('cell-row');
 				}else{
-					va = $(a).getText();
-					vb = $(b).getText();
+					va = $(a).attr( 'data-cell-value' ) || $(a).getText();
+					vb = $(b).attr( 'data-cell-value' ) || $(b).getText();
 					if( va === '' ) return 1;
 					if( vb === '' ) return -1;
 					if( time ){
@@ -282,6 +283,32 @@
 					$table.sortColumn( $head, by );
 				} );
 			}
+		});
+	}
+
+// *****************************************************
+// *	SORTABLE ROWS
+// *****************************************************
+
+	$.fn.sortRows = function( handle, containment, tolerance ){
+
+		return this.each( function() {
+
+			var $table = $(this),
+				$heads = $table.find( 'thead tr.row-head th:not( [data-column-sort="false"] )' );
+
+			$table.find('tbody').sortable({
+                containment: containment || 'parent',
+                forcePlaceholderSize: true,
+                forceHelperSize: true,
+                axis: 'y',
+                helper: 'clone',
+                handle: handle || 'tr',
+                tolerance: tolerance || 'pointer',
+                stop: function(e,ui){
+                	$table.trigger( 'sorted', [ui] );
+                }
+            }); 
 		});
 	}
 
