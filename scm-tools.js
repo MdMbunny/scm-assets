@@ -1028,7 +1028,7 @@ var $MAGIC;
 			$loading.hide().prependTo( this ).fadeIn( 'slow' ).addClass( 'onscreen' );
 		else
 			$loading.hide().appendTo( this ).fadeIn( 'slow' ).addClass( 'onscreen' );
-
+//return;
 		$.ajax({
 			url: url,
 			type: 'post',
@@ -1151,6 +1151,8 @@ var $MAGIC;
 				        this.action = this.action.replace( name, slug );
 				    });
 
+				    $parent.eventsInit(1,1,1,1);
+
 				    $parent.fadeIn('fast', function(){
 				    	var new_height = ( !replace ? $parent[0].scrollHeight : $container.outerHeight() + parseInt( $parent.css('padding-top') ) + parseInt( $parent.css('padding-bottom') ) );
 				    	$parent.animate( { 'height': new_height }, ( c_height == new_height ? .1 : 'slow' ), function(){
@@ -1243,6 +1245,7 @@ var $MAGIC;
 				//name: id,
 				archive: ARCHIVES[id],
 				//query_vars: ajaxcall.query_vars,
+				lang: $('html').attr( 'lang' ).substring( 0, 2 ),
 			};
 
 			if( next ) aj_data[id] = next;
@@ -1263,6 +1266,7 @@ var $MAGIC;
 
 			var replaceContent = function( html, err ){
 				$container.hide().html( html ).eventsInit( 1, 1, 1, null, 1 );
+				$container.eventsInit(1,1,1,1);
 				$container.fadeIn('fast', enableContent );
 			}
 
@@ -1270,6 +1274,7 @@ var $MAGIC;
 				$children = $( html ).hide();
 				$first = $children.first();
 				$container.append( $children ).eventsInit( 1, 1, 1, null, 1 );
+				$container.eventsInit(1,1,1,1);
 				$children.fadeIn( 'fast' );
 				$children.not( '.scm-pagination' ).last().addClass( 'last' );
 				$first.smoothScroll( { complete: true } );
@@ -1792,8 +1797,9 @@ var $MAGIC;
 	        var setActiveClass = function() {
 
 	            var $win 		= $( window ),
+	            	$body 		= $( 'body' ),
 	            	heightWin 	= $win.height(),
-	            	heightBody 	= $( 'body' ).outerHeight(),
+	            	heightBody 	= $body.outerHeight(),
 	            	scrollPos 	= $win.scrollTop(),
 	            	pageEnd 	= scrollPos + heightWin >= heightBody,
 	            	current 	= '',
@@ -1818,11 +1824,15 @@ var $MAGIC;
 
 		                var $link = $links.filter('[data-anchor="#' + $anchor.attr('id') + '"]').parent();
 		                var active = scrollPos >= coords.top - threshold && scrollPos < coords.bottom - threshold;
+		                var $ul = $link.parents('ul');
 						
-		                if ( active ){
+		                if( active ){
 			                $link.addClass( currentClass );
+			                $ul.attr( 'data-active', $link.index()+1 );
 		                }else{
 							$link.removeClass( currentClass );
+							if( parseInt( $ul.attr( 'data-active' ) ) === $link.index()+1 )
+								$ul.removeAttr( 'data-active' );
 						}
 		            }
 		        }	            
@@ -1839,6 +1849,8 @@ var $MAGIC;
 	// *****************************************************
 
 	$.fn.currentView = function( offset ){
+
+		var $body = $('body');
 
 		return this.each(function() {
 
@@ -1864,10 +1876,12 @@ var $MAGIC;
 		    })
 			.setClassToggle( $this, 'current-view')
 			.on( 'enter', function(e){
-		    	if( e.type == 'enter' && e.scrollDirection == 'FORWARD' )
-		    		$this.addClass( 'current-fade' )
-		    	else if( e.type == 'exit' && e.scrollDirection == 'REVERSE' )
+		    	if( e.type == 'enter' && e.scrollDirection == 'FORWARD' ){
+		    		$body.attr( 'data-current-view', $this )
+		    		$this.addClass( 'current-fade' );
+		    	}else if( e.type == 'exit' && e.scrollDirection == 'REVERSE' ){
 		    		$this.removeClass( 'current-fade' );
+		    	}
 		    } )
 			//.addIndicators()
 		    .addTo( $MAGIC );
@@ -2055,8 +2069,6 @@ var $MAGIC;
 	$.fn.toggledIt = function( event ) {
 		
 		event.stopPropagation();
-
-		console.log('toggle');
 
 		return this.each(function() {
 
@@ -3195,7 +3207,9 @@ var $MAGIC;
 
 				var $current = $( '.fancybox-overlay' );
 				if( $current.length ){
-					$current.remove();
+					$current = $current.detach();
+				}else{
+					$current = false;
 				}
 
 			    $.fancybox.open(
@@ -3225,7 +3239,7 @@ var $MAGIC;
 				   		closeEasing: 'easeInSine',
 				   		nextEasing: 'easeInOutSine',
 				   		prevEasing: 'easeInOutSine',
-				   		openSpeed: 150,
+				   		openSpeed: 350,
 				   		closeSpeed: 350,
 				   		nextSpeed: 600,
 				   		prevSpeed: 600,
@@ -3233,6 +3247,14 @@ var $MAGIC;
 				   		keys: {
 				   			play   : false,
 							toggle : false,
+							next : {
+								13 : 'left', // enter
+								39 : 'left', // right arrow
+							},
+							prev : {
+								8  : 'right',  // backspace
+								37 : 'right',  // left arrow
+							}
 				   		},
 				   		
 				   		helpers: {
@@ -3254,20 +3276,21 @@ var $MAGIC;
 						beforeLoad: function() {
 							
 							// DISABLE SCROLLING
+
 							window.ontouchmove  = function(e) {
 								e = e || window.event;
 								if (e.preventDefault)
 									e.preventDefault();
-								e.returnValue = false;  
+								e.returnValue = false;
 							}
-							//$( 'body' ).addClass( 'no-scroll' );
+							$( 'body' ).disableIt();//.addClass( 'no-scroll' );
 
 						},
 
 						afterLoad: function() {
 
-							var $over = $( '.fancybox-overlay' );
-							var $wrap = $( '.fancybox-wrap' );//.remove().prependTo( $over );
+							var $over = $( '.fancybox-overlay' ).enableIt();
+							var $wrap = $( '.fancybox-wrap' );//.detach().appendTo( $over );
 
 							$over.addClass( type );
 							$over.addClass( data );
@@ -3413,11 +3436,30 @@ var $MAGIC;
 
 						beforeClose: function() {
 
-							// ENABLE SCROLLING
-							$( 'body' ).removeClass( 'no-scroll' );
-							window.ontouchmove = null;
+							//if( !$current ){
+								// ENABLE SCROLLING
+								$( 'body' ).enableIt().removeClass( 'no-scroll' );
+								window.ontouchmove = null;
+							/*}else{
+								//$('body').append( $current.hide() );
+								var $prev = $('.fancybox-overlay');
+								$prev.children().remove();
+								var cls = $current.attr( 'class' );
+								$prev.append( $current.children().detach() );
+								$prev.attr( 'class', cls );
+
+								$current = false;
+								
+								return false;
+							}*/
 
 						},
+						afterClose: function(){
+							/*if( $current ){
+								$current = false;
+								return false;
+							}*/
+						}
 			    	}
 			    );
 			    
