@@ -492,6 +492,59 @@ if ( !$.fn.changeIcon ) {
 	};
 }
 
+if ( !$.fn.imgSVG ) {
+	$.fn.imgSVG = function( ratio, fade ) {
+		    
+	    var $img = $( this );
+	    var imgOpacity = $img.css( 'opacity' ) || 1;
+	    var imgID = $img.attr( 'id' ) || '';
+	    var imgClass = $img.attr( 'class' ) || '';
+	    var imgURL = $img.attr( 'src' );
+
+	    if( !imgURL ) return this;
+
+	    var $svg = $();
+
+	    $.get( imgURL, function( data ){
+	        
+	        $svg = $( data ).find( 'svg' );
+
+	        if( imgID )
+	            $svg = $svg.attr('id', imgID );
+
+	        if( imgClass ) 
+	            $svg = $svg.attr( 'class', imgClass + ' replaced-svg' );
+	        
+	        $svg = $svg.removeAttr( 'xmlns:a' ).attr( 'preserveAspectRatio', ratio || 'none' );
+
+	        if(!$svg.attr('viewBox')){
+				$svg.attr('viewBox', ('0 0 '
+				+ $svg.attr('width').match(/[0-9]+\.[0-9]*/) + ' '
+				+ $svg.attr('height').match(/[0-9]+\.[0-9]*/)));
+			}
+
+	        if( fade ) $svg.css( 'opacity', '0' );
+	        $img.replaceWith( $svg );
+	        if( fade ) $svg.animate({ 'opacity': imgOpacity }, fade );
+
+	    }, 'xml' );
+
+	    return $svg;
+
+	}
+}
+if ( !$.fn.imgsSVG ) {
+	$.fn.imgsSVG = function( fade ) {
+
+		return this.each(function(){
+		    
+		    var $img = $( this );
+		    return $img.imgSVG( fade );
+
+		});
+	}
+}
+
 /*
 *****************************************************
 *	2.0 FUNCTIONS

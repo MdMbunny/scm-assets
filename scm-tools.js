@@ -1854,12 +1854,15 @@ var $MAGIC;
 
 		return this.each(function() {
 
-			if( !$MAGIC ) return this;
-
 			var $this = $( this );
-
+			
 			if( $this.attr( 'data-magic' ) ) return this;
 			$this.attr( 'data-magic', 1 );
+
+			if( !$MAGIC || $body.hasClass( 'touch' ) ){
+				$this.addClass( 'current-fade' );
+				return this;
+			}
 
 	        new $.ScrollMagic.Scene({
 	        	triggerElement: $this,
@@ -1997,21 +2000,23 @@ var $MAGIC;
 
 		return this.each(function() {
 
-			if( !$MAGIC ) return this;
-
 			var $this 	= $( this ),
 				$cont = $this.find( $this.attr( 'data-content-fade' ) ),
 				offset = parseFloat( ( $this.attr( 'data-content-fade-offset' ) ? $this.attr( 'data-content-fade-offset' ) : 1 )*.01 );
 
 			if( $this.attr( 'data-magic' ) ) return this;
+			
 			$this.attr( 'data-magic', 1 );
-
 			if( !$cont.length )
 				return this;
 
-			for (var i = 0; i < $cont.length; i++) {
-				
-				$content = $( $cont[i] ).addClass( 'has-fade' );
+			if( !$MAGIC || $('body').hasClass( 'touch' ) ){
+				$cont.addClass( 'has-fade' ).addClass( 'current-fade' );
+				return this;
+			}
+
+			$cont.each( function(e){
+				var $content = $( this ).addClass( 'has-fade' );
 
 				new $.ScrollMagic.Scene({
 		        	triggerElement: $content,
@@ -2020,7 +2025,7 @@ var $MAGIC;
 				.setClassToggle( $content, 'current-fade')
 				//.addIndicators()
 			    .addTo( $MAGIC );
-			};			
+			} );		
 
 		});
 	}
@@ -3058,7 +3063,7 @@ var $MAGIC;
 			    }
 			});
 
-			if( $body.hasClass( 'touch' ) ){
+			/*if( $body.hasClass( 'touch' ) ){
 
 				$this.find( 'a.nivo-nextNav' ).css( 'visibility', 'hidden' );
 				$this.find( 'a.nivo-prevNav' ).css( 'visibility', 'hidden' );
@@ -3085,7 +3090,7 @@ var $MAGIC;
 					
 				});
 
-			}
+			}*/
 			
 		});
 	}
@@ -3201,15 +3206,23 @@ var $MAGIC;
 			if( type == 'video' || type == 'load' )
 				type = 'html';
 
+			var $overlay = false;
+			var $wrap = false;
+
 			$this.click( function(e) {
 
 				if( e[ADVANCED] ) return;
 
-				var $current = $( '.fancybox-overlay' );
-				if( $current.length ){
-					$current = $current.detach();
+				$overlay = $( '.fancybox-overlay' );
+				if( $overlay.length ){
+					$wrap = $( '.fancybox-wrap' );
+					if( $wrap.length )
+						$wrap = $wrap.detach();
+					$overlay = $overlay.detach();
+
 				}else{
-					$current = false;
+					$overlay = false;
+					$wrap = false;
 				}
 
 			    $.fancybox.open(
@@ -3273,17 +3286,19 @@ var $MAGIC;
 				   			wrap 	 : '<div class="fancybox-wrap" tabIndex="-1"><div class="fancybox-skin"><div class="fancybox-outer"><div class="fancybox-inner"></div></div></div></div>',
 				   		},
 				   		
+
 						beforeLoad: function() {
 							
 							// DISABLE SCROLLING
-
+/*
 							window.ontouchmove  = function(e) {
 								e = e || window.event;
 								if (e.preventDefault)
 									e.preventDefault();
 								e.returnValue = false;
-							}
+							}*/
 							$( 'body' ).disableIt();//.addClass( 'no-scroll' );
+
 
 						},
 
@@ -3431,34 +3446,59 @@ var $MAGIC;
 						},
 
 						afterShow: function() {
-
+							//$overlay = $( '.fancybox-overlay' );
 						},
 
 						beforeClose: function() {
 
-							//if( !$current ){
+							if( $overlay && $wrap ){
+								console.log( 'PIPPO' );
+								$( '.fancybox-wrap' ).remove();
+								$( '.fancybox-overlay' ).remove();
+								$('body').append( $overlay.append( $wrap ) );
+								$overlay = false;
+								$wrap = false;
+								return false;
+								//console.log( $overlay );
+								//console.log( $( '.fancybox-overlay' ) );
+								//console.log( $overlay.is( $('.fancybox-overlay') ) );
+							}else{
+
+							//if( !$overlay ){
 								// ENABLE SCROLLING
 								$( 'body' ).enableIt().removeClass( 'no-scroll' );
-								window.ontouchmove = null;
-							/*}else{
-								//$('body').append( $current.hide() );
-								var $prev = $('.fancybox-overlay');
-								$prev.children().remove();
-								var cls = $current.attr( 'class' );
-								$prev.append( $current.children().detach() );
-								$prev.attr( 'class', cls );
+								//window.ontouchmove = null;
+							//}else{
+							}
 
-								$current = false;
+								//$( '.fancybox-overlay' ).replaceWith( $overlay );
+								//$('body').append( $overlay.hide() );
+								/*var $prev = $('.fancybox-overlay');
+								$prev.children().remove();
+								var cls = $overlay.attr( 'class' );
+								$prev.append( $overlay.children().detach() );
+								$prev.attr( 'class', cls );*/
+
+								//$overlay = false;
 								
-								return false;
-							}*/
+								//
+							//}
 
 						},
 						afterClose: function(){
-							/*if( $current ){
-								$current = false;
+							/*if( $overlay ){
+								$overlay = false;
 								return false;
 							}*/
+							//if($overlay){
+								//$( 'body' ).append( $overlay );
+								//$overlay = false;
+								//return false;
+								//console.log( $overlay );
+								//console.log( $( '.fancybox-overlay' ) );
+								//console.log( $overlay.is( $('.fancybox-overlay') ) );
+							//}
+							
 						}
 			    	}
 			    );

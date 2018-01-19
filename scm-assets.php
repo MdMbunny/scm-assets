@@ -3,7 +3,7 @@
  * Plugin Name:         SCM Assets
  * Plugin URI:          http://studiocreativo-m.it/
  * Description:         SCM Javascript Integration
- * Version:             2.1.3
+ * Version:             2.1.4
  * Author:              Studio Creativo M
  * Author URI:          http://studiocreativo-m.it/
  * License:             http://www.gnu.org/licenses/gpl-3.0.html
@@ -246,11 +246,11 @@
             }
 
             // TouchSwipe
-            $touch = apply_filters( 'scm_assets_filter_block_touch', false );
+            /*$touch = apply_filters( 'scm_assets_filter_block_touch', false );
             if( !$touch ){
                 wp_register_script( 'jquery-touch-swipe', SCM_ASSETS_URI_ASSETS . 'touchSwipe-1.6.8/jquery.touchSwipe.min.js', array( 'imagesloaded' ), null, true );
                 wp_enqueue_script( 'jquery-touch-swipe' );
-            }
+            }*/
 
             // Awesome Cursor
             $cursor = apply_filters( 'scm_assets_filter_block_cursor', false );

@@ -16,6 +16,11 @@
 	var wait;
 	var touch;
 
+	var isTouch = function() {
+	  return 'ontouchstart' in window        // works on most browsers 
+	      || navigator.maxTouchPoints;       // works on IE10/11 and Surface
+	}
+
 	// *****************************************************
 	// *      INIT
 	// *****************************************************
@@ -28,7 +33,7 @@
 
 		start 		= 'documentDone';
 		wait 		= $body.data( 'fade-wait' );
-		touch 		= $body.hasClass( 'touch' );
+		touch 		= isTouch();//$body.hasClass( 'touch' );
 
 		GOOGLE_API_KEY = $body.attr( 'data-gmap' );
 
@@ -38,6 +43,7 @@
 
 		$body.setLocationData( window.location );
 		$body.disableIt();
+		$body.addClass( touch ? 'touch' : 'no-touch' );
 
 		$( document )
 			.on( 'mousedown', function(e) { $body.removeClass( 'keyboard' ) })
@@ -69,22 +75,15 @@
 	// *      TOUCH
 	// *****************************************************
 
-	var touchEvents = function(){
+	/*var touchEvents = function(){
 		$.consoleDebug( DEBUG, 'touchEvents()');
 
         if ( touch ) {
-            /*$body.addClass( 'touch' );
-            $body.removeClass( 'mouse' );
-            $.consoleDebug( DEBUG, '- is touch');*/
 
             $( '.navigation' ).toggleSwipe();
 
-        }/*else{
-            $body.removeClass( 'touch' );
-            $body.addClass( 'mouse' );
-            $.consoleDebug( DEBUG, '- is not touch');
-        }*/
-	}
+        }
+	}*/
 
 	// *****************************************************
 	// *      START EVENTS
@@ -92,24 +91,6 @@
 
 	var startEvents = function(){
 		$.consoleDebug( DEBUG, 'startEvents()');
-		/*switch( wait ){
-			case 'images': case 'nobg':
-				start = 'imgsLoaded';
-			break;
-			case 'sliders':
-				if( $( '.nivoSlider' ).length ) start = 'nivoLoaded';
-				else start = 'imgsLoaded';
-			break;
-			case 'maps':
-				if( $( '.scm-map' ).length ) start = 'mapsLoaded';
-				else start = 'imgsLoaded';
-			break;
-			default:
-				start = 'documentDone';
-			break;
-		}*/
-
-		//start = 'documentDone';
 
 		$.consoleDebug( DEBUG, '- start event is: ' + start );
 		
@@ -119,13 +100,6 @@
 			isready = true;
 			$.bodyIn();
 		} );
-
-		/*setTimeout(function() {
-			if( !isready ){
-				$.consoleDebug( DEBUG, '[WARNING] BodyIn FORCED START');
-				$.bodyIn();
-			}
-     	}, 5000);*/
 	}
 
 	// *****************************************************
@@ -157,10 +131,26 @@
 			$( '[data-equal]' ).equalChildrenSize();
 		} );
 
+		var $toggle_mobile = $( '[data-switch-toggle="is-mobile"]' );
+		if( $toggle_mobile.length && $body.hasClass( 'is-mobile' ) ){
+			$toggle_mobile.switchByData( 'is-mobile', 'switch-toggle', 'toggle', '.toggle-image, .toggle-home' );
+			$( '[data-switch="is-mobile"]' ).switchByData( 'is-mobile', 'switch' );
+			$body.addClass('toggled-nav');
+			$toggle_mobile.toggledOff();
+		}
+
+		var $toggle_touch = $( '[data-switch-toggle="touch"]' );
+		if( $toggle_touch.length && $body.hasClass( 'touch' ) ){
+			$toggle_touch.switchByData( 'touch', 'switch-toggle', 'toggle', '.toggle-image, .toggle-home' );
+			$( '[data-switch="touch"]' ).switchByData( 'touch', 'switch' );
+			$body.addClass('toggled-nav');
+			$toggle_touch.toggledOff();
+		}
+
 		// BODY RESPONSIVE event
 		$body.off('responsive').on( 'responsive', function( e, state ) {
-			$( '[data-switch-toggle]' ).switchByData( state, 'switch-toggle', 'toggle', '.toggle-image, .toggle-home' );
-			$( '[data-switch]' ).switchByData( state, 'switch' );
+			$( '[data-switch-toggle]' ).not( '[data-switch-toggle="is-mobile"]' ).not( '[data-switch-toggle="touch"]' ).switchByData( state, 'switch-toggle', 'toggle', '.toggle-image, .toggle-home' );
+			$( '[data-switch]' ).not( '[data-switch="is-mobile"]' ).not( '[data-switch="touch"]' ).switchByData( state, 'switch' );
 			$( '[data-sticky]' ).stickyMenu();
 			$( '[data-affix]' ).affixIt();
 		} );
@@ -452,7 +442,7 @@
 
 		initPage();
 			debugEvents();
-			touchEvents();
+			//touchEvents();
 			startEvents();
 			layoutEvents();
 			navEvents();
