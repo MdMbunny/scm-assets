@@ -2196,31 +2196,33 @@ var $MAGIC;
 
 	$.fn.affixIn = function( offset, container, absolute ){
 
+		var $container = container || $( '#site-page' );
+
 		return this.each(function() {
 		
 			var $this = $(this);
 			var $parent = $this.parent();
 
-			var $container = container || $( '#site-page' );
-			//var add = $container.find( '.fixedin' ).not( $this ).totalHeight();
-			var off = ( offset || 0 );// + ( add || 0 );
-			
+			var add = 0;
+			var $all = $container.find( '.fixedin' ).each( function(){
+				if( $(this).is( $this ) ) return false;
+				add = add + $(this).outerHeight();
+			} );
+
+			var off = ( offset || 0 ) + add;
+
 			var top = ( container ? container.offset().top : $(document).scrollTop() ) - $parent.offset().top + off;
 			var bottom = top - $parent.outerHeight() + $this.outerHeight();
-
-
 
 			if( bottom > 0 ){
 				if( $this.hasClass( 'fixedin' ) ){
 					$this.css( { 'top': 'initial', 'bottom': 0, 'position': 'absolute' } );
 					$this.removeClass( 'fixedin' );
 				}
-			}else if( top > 0 /*&& ( absolute || !$this.hasClass( 'fixedin' ) )*/ ){
+			}else if( top > 0 ){
 				$this.css( { 'top': ( absolute ? top : off ) + 'px', 'bottom': 'initial', 'position': ( absolute ? 'absolute' : 'fixed' ) } );
-				$this.addClass( 'fixedin' );
-			}else if( top < 0 /*&& $this.hasClass( 'fixedin' )*/ ){
-
-				//console.log( top );
+					$this.addClass( 'fixedin' );
+			}else if( top < 0 ){
 				$this.css( { 'top': 0, 'bottom': 'initial', 'position': 'absolute' } );
 				$this.removeClass( 'fixedin' );
 			}
