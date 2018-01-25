@@ -475,6 +475,22 @@ function cloneObject( obj ){
     return JSON.parse(JSON.stringify(obj));
 }
 
+function objKeys( obj ){
+    var arr = [];
+    for (key in obj)
+        if (obj.hasOwnProperty(key)) arr.push( key );
+    
+    return arr;
+}
+
+function objValues( obj ){
+    var arr = [];
+    for (key in obj)
+        if (obj.hasOwnProperty(key)) arr.push( obj[key] );
+    
+    return arr;
+}
+
 function objFirstKey(obj){
     return Object.keys(obj)[0];
 }
@@ -490,9 +506,9 @@ function objValues(obj){
 
 function objSize(obj){
     var size = 0, key;
-    for (key in obj){
+    for (key in obj)
         if (obj.hasOwnProperty(key)) size++;
-    }
+    
     return size;
 };
 
