@@ -473,8 +473,9 @@ if ( !$.fn.nextLoop ) {
 
 if ( !$.fn.changeIcon ) {
 	$.fn.changeIcon = function( icon ) {
-		
+
 		var $this = this;
+
 		if( !$this.hasClass( 'faicon' ) )
 			$this = $this.find( '.faicon' );
 
@@ -482,7 +483,7 @@ if ( !$.fn.changeIcon ) {
 		
 		var cls = $this.attr('class').split(/\s+/);
 		for( var i in cls )
-			if( cls[i].indexOf( 'fa-' ) < 0 )				
+			if( cls[i].indexOf( 'fa-' ) > -1 )				
 				$this.removeClass( cls[i] );
 
 		$this.addClass( 'fa' ).addClass( icon ).removeClass( 'faicon' ).FAFIX();
