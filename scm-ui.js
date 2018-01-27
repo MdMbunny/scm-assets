@@ -383,10 +383,12 @@
 							$but_upload.removeClass('disabled');
 							$but_upload.removeClass('hidden');
 							$lab_upload.removeClass('scm-ui-button').addClass('is-file').text( $(this).val().split( '\\' ).pop() ).prepend( cache );
+							$but_upload.trigger( 'file', [$(this).val()] );
 						}else{
 							$but_upload.addClass('disabled');
 							$but_upload.addClass('hidden');
 							$lab_upload.addClass('scm-ui-button').removeClass('is-file').text( upload ).prepend( cache );
+							$but_upload.trigger( 'file', [false] );
 						}
 					
 					}

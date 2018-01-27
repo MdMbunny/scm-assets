@@ -459,6 +459,11 @@ function Ceil( num, rnd ){
 // OBJECT
 // **********************************************
 
+function count( elem ){
+    if( Array.isArray( elem ) || typeof elem == 'string' ) return elem.length;
+    return objSize( elem );
+}
+
 function isObject( obj ){
     return obj !== null && typeof obj === 'object';
 }
