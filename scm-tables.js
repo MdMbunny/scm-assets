@@ -124,8 +124,8 @@
 		Body();
 
 		if( options.sortable_rows ) $table.addClass( 'sortable_rows' ).sortRows( options.sortable_rows );
-		if( options.sortable ) $table.addClass( 'sortable' ).sortTable();
-		if( options.editable ) $table.addClass( 'editable' ).editTable({
+		if( options.sortable ) $table.addClass( 'sortable' ).sortableTable();
+		if( options.editable ) $table.addClass( 'editable' ).editableTable({
 			editor: $('<input class="editable-input">'),
 			picker: $('<input class="color-picker editable-input">'),
 			calendar: $('<input class="date-picker editable-input">'),
@@ -231,42 +231,76 @@
 		});
 	}
 
-	$.fn.sortColumn = function( head, by ){
+	$.fn.sortTable = function( column, sort, format ){
 
-		return this.each( function(){
+		var $table = this;
+		var $column = typeof column == 'string' ? $table.find( 'th[data-column-name="' + column + '"]' ) : ( typeof column == 'number' ? $table.find( 'th[data-cell-column="' + column + '"]' ) : column );
+		var name = $column.attr( 'data-column-name' );
+		var format = format || $column.data('column-format') || 'string';
 
-			var $table = $(this),
-				$column = head,
-				format = ( by && by.length && by.data('column-format') ? by.data('column-format') : ( $column.data('column-format') ? $column.data('column-format') : 'string' ) ),
-				column = ( by && by.length && by.data('cell-column') ? by.data('cell-column') : ( $column.data('cell-column') ? $column.data('cell-column') : 0 ) ),
-				evt = $.Event( 'sort' );
+		column = $column.attr( 'data-cell-column' );
 
-			$column.siblings().removeClass( 'sort-down' ).removeClass( 'sort-up' );
+		var $cells = $table.find( 'td[data-cell-column="' + column + '"]' );
 
-			var $cells = $table.find( 'td[data-cell-column="' + column + '"]' );
+		var state = 0;
 
-			if( $column.hasClass( 'sort-up' ) ){
+		$column.siblings().removeClass( 'sort-down' ).removeClass( 'sort-up' );
+
+		switch( sort ){
+			case 1:
+			case 'up':
+
+				$column.addClass( 'sort-up' );
+				$column.removeClass( 'sort-down' );
+				$cells.sortCells( format, 'asc' );
+				state = 1;
+
+			break;
+			case 2:
+			case 'down':
 
 				$column.removeClass( 'sort-up' );
 				$column.addClass( 'sort-down' );
 				$cells.sortCells( format, 'desc' );
+				state = 2;
 
-			}else if( $column.hasClass( 'sort-down' ) ){
+			break;
+			default:
 
+				$column.removeClass( 'sort-up' );
 				$column.removeClass( 'sort-down' );
 				$cells.sortCells( format, 'orig' );
+				state = 0;
 
-			}else{
+			break;
+		}
 
-				$column.addClass( 'sort-up' );
-				$cells.sortCells( format, 'asc' );
-			}
+		$table.trigger( 'sort', [ name, column, state ] );
 
-			$table.trigger( evt );
+		return this;
+
+	}
+
+	$.fn.sortColumn = function( head, by ){
+
+		return this.each( function(){
+
+			var $table = $(this);
+			var $column = typeof head == 'string' ? $table.find( 'th[data-column-name="' + head + '"]' ) : ( typeof head == 'number' ? $table.find( 'th[data-cell-column="' + head + '"]' ) : head );
+			
+			var format = ( by && by.length && by.data('column-format') ? by.data('column-format') : ( $column.data('column-format') ? $column.data('column-format') : 'string' ) );
+
+			if( $column.hasClass( 'sort-up' ) )
+				$table.sortTable( $column, 'down', format );
+			else if( $column.hasClass( 'sort-down' ) )
+				$table.sortTable( $column, '', format );
+			else
+				$table.sortTable( $column, 'up', format );
+			
 		});
 	}
 
-	$.fn.sortTable = function () {
+	$.fn.sortableTable = function () {
 
 		return this.each( function() {
 
@@ -486,13 +520,13 @@
 		return this;
 	}
 
-	$.fn.editTable = function( opt ){
+	$.fn.editableTable = function( opt ){
 
 		'use strict';
 		return this.each( function(){
 
 			var defaultOptions = function () {
-					var opts = $.extend({}, $.fn.editTable.defaults);
+					var opts = $.extend({}, $.fn.editableTable.defaults);
 					opts.editor = opts.editor.clone();
 					return opts;
 				},
@@ -728,7 +762,7 @@
 		});
 
 	};
-	$.fn.editTable.defaults = {
+	$.fn.editableTable.defaults = {
 		props: ['padding', 'padding-top', 'padding-bottom', 'padding-left', 'padding-right',
 						  'text-align', 'font', 'font-size', 'font-family', 'font-weight',
 						  'border-radius', 'border', 'border-top', 'border-bottom', 'border-left', 'border-right'],

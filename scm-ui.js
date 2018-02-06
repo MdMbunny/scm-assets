@@ -324,6 +324,10 @@
 				});
 
 			}
+			$.fn.UISelectOption = function(){
+				return $(this).UISelect().find( 'option:selected' ).text();
+			}
+			
 			$.fn.UISelectValue = function( val, trigger ){
 				if( undefined === val )
 					return $(this).UISelect().val();
@@ -364,8 +368,19 @@
 
 				// ********************************************** UPLOAD
 
-				$.UIButtonFile = function( id, action, icon, upload, send, cls, both ){
+				$.UIButtonFile = function( id, action, icon, upload, cls, both ){
 
+					id = ( id ? id : 'file' );
+					upload = ( upload ? upload : '' );
+					icon = ( icon ? icon : 'fa-file-code-o' );
+
+					var $file = $( '<input id="' + id + '-input" type="file" name="' + id + '-input" />' ).on( 'change', action ).addClass( both ).addClass('scm-ui-upload-input');
+					var $upload = $.UILabel( icon, upload, 'label' ).attr( 'id', id + '-button' ).attr( 'for', id + '-input' ).addClass( both ).addClass( cls ).addClass('scm-ui-button');
+
+					return $file.add( $upload );
+				};
+
+				$.UIButtonFiles = function( id, action, icon, upload, send, cls, both ){
 
 					id = ( id ? id : 'file' );
 					send = ( send ? send : '' );

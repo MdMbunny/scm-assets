@@ -3625,7 +3625,7 @@ var $MAGIC;
 	// *      CSS - COLORS PALETTES
 	// *****************************************************
 
-	$.getColor = function( colors, color, palette ){
+	/*$.getColor = function( colors, color, palette ){
 		if( !colors ) return '';
 		palette = ( $.isNumeric( palette ) ? +palette : 0 );
 		
@@ -3634,9 +3634,9 @@ var $MAGIC;
 		else if( typeof color == 'string' && undefined !== colors[ color ] )
 			return colors[ color ];
 		return '';
-	}
+	}*/
 
-	$.fn.colorIt = function( colors, palette ){
+	$.fn.colorIt = function( colors ){
 
 		if( !colors ) return this;
 
@@ -3644,10 +3644,10 @@ var $MAGIC;
 
 			//if( undefined !== palette ) $( this ).data( 'palette', palette );
 
-			var pal = ( palette !== undefined ? palette : ( $( this ).data( 'palette' ) !== undefined ? $( this ).data( 'palette' ) : $( this ).parents( '[data-palette]' ).data( 'palette' ) ) );
-			var bg = $.getColor( colors, $( this ).data( 'color-bg' ), pal );
-			var col = $.getColor( colors, $( this ).data( 'color-it' ), pal );
-			var border = $.getColor( colors, $( this ).data( 'color-border' ), pal );
+			//var pal = ( palette !== undefined ? palette : ( $( this ).data( 'palette' ) !== undefined ? $( this ).data( 'palette' ) : $( this ).parents( '[data-palette]' ).data( 'palette' ) ) );
+			var bg = colors[ $( this ).data( 'color-bg' ) ];// $.getColor( colors, $( this ).data( 'color-bg' ), pal );
+			var col = colors[ $( this ).data( 'color-it' ) ];// $.getColor( colors, $( this ).data( 'color-it' ), pal );
+			var border = colors[ $( this ).data( 'color-border' ) ];// $.getColor( colors, $( this ).data( 'color-border' ), pal );
 
 			if( bg ) $( this ).css( 'background-color', bg );
 			if( col ) $( this ).css( 'color', col );
@@ -3656,7 +3656,7 @@ var $MAGIC;
 		});
 	}
 
-	$.fn.setColorIt = function( colors, palette, self ){
+	$.fn.setColorIt = function( colors, self ){
 
 		if( !colors ) return this;
 
@@ -3668,7 +3668,7 @@ var $MAGIC;
 			if( !$( this ).hasClass( 'color-it' ) ) $( this ).addClass( 'color-it' );
 		});
 
-		$elems.colorIt( colors, palette );
+		$elems.colorIt( colors );
 
 		return this;
 	}

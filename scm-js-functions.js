@@ -502,6 +502,12 @@ function objFirstKey(obj){
 function objFirstValue(obj){
     return obj[Object.keys(obj)[0]];
 }
+function objLastKey(obj){
+    return Object.keys(obj)[objSize(obj)-1];
+}
+function objLastValue(obj){
+    return obj[Object.keys(obj)[objSize(obj)-1]];
+}
 
 function objValues(obj){
     return Object.keys(obj).map(function(key){
