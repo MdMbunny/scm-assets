@@ -67,10 +67,10 @@
 								classes = value.classes,
 								fa = ( value.icon ? value.icon.startsWith('fa-') : false ),
 								icon = ( value.icon ? '<i class="fa ' + ( !fa ? 'text' : value.icon ) + '">' + ( !fa ? value.icon : '' ) + '</i> ' : '' ),
-								format = ( value.format ? value.format : 'string' ),
-								exception = ( value.exception ? value.exception : '' ),
-								decimal = ( value.decimal ? value.decimal : 0 ),
-								auto = ( options.autocomplete && !value.noauto && format != 'date' ),
+								format = ( value.format || 'string' ),
+								exception = ( value.exception || '' ),
+								decimal = ( value.decimal || 0 ),
+								auto = ( options.autocomplete && !value.noauto && format != 'date' ? ( value.multiauto ? 'multi' : 'auto' ) : false ),
 								hints = value.hints,
 								sort = ( value.sort ? value.sort : '' ),
 								nosort = ( value.nosort ? true : !options.sortable ),
@@ -525,12 +525,12 @@
 		'use strict';
 		return this.each( function(){
 
-			var defaultOptions = function () {
-					var opts = $.extend({}, $.fn.editableTable.defaults);
-					opts.editor = opts.editor.clone();
-					return opts;
-				},
-				options = $.extend( defaultOptions(), opt );
+			var defaultOptions = function(){
+				var opts = $.extend({}, $.fn.editableTable.defaults);
+				opts.editor = opts.editor.clone();
+				return opts;
+			};
+			var options = $.extend( defaultOptions(), opt );
 			
 			var ARROW_LEFT = 37, ARROW_UP = 38, ARROW_RIGHT = 39, ARROW_DOWN = 40, ENTER = 13, ESC = 27, TAB = 9;
 
@@ -561,6 +561,8 @@
 							cell.editCell( value );
 						else
 							input.editCell( cell );
+
+						cell.trigger( 'cellchanged' );
 					}
 					
 					input.removeClass('active').hide();
@@ -568,111 +570,149 @@
 			}
 
 			var showEditor = function( select ) {
-					$cell = $this.find( 'td.edit:focus' );
-					if( $cell.length ){
-						$cell.removeClass('error');
-						format = $cell.data( 'cell-format' );
-						var name = $cell.data( 'column-name' );
-						var list = $this.find( 'th[data-column-name="' + name + '"]' ).data( 'auto-complete' );
-						var hints = $this.find( 'th[data-column-name="' + name + '"]' ).data( 'hints' );
+				$cell = $this.find( 'td.edit:focus' );
+				if( $cell.length ){
+					$cell.removeClass('error');
+					format = $cell.data( 'cell-format' );
+					var name = $cell.data( 'column-name' );
+					var list = $this.find( 'th[data-column-name="' + name + '"]' ).data( 'auto-complete' );
+					var hints = $this.find( 'th[data-column-name="' + name + '"]' ).data( 'hints' );
 
-						$temp = ( format == 'color' ? $picker : ( format == 'date' ? $calendar : $input ) );
-						if( format == 'date' )
-							$temp.datepicker( 'setDate', $cell.text() );
-						else
-							$temp.val( $cell.text() );
+					$temp = ( format == 'color' ? $picker : ( format == 'date' ? $calendar : $input ) );
+					if( format == 'date' )
+						$temp.datepicker( 'setDate', $cell.text() );
+					else
+						$temp.val( $cell.text() );
 
-						$temp
-							.addClass('active')
-							.show()
-							.offset( $cell.offset() )
-							.css( $cell.css( options.props ) )
-							.width( $cell.width() + width )
-							.height( $cell.height() + height );
+					$temp
+						.addClass('active')
+						.show()
+						.offset( $cell.offset() )
+						.css( $cell.css( options.props ) )
+						.width( $cell.width() + width )
+						.height( $cell.height() + height );
 
-						if( list ){
+					if( list ){
 
-							var arr = [];
+						var arr = [];
+						
+						if( !hints ){
+							var $cells = $this.find( 'td[data-column-name="' + name + '"]' ).not( $cell );
 							
-							if( !hints ){
-								var $cells = $this.find( 'td[data-column-name="' + name + '"]' ).not( $cell );
-								
-							    $cells.each(function() {
-							        if ($.inArray($(this).text(), arr) == -1)
-							            arr.push($(this).text());
-							    });
-							    arr = arr.sort();
-							}else if( typeof hints == 'function' ){
-								arr = hints( $cell );
-							}else{
-								arr = hints;
-							}
+						    $cells.each(function() {
+						        if ($.inArray($(this).text(), arr) == -1)
+						            arr.push($(this).text());
+						    });
+						    arr = arr.sort();
+						}else if( typeof hints == 'function' ){
+							arr = hints( $cell );
+						}else{
+							arr = hints;
+						}
 
-							if( arr ){
+						if( arr ){
 
-							    $temp.autocomplete( {
-							    	source: arr,
-							    	appendTo: $parent,
-							    	minLength: 0,
-							    	select: function( event, ui ){
-							    		if( ui.item.value )
-								    		hideEditor( $temp, $cell, ui.item.value );
-							    	},
-							    	open: function( event, ui ){
-										$cell.trigger( 'open', [ $temp ] );
-							    	},
-							    	change: function( event, ui ){
-							    		$temp.validCell( $cell );
-							    	},
-							    	focus: function( event, ui ){
-							    		$temp.validCell( $cell );
-							    	}
-								});
+							var open = function( event, ui ){
+								$cell.trigger( 'open', [ $temp ] );
+					    	};
+					    	var change = function( event, ui ){
+					    		$temp.validCell( $cell );
+					    	};
 							
-								$('.ui-autocomplete').css({'min-width':$temp.outerWidth()});
-								
-								$temp.autocomplete('enable');
-								$temp.autocomplete( 'search', '' );
+							var focus = function( event, ui ){
+								if( list == 'multi' ) return false;
+						    	$temp.validCell( $cell );
+						    };
 
-							}else if( $temp.autocomplete( 'instance' ) ){
-								$temp.autocomplete('disable');
-							}
+						    var select = function( event, ui ){
+							    if( list == 'multi' ){
+							    	var terms = splitTrim( this.value );
+							    	if( inArray( terms, ui.item.value ) ) return false;
+									// remove the current input
+									//terms.pop();
+									// add the selected item
+									terms.push( ui.item.value );
+									// add placeholder to get the comma-and-space at the end
+									//terms.push( '' );
+									this.value = terms.join( ', ' );
+									arr = terms;
+									return false;
+								}
+					    		if( ui.item.value )
+						    		hideEditor( $temp, $cell, ui.item.value );
+					    	};
+							
+							//var source = arr;
+							/*if( list == 'multi' ){
+								source = function( request, response ){ // ???
+						          // delegate back to autocomplete, but extract the last term
+						          response( $.ui.autocomplete.filter(
+						            arr, splitTrim( request.term ).pop() ) );
+						        };
+							}*/
+
+						    $temp.autocomplete( {
+						    	appendTo: $parent,
+						    	minLength: 0,
+						    	source: arr,
+						    	select: select,
+						    	open: open,
+						    	change: change,
+						    	focus: focus,
+							} );
+					
+							$('.ui-autocomplete').css({'min-width':$temp.outerWidth()});
+							
+							$temp.autocomplete('enable');
+							$temp.autocomplete( 'search', '' );
 
 						}else if( $temp.autocomplete( 'instance' ) ){
 							$temp.autocomplete('disable');
 						}
 
-						$temp.focus();
-
-						if( select )
-							$temp.select();
-
-						var caret = $temp.getCursorPosition();
-						$temp.data( 'caret-start', caret.start );
-						$temp.data( 'caret-end', caret.end );
-
-					}
-				},
-				checkCell = function( cell, keycode ){
-					var arr = [];
-					if( keycode ){
-						if( keycode === ARROW_RIGHT )
-							arr = ( !cmdKey ? cell.nextAll( 'td.edit:first' ) : cell.nextAll( 'td.edit:last' ) );
-						else if(keycode === ARROW_LEFT)
-							arr = ( !cmdKey ? cell.prevAll( 'td.edit:first' ) : cell.prevAll( 'td.edit:last' ) );
-						else if(keycode === ARROW_UP)
-							arr = ( !cmdKey ? cell.parent().prev().children().eq( cell.index() ) : cell.parent().prevAll( 'tr:last' ).children().eq( cell.index() ) );
-						else if(keycode === ARROW_DOWN)
-							arr = ( !cmdKey ? cell.parent().next().children().eq( cell.index() ) : cell.parent().nextAll( 'tr:last' ).children().eq( cell.index() ) );
-						else if(keycode === true)
-							arr = cell.filter( '.edit' );
-						else
-							return arr;
-						return arr.filter( '.edit' );
+					}else if( $temp.autocomplete( 'instance' ) ){
+						$temp.autocomplete('disable');
 					}
 
-					return arr;
-				};
+					$temp.focus();
+
+					if( select )
+						$temp.select();
+
+					var caret = $temp.getCursorPosition();
+					$temp.data( 'caret-start', caret.start );
+					$temp.data( 'caret-end', caret.end );
+
+				}
+			};
+			var checkCell = function( cell, keycode ){
+				var arr = [];
+				if( keycode ){
+					if( keycode === ARROW_RIGHT )
+						arr = ( !cmdKey ? cell.nextAll( 'td.edit:first' ) : cell.nextAll( 'td.edit:last' ) );
+					else if(keycode === ARROW_LEFT)
+						arr = ( !cmdKey ? cell.prevAll( 'td.edit:first' ) : cell.prevAll( 'td.edit:last' ) );
+					else if(keycode === ARROW_UP)
+						arr = ( !cmdKey ? cell.parent().prev().children().eq( cell.index() ) : cell.parent().prevAll( 'tr:last' ).children().eq( cell.index() ) );
+					else if(keycode === ARROW_DOWN)
+						arr = ( !cmdKey ? cell.parent().next().children().eq( cell.index() ) : cell.parent().nextAll( 'tr:last' ).children().eq( cell.index() ) );
+					else if(keycode === true)
+						arr = cell.filter( '.edit' );
+					else
+						return arr;
+					return arr.filter( '.edit' );
+				}
+
+				return arr;
+			};
+			var checkOver = function(){
+				for( var i in inputs ){
+					if( inputs[i].autocomplete( 'instance' ) && inputs[i].autocomplete( 'instance' ).menu.active ) return true;
+					// if calendar is opened return true;
+					// if color picker is opened return true;
+				}
+				return false;
+			}
 
 			$.each( inputs, function( key, value ) {
 				value
@@ -680,41 +720,44 @@
 						hideEditor( value, $cell );
 					})
 					.keydown( function( e ){
-						var caret = $temp.getCursorPosition();
-						if( caret.start !== caret.end )
-							value.data( 'caret-sel', 1 );
-						else
-							value.data( 'caret-sel', 0 );
+						if( !checkOver() ){
+							var caret = $temp.getCursorPosition();
+							if( caret.start !== caret.end )
+								value.data( 'caret-sel', 1 );
+							else
+								value.data( 'caret-sel', 0 );
 
-						if( e.which === ENTER ){
-							hideEditor( value, $cell );
-							//$cell.focus();
-							e.preventDefault();
-							e.stopPropagation();
-						}else if( e.which === ESC ){
-							value.val( $cell.text() );
-							e.preventDefault();
-							e.stopPropagation();
-							hideEditor( value );
-							$cell.focus();
-						}else if( e.which === TAB ){
-							$cell.focus();
+							if( e.which === ENTER ){
+								hideEditor( value, $cell );
+								e.preventDefault();
+								e.stopPropagation();
+							}else if( e.which === ESC ){
+								value.val( $cell.text() );
+								e.preventDefault();
+								e.stopPropagation();
+								hideEditor( value );
+								$cell.focus();
+							}else if( e.which === TAB ){
+								$cell.focus();
+							}
 						}
 					})
 					.keyup( function( e ){
-						var old = value.data( 'caret-start' );
-						
-						var caret = $temp.getCursorPosition();
-						value.data( 'caret-start', caret.start );
-						value.data( 'caret-end', caret.end );
-												
-						if( !value.data( 'caret-sel' ) && ( old === caret.start || !value.val() ) ){
-							var check = checkCell( $cell, e.which );
-							if( check.length > 0 ){
-								hideEditor( value, $cell );
-								check.focus();
-								e.preventDefault();
-								e.stopPropagation();
+						if( !checkOver() ){
+							var old = value.data( 'caret-start' );
+							
+							var caret = $temp.getCursorPosition();
+							value.data( 'caret-start', caret.start );
+							value.data( 'caret-end', caret.end );
+													
+							if( !value.data( 'caret-sel' ) && ( old === caret.start || !value.val() ) ){
+								var check = checkCell( $cell, e.which );
+								if( check.length > 0 ){
+									hideEditor( value, $cell );
+									check.focus();
+									e.preventDefault();
+									e.stopPropagation();
+								}
 							}
 						}
 					})

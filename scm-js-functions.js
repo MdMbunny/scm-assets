@@ -276,14 +276,14 @@ function colorLuminance(hex, lum){
     lum = lum || 0;
 
     // convert to decimal and change luminosity
-    var rgb = "#", c, i;
+    var ret = "#", c, i;
     for (i = 0; i < 3; i++){
         c = parseInt(hex.substr(i*2,2), 16);
         c = Math.round(Math.min(Math.max(0, c + (c * lum)), 255)).toString(16);
-        rgb += ("00"+c).substr(c.length);
+        ret += ("00"+c).substr(c.length);
     }
 
-    return rgb;
+    return ret;
 }
 
 function colorsContrast(F, B){
@@ -366,8 +366,30 @@ function formatDate( date, dsep, sep, hsep ){
     return ret;
 }
 
-function sanitizeTitle(str){
-    str = str.replace(/^\s+|\s+$/g, ''); // trim
+function splitTrim( string, sep ){
+    return arrClean( string.split( sep || ',' ).map( function(v){ return trimString(v); } ) );
+}
+function splitSanitize( string, sep ){
+    return arrClean( string.split( sep || ',' ).map( function(v){ return sanitizeTitle(v); } ) );
+}
+
+var replaceBetween = function( str, needle, replace, sep ){
+    sep = sep || ',';
+    if( !str || !needle || !replace ) return '';
+    var arr = str.split( sep );
+    for( var i in arr ){
+        if( arr[i] == needle ) 
+        arr[i] = replace;
+    }
+    return arr.join(sep);
+}
+
+function trimString( string ){
+    return string.replace(/^\s+|\s+$/g, '');
+}
+
+function sanitizeTitle(str,sub){
+    str = trimString( str );
     str = str.toLowerCase();
 
     // remove accents, swap ñ for n, etc
@@ -375,13 +397,11 @@ function sanitizeTitle(str){
     var to   = "aaaaeeeeiiiioooouuuunc------";
 
     for (var i=0, l=from.length ; i<l ; i++)
-   {
         str = str.replace(new RegExp(from.charAt(i), 'g'), to.charAt(i));
-    }
 
     str = str.replace(/[^a-z0-9 -]/g, '') // remove invalid chars
-        .replace(/\s+/g, '-') // collapse whitespace and replace by -
-        .replace(/-+/g, '-'); // collapse dashes
+        .replace(/\s+/g, sub || '-') // collapse whitespace and replace by -
+        .replace(/-+/g, sub || '-'); // collapse dashes
 
     return str;
 }
@@ -411,12 +431,16 @@ function replaceAll( search, replace, txt ){
 }
 
 function removeSpaces( string, sub ){
-    return string.replace( /\s\s+/g, sub || '' );
+    return string.replace( /\s+/g, sub || '' );
 }
 
 function validateEmail( email ){
     var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     return re.test( email );
+}
+
+var getFileExtension = function( string ){
+    return ( string.substring( string.lastIndexOf( '.' ) + 1, string.length ) || string ).split( '/' )[0];
 }
 
 // **********************************************
@@ -709,10 +733,17 @@ function arrRemove( arr, elem ){
         arr.splice( index, 1 );
 }
 
+function arrAdd( arr, elem ){
+    if( !arr ) arr = [];
+    if( undefined === elem ) return arr.length;
+    if( !inArray( arr, elem ) )
+        return arr.push( elem );
+}
+
 function arrClean( arr ){
     var clean = [];
     for( var i = 0; i < arr.length; i++ ){
-        if( arr[i] || arr[i] === 0 )
+        if( arr[i] || arr[i] === 0 || arr[i] === false )
             clean.push( arr[i] );
     }
     return clean;

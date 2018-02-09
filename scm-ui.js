@@ -426,13 +426,15 @@
 				var plus = false;
 				if( action && typeof action == 'string' ){
 					if( action == 'plus' ){
-						plus = true;
+						plus = 'plus';
+						action = 'siblings';
+					}else if( action == 'add' ){
+						plus = 'add';
 						action = 'siblings';
 					}
 					fun = fun + capitalizeFirstLetter( action );
 					action = false;
 				}
-
 
 				var $but = $.UIButton( action, ( active || !iconb ? icona : iconb ), ( active || !textb ? texta : textb ), cls )
 					.addClass( 'scm-ui-toggle' )
@@ -448,7 +450,7 @@
 							if( !plus )
 								$(this)[fun]();
 							else
-								$(this)[fun]( $(e.target).hasClass( 'toggle-plus' ) );
+								$(this)[fun]( $(e.target).hasClass( 'toggle-plus' ) ? plus : false );
 							
 							$(this).trigger( 'toggle', [ $(this).hasClass( 'on' ) ] );
 						}
@@ -530,9 +532,11 @@
 				var $on = this.siblings( '.on' ).not( '.no-toggle' );
 
 				if( this.hasClass('on') ){
-					if( $off.length && !$on.length )
+					if( opt == 'add' )
+						this.UIToggle();
+					else if( $off.length && !$on.length )
 						$off.UIToggle();//.find( '.toggle-plus' ).addClass( 'hidden' );
-					else if( opt )
+					else if( opt == 'plus' )
 						this.UIToggle();
 					else
 						$on.UIToggle();//.find( '.toggle-plus' ).removeClass( 'hidden' );

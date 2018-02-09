@@ -3,7 +3,7 @@
  * Plugin Name:         SCM Assets
  * Plugin URI:          http://studiocreativo-m.it/
  * Description:         SCM Javascript Integration
- * Version:             2.1.9
+ * Version:             2.2.1
  * Author:              Studio Creativo M
  * Author URI:          http://studiocreativo-m.it/
  * License:             http://www.gnu.org/licenses/gpl-3.0.html
@@ -259,10 +259,9 @@
                 wp_enqueue_script( 'awesome-cursor' );
             }
 
-
-
             wp_register_script( 'color-thief',  SCM_ASSETS_URI_ASSETS . 'color-thief-2.0.1/src/color-thief.js', array( 'imagesloaded' ), null, true );
             wp_enqueue_script( 'color-thief' );
+            //wp_register_script( 'vibrant',  SCM_ASSETS_URI_ASSETS . 'vibrant.3.0.0-alpha.2/vibrant.js', array( 'imagesloaded' ), null, true );
             wp_register_script( 'vibrant',  SCM_ASSETS_URI_ASSETS . 'vibrant.js-1.0/dist/Vibrant.min.js', array( 'imagesloaded' ), null, true );
             wp_enqueue_script( 'vibrant' );
 
