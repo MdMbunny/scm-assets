@@ -432,7 +432,9 @@
 						plus = 'add';
 						action = 'siblings';
 					}
-					fun = fun + capitalizeFirstLetter( action );
+					if( action != 'normal' ){
+						fun = fun + capitalizeFirstLetter( action );
+					}
 					action = false;
 				}
 

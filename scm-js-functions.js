@@ -130,6 +130,9 @@ function toHHMM(num){
     if (minutes < 10){minutes = "0"+minutes;}
     return hours+':'+minutes;
 }
+function toMM(num){
+    return Math.floor( num / 60 );
+}
 
 function toMS( hrs, min, sec ){
     return( ( (+hrs||0) * 60 * 60 + (+min||0) * 60 + (+sec||0) ) * 1000 );

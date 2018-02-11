@@ -12,7 +12,7 @@
 
 /*
 *****************************************************
-*	1.0 PLUGINS
+*	1.0 SELECTORS
 *****************************************************
 */
 
@@ -231,8 +231,6 @@
 
 		$.fn.equalChildrenSize = function() {
 
-
-
 			return this.each( function() {
 
 				var elem 		= this,
@@ -376,32 +374,6 @@
 		};
 	}
 
-/*$.extend({
-    replaceTag: function (currentElem, newTagObj, keepProps) {
-        var $currentElem = $(currentElem);
-        var i, $newTag = $(newTagObj).clone();
-        if (keepProps) {//{{{
-            newTag = $newTag[0];
-            newTag.className = currentElem.className;
-            $.extend(newTag.classList, currentElem.classList);
-            $.extend(newTag.attributes, currentElem.attributes);
-        }//}}}
-        $currentElem.wrapAll($newTag);
-        $currentElem.contents().unwrap();
-        // return node; (Error spotted by Frank van Luijn)
-        return this; // Suggested by ColeLawrence
-    }
-});
-
-$.fn.extend({
-    replaceTag: function (newTagObj, keepProps) {
-        // "return" suggested by ColeLawrence
-        return this.each(function() {
-            jQuery.replaceTag(this, newTagObj, keepProps);
-        });
-    }
-});*/
-
 if ( !$.fn.getText ) {
 	$.fn.getText = function() {
 		return this
@@ -471,6 +443,8 @@ if ( !$.fn.nextLoop ) {
 	};
 }
 
+// FA-ICONS
+
 if ( !$.fn.changeIcon ) {
 	$.fn.changeIcon = function( icon ) {
 
@@ -478,20 +452,74 @@ if ( !$.fn.changeIcon ) {
 
 		if( !$this.hasClass( 'faicon' ) )
 			$this = $this.find( '.faicon' );
-
-		if( !$this.length ) return this;
+		if( !$this.length ) $this = this;
 		
 		var cls = $this.attr('class').split(/\s+/);
 		for( var i in cls )
-			if( cls[i].indexOf( 'fa-' ) > -1 )				
+			if( cls[i].indexOf( 'fa-' ) === 0 )				
 				$this.removeClass( cls[i] );
 
-		$this.addClass( 'fa' ).addClass( icon ).removeClass( 'faicon' ).FAFIX();
+		$this.addClass( 'fa' ).addClass( icon ).FAFIX();
 
 		return this;
 
 	};
 }
+
+if ( !$.fn.FASolid ) {
+	$.fn.FASolid = function() {
+		return this.hasClass( 'fas' ) ? this : this.removeClass( 'far fab fal' ).addClass( 'fas' );
+	};
+}
+if ( !$.fn.FARegular ) {
+	$.fn.FARegular = function() {
+		return this.hasClass( 'far' ) ? this : this.removeClass( 'fab fal fas' ).addClass( 'far' );
+	};
+}
+if ( !$.fn.FALight ) {
+	$.fn.FALight = function() {
+		return this.hasClass( 'fal' ) ? this : this.removeClass( 'far fab fas' ).addClass( 'fal' );
+	};
+}
+if ( !$.fn.FABrand ) {
+	$.fn.FABrand = function() {
+		return this.hasClass( 'fab' ) ? this : this.removeClass( 'far fal fas' ).addClass( 'fab' );
+	};
+}
+if ( !$.fn.FAIconWeight ) {
+	$.fn.FAIconWeight = function( weight ) {
+		switch( weight ){
+			case 's': return this.FASolid(); break;
+			case 'r': return this.FARegular(); break;
+			case 'l': return this.FALight(); break;
+			case 'b': return this.FABrand(); break;
+			default: return this; break;
+		}
+		return this;
+	};
+}
+if ( !$.fn.FAIcon ) {
+	$.fn.FAIcon = function( icon ) {
+
+		var $this = this;
+
+		if( !$this.hasClass( 'faicon' ) )
+			$this = $this.find( '.faicon' );
+		if( !$this.length ) return this;
+		
+		var cls = $this.attr('class').split(/\s+/);
+		for( var i in cls )
+			if( cls[i].indexOf( 'fa-' ) === 0 )				
+				$this.removeClass( cls[i] );
+
+		$this.addClass( icon );
+
+		return this;
+
+	};
+}
+
+// SVG
 
 if ( !$.fn.imgSVG ) {
 	$.fn.imgSVG = function( ratio, fade ) {
@@ -662,7 +690,7 @@ if ( !$.fn.imgsSVG ) {
 	    return ( $.isNumber( num ) ? +$.stringDecimal(num) : false );
 	}
 
-	// STRING
+	// STRINGS
 
 	$.decodeEmail = function( str ){
 		return str.replace( /,/g, '.' ).replace( '()', '@' );
@@ -837,6 +865,8 @@ if ( !$.fn.imgsSVG ) {
 
     	return (query.length > 2 ? query + "&" : "?") + (newval ? param + "=" + newval : '');
 	}
+
+	// SCRIPTS
 
 	$.getScripts = function(arr, path) {
 

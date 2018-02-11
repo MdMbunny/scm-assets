@@ -519,20 +519,21 @@ var $MAGIC;
 		var $icons = this.find( '.fa' ).andSelf().filter( '.fa' ).not( '.text' ).addClass( 'faicon' );
 
 		$.each( $icons, function(){
-			var cls = $(this).attr('class').split(/\s+/);
+			var $icon = $(this);
+			var cls = $icon.attr('class').split(/\s+/);
 			var fa = '';
 			var type = '';
 
 			for( var i in cls ){
 
-				if( !cls[i].startsWith( 'fa-' ) ||
+				if( cls[i].indexOf( 'fa-' ) !== 0 ||
 					cls[i] == 'fa-spin' ||
-					cls[i].startsWith( 'fa-stack' ) )
+					cls[i].indexOf( 'fa-stack' ) === 0 )
 					continue;
 
 				fa = cls[i];
 				
-				$(this)
+				$icon
 					.removeClass( 'fa' )
 					.removeClass( cls[i] );
 
@@ -550,11 +551,19 @@ var $MAGIC;
 					type = 'fab';
 				}
 
-				var fix = ( type == 'fab' ? ['fab',fa] : $.FAFIX_DEBUG( fa, $(this) ) );
-				fa = ( type || fix[0] ) + ' ' + fix[1];
+				var fix = ( type == 'fab' ? ['fab',fa] : $.FAFIX_DEBUG( fa, $icon ) );
+				type = type || fix[0];
+				fa = fix[1] || '';
+
+				break;
 
 			}
-			$(this).addClass( fa );
+			
+			$icon
+				.removeClass( 'far fab fal fas' )
+				.addClass( type )
+				.addClass( fa );
+
 		} );
 		return this;
 	}
