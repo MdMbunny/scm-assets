@@ -3129,6 +3129,7 @@ var $MAGIC;
 				init 			= ( $this.data( 'popup-init' ) ? $this.data( 'popup-init' ) : 0 ),
 				title 			= ( $this.data( 'popup-title' ) ? $this.data( 'popup-title' ) : '' ),
 				type 			= ( $this.data( 'popup-type' ) ? $this.data( 'popup-type' ) : 'image' ),
+				vtype 			= ( $this.data( 'popup-video-type' ) ? $this.data( 'popup-video-type' ) : 'youtube' ),
 				template 		= ( $this.data( 'popup-template' ) ? $this.data( 'popup-template' ) : '' );
 				//content 		= ( $this.data( 'popup-content' ) ? $this.data( 'popup-content' ) : '' );
 				
@@ -3164,7 +3165,14 @@ var $MAGIC;
 
 				if( type == 'video' ){
 
-					images.push( '<iframe width="854" height="510" src="' + popup[i] + '" frameborder="0" allowfullscreen></iframe>' );
+					switch( vtype ){
+						case 'youtube':
+							images.push( '<iframe width="854" height="510" src="' + popup[i] + '" frameborder="0" allowfullscreen></iframe>' );
+						break;
+						case 'facebook':
+							images.push( '<iframe width="850" height="446" src="' + popup[i] + '&show_text=0&width=850" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowTransparency="true" allowFullScreen="true"></iframe>' );
+						break;
+					}
 
 				}else if( type == 'load' ){
 
