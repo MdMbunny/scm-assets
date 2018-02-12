@@ -616,55 +616,20 @@
 								$cell.trigger( 'open', [ $temp ] );
 					    	};
 					    	var change = function( event, ui ){
-					    		$temp.validCell( $cell );
+					    		if( list != 'multi' )
+						    		$temp.validCell( $cell );
 					    	};
 							
 							var focus = function( event, ui ){
-								if( list == 'multi' ) return false;
 						    	$temp.validCell( $cell );
 						    };
 
 						    var select = function( event, ui ){
-							    if( list == 'multi' ){
-							    	var terms = splitTrim( this.value );
-							    	if( inArray( terms, ui.item.value ) ) return false;
-									// remove the current input
-									//terms.pop();
-									// add the selected item
-									terms.push( ui.item.value );
-									// add placeholder to get the comma-and-space at the end
-									//terms.push( '' );
-									this.value = terms.join( ', ' );
-									arr = terms;
-									return false;
-								}
 					    		if( ui.item.value )
 						    		hideEditor( $temp, $cell, ui.item.value );
 					    	};
-							
-							//var source = arr;
-							/*if( list == 'multi' ){
-								source = function( request, response ){ // ???
-						          // delegate back to autocomplete, but extract the last term
-						          response( $.ui.autocomplete.filter(
-						            arr, splitTrim( request.term ).pop() ) );
-						        };
-							}*/
 
-						    $temp.autocomplete( {
-						    	appendTo: $parent,
-						    	minLength: 0,
-						    	source: arr,
-						    	select: select,
-						    	open: open,
-						    	change: change,
-						    	focus: focus,
-							} );
-					
-							$('.ui-autocomplete').css({'min-width':$temp.outerWidth()});
-							
-							$temp.autocomplete('enable');
-							$temp.autocomplete( 'search', '' );
+						    $temp.addUIAutocomplete( arr, list, {open:open,change:change,focus:focus,select:select}, $parent );
 
 						}else if( $temp.autocomplete( 'instance' ) ){
 							$temp.autocomplete('disable');

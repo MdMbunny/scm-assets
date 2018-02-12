@@ -181,6 +181,68 @@
 					$(this).removeClass( 'error' ).children( '.error-icon' ).remove();
 			}
 
+
+			// ********************************************** AUTOCOMPLETE
+
+			$.fn.addUIAutocomplete = function( arr, list, events, parent ){
+
+				var $this = $( this );
+
+				var split = function( val ){
+			    	return val.split( /,\s*/ );
+			    };
+			    
+			    var extractLast = function( term ){
+			    	return split( term ).pop();
+    			};
+
+				var open = function( event, ui ){
+					if( events && events.open ) events.open(event,ui);
+		    	};
+		    	var change = function( event, ui ){
+		    		if( events && events.change ) events.change(event,ui);
+		    	};
+				
+				var focus = function( event, ui ){
+					if( list == 'multi' ) return false;
+			    	if( events && events.focus ) events.focus(event,ui);
+			    };
+
+			    var select = function( event, ui ){
+				    if( list == 'multi' ){
+				    	var terms = split( this.value );
+				    	if( inArray( terms, ui.item.value ) ) return false;
+				    	terms.pop();
+						terms.push( ui.item.value );
+						this.value = terms.join( ', ' );
+						return false;
+					}
+			    	if( events && events.select ) events.select(event,ui);
+		    	};
+
+			    $this.autocomplete( {
+			    	appendTo: parent || $this,
+			    	minLength: 0,
+			    	source: list != 'multi' ? arr : function( request, response ) {
+			        	response( $.ui.autocomplete.filter( arr, extractLast( request.term ) ) );
+			        },
+			    	select: select,
+			    	open: open,
+			    	change: change,
+			    	focus: focus,
+				} );
+
+				$this.off( 'focusin' ).on( 'focusin', function(e){
+					$( '.ui-autocomplete' ).css( { 'min-width': $this.outerWidth() } );
+					$this.autocomplete( 'enable' );
+					$this.autocomplete( 'search', '' );
+				} )
+
+				
+
+				return $this;
+			}
+
 			// ********************************************** CALENDAR INPUT
 
 			$.UICalendar = function( action, icon, text, cls, min, max, before ){
