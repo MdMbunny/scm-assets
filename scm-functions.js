@@ -930,7 +930,7 @@ if ( !$.fn.imgsSVG ) {
 			( args ? args : {} )
 		);
 		
-		return '<div class="scm-loading loading-bar ' + args.classes + '"' + ( args.attr ? ' ' + args.attr : '' ) + '></div>';
+		return '<div' + ( args.id ? ' id="' + args.id + '"' : '' ) + ' class="scm-loading loading-bar ' + args.classes + '"' + ( args.attr ? ' ' + args.attr : '' ) + '></div>';
 	}
 
 	$.iconLoading = function( args ) {
@@ -944,7 +944,7 @@ if ( !$.fn.imgsSVG ) {
 			( args ? args : {} )
 		);
 
-		return '<div class="scm-loading loading-icon ' + args.classes + '"' + ( args.attr ? ' ' + args.attr : '' ) + '><i class="fa fa-pulse fa-' + args.icon + '"></i></div>';
+		return '<div' + ( args.id ? ' id="' + args.id + '"' : '' ) + ' class="scm-loading loading-icon ' + args.classes + '"' + ( args.attr ? ' ' + args.attr : '' ) + '><i class="fa fa-pulse fa-' + args.icon + '"></i></div>';
 	}
 
 	$.circleLoading = function( args ) {
@@ -958,7 +958,7 @@ if ( !$.fn.imgsSVG ) {
 			( args ? args : {} )
 		);
 
-		return '<div class="scm-loading loading-circle ' + args.classes + '"' + ( args.attr ? ' ' + args.attr : '' ) + '><i class="fa fa-spin fa-' + args.icon + ' absolute middle"></i></div>';
+		return '<div' + ( args.id ? ' id="' + args.id + '"' : '' ) + ' class="scm-loading loading-circle ' + args.classes + '"' + ( args.attr ? ' ' + args.attr : '' ) + '><i class="fa fa-spin fa-' + args.icon + ' absolute middle"></i></div>';
 	}
 
 })( jQuery );
