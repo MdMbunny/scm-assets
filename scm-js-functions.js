@@ -72,17 +72,17 @@ function dateDiff( ol, nw, str ){
     temp.setFullYear( temp.getFullYear() + y, temp.getMonth() + m );
     var tdiff = ( nw || dt2.getTime() ) - temp.getTime();
     
-    var s = parseInt( Floor( m / 3 ) );
-    var d = Floor( tdiff / 1000 / 60 / 60 / 24 );
+    var s = parseInt( mathFloor( m / 3 ) );
+    var d = mathFloor( tdiff / 1000 / 60 / 60 / 24 );
     m -= ( d<0 ? 1 : 0 );
 
     temp = new Date( dt1.getTime() );
     temp.setFullYear( temp.getFullYear() + y, temp.getMonth() + m );
     tdiff = ( nw || dt2.getTime() ) - temp.getTime();
 
-    d = Floor( tdiff / 1000 / 60 / 60 / 24 );
+    d = mathFloor( tdiff / 1000 / 60 / 60 / 24 );
 
-    var w = Floor( d / 7 );
+    var w = mathFloor( d / 7 );
 
     var yy = ( y === 1 ? 'year' : 'years' );
     var mm = ( m === 1 ? 'month' : 'months' );
@@ -454,7 +454,7 @@ function isNumeric(n){
   return !isNaN(parseFloat(n)) && isFinite(n);
 }
 
-function Round( num, rnd ){
+function mathRound( num, rnd ){
     rnd = rnd && rnd !== true ? rnd : 0;
     var mlt = '1';
     for( var i = 0; i < rnd; i++){
@@ -463,7 +463,7 @@ function Round( num, rnd ){
     mlt = parseInt( mlt );
     return Math.round( num * mlt ) / mlt;
 }
-function Floor( num, rnd ){
+function mathFloor( num, rnd ){
     rnd = rnd && rnd !== true ? rnd : 0;
     var mlt = '1';
     for( var i = 0; i < rnd; i++){
@@ -472,7 +472,7 @@ function Floor( num, rnd ){
     mlt = parseInt( mlt );
     return Math.floor( num * mlt ) / mlt;
 }
-function Ceil( num, rnd ){
+function mathCeil( num, rnd ){
     rnd = rnd && rnd !== true ? rnd : 0;
     var mlt = '1';
     for( var i = 0; i < rnd; i++){
@@ -522,6 +522,11 @@ function objValues( obj ){
     
     return arr;
 }
+/*function objValues(obj){
+    return Object.keys(obj).map(function(key){
+        return obj[key];
+    });
+}*/
 
 function objFirstKey(obj){
     return Object.keys(obj)[0];
@@ -536,11 +541,6 @@ function objLastValue(obj){
     return obj[Object.keys(obj)[objSize(obj)-1]];
 }
 
-function objValues(obj){
-    return Object.keys(obj).map(function(key){
-        return obj[key];
-    });
-}
 
 function objSize(obj){
     var size = 0, key;
