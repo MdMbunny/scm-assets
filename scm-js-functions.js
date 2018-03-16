@@ -12,7 +12,7 @@ function preventDefault(e){
 // left: 37, up: 38, right: 39, down: 40,
 // spacebar: 32, pageup: 33, pagedown: 34, end: 35, home: 36
 function preventDefaultForScrollKeys(e){
-    var keys ={37: 1, 38: 1, 39: 1, 40: 1};
+    let keys ={37: 1, 38: 1, 39: 1, 40: 1};
     if (keys[e.keyCode]){
         preventDefault(e);
         return false;
@@ -59,21 +59,21 @@ function sortDesc(a, b){
 
 function dateDiff( ol, nw, str ){
 
-    var dt1 = new Date( ol );
-    var dt2 = nw ? new Date( nw ) : new Date();
-    var diff = ( nw || dt2.getTime() ) - ol;
+    let dt1 = new Date( ol );
+    let dt2 = nw ? new Date( nw ) : new Date();
+    let diff = ( nw || dt2.getTime() ) - ol;
 
-    var y = dt2.getUTCFullYear() - dt1.getUTCFullYear();
-    var m = dt2.getUTCMonth() - dt1.getUTCMonth();// + ( y != 0 ? y * 12 : 0 );
+    let y = dt2.getUTCFullYear() - dt1.getUTCFullYear();
+    let m = dt2.getUTCMonth() - dt1.getUTCMonth();// + ( y != 0 ? y * 12 : 0 );
     y -= ( m<0 ? 1 : 0 );
     m = ( m<0 ? 12+m : m );
 
-    var temp = new Date( dt1.getTime() );
+    let temp = new Date( dt1.getTime() );
     temp.setFullYear( temp.getFullYear() + y, temp.getMonth() + m );
-    var tdiff = ( nw || dt2.getTime() ) - temp.getTime();
+    let tdiff = ( nw || dt2.getTime() ) - temp.getTime();
     
-    var s = parseInt( mathFloor( m / 3 ) );
-    var d = mathFloor( tdiff / 1000 / 60 / 60 / 24 );
+    let s = parseInt( mathFloor( m / 3 ) );
+    let d = mathFloor( tdiff / 1000 / 60 / 60 / 24 );
     m -= ( d<0 ? 1 : 0 );
 
     temp = new Date( dt1.getTime() );
@@ -82,11 +82,11 @@ function dateDiff( ol, nw, str ){
 
     d = mathFloor( tdiff / 1000 / 60 / 60 / 24 );
 
-    var w = mathFloor( d / 7 );
+    let w = mathFloor( d / 7 );
 
-    var yy = ( y === 1 ? 'year' : 'years' );
-    var mm = ( m === 1 ? 'month' : 'months' );
-    var dd = ( d === 1 ? 'day' : 'days' );
+    let yy = ( y === 1 ? 'year' : 'years' );
+    let mm = ( m === 1 ? 'month' : 'months' );
+    let dd = ( d === 1 ? 'day' : 'days' );
 
     return {
         diff: diff,
@@ -100,9 +100,9 @@ function dateDiff( ol, nw, str ){
 }
 
 function timeToSec( time ){
-    var sec = 0;
-    var arr = time.split( ':' ).reverse();
-    for( var k in arr )
+    let sec = 0;
+    let arr = time.split( ':' ).reverse();
+    for( let k in arr )
         sec += Math.pow( 60, k ) * arr[k];
     
     return sec;
@@ -110,11 +110,11 @@ function timeToSec( time ){
 
 function toHHMMSS( num ){
     num = Math.round( num );
-    var hours   = Math.floor( num / 3600 );
+    let hours   = Math.floor( num / 3600 );
     num -= hours*3600;
-    var minutes = Math.floor( num / 60 );
+    let minutes = Math.floor( num / 60 );
     num -= minutes*60;
-    var seconds = Math.floor(num - (hours * 3600) - (minutes * 60));
+    let seconds = Math.floor(num - (hours * 3600) - (minutes * 60));
 
     if (hours   < 10){hours   = "0"+hours;}
     if (minutes < 10){minutes = "0"+minutes;}
@@ -123,8 +123,8 @@ function toHHMMSS( num ){
 }
 
 function toHHMM(num){
-    var hours   = Math.floor(num / 3600);
-    var minutes = Math.floor((num - (hours * 3600)) / 60);
+    let hours   = Math.floor(num / 3600);
+    let minutes = Math.floor((num - (hours * 3600)) / 60);
 
     if (hours   < 10){hours   = "0"+hours;}
     if (minutes < 10){minutes = "0"+minutes;}
@@ -139,19 +139,19 @@ function toMS( hrs, min, sec ){
 }
 
 function dateSortAsc(a, b){
-    var date1 = dateToMS(a);
-    var date2 = dateToMS(b);
+    let date1 = dateToMS(a);
+    let date2 = dateToMS(b);
     return sortAsc( date1, date2 );
 }
 
 function dateSortDesc(a, b){
-    var date1 = dateToMS(a);
-    var date2 = dateToMS(b);
+    let date1 = dateToMS(a);
+    let date2 = dateToMS(b);
     return sortDesc( date1, date2 );
 }
 
 function toDate(val){
-    var date = val.split('-');
+    let date = val.split('-');
     return new Date(date[2], date[1] - 1, date[0]);
 }
 function dateToMS(val){
@@ -198,9 +198,9 @@ function getIcon( icon, cls, col, bg, data, tag ){
 
     if( undefined === icon || !icon ) return '';
 
-    var ico = '';
-    var second = '';
-    var html = '';
+    let ico = '';
+    let second = '';
+    let html = '';
     cls = ( cls ? ' ' + cls : '' );
     data = ( col ? ' data-color-it="' + col + '"' : '' ) + ( bg ? ' data-color-bg="' + bg + '"' : '' ) + ( data ? ' ' + data : '' );
     if( typeof icon != 'string' ){
@@ -231,12 +231,12 @@ function rgbToHex(rgb){
 
 function hexToRgb(hex){
     // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
-    var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+    let shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
     hex = hex.replace(shorthandRegex, function(m, r, g, b){
         return r + r + g + g + b + b;
     });
 
-    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     return result ?{
         r: parseInt(result[1], 16),
         g: parseInt(result[2], 16),
@@ -245,12 +245,12 @@ function hexToRgb(hex){
 }
 
 function hslToRgb(h, s, l){
-        var r, g, b;
+        let r, g, b;
 
         if(s == 0){
             r = g = b = l; // achromatic
         }else{
-            var hue2rgb = function hue2rgb(p, q, t){
+            let hue2rgb = function hue2rgb(p, q, t){
                 if(t < 0) t += 1;
                 if(t > 1) t -= 1;
                 if(t < 1/6) return p + (q - p) * 6 * t;
@@ -259,8 +259,8 @@ function hslToRgb(h, s, l){
                 return p;
             }
 
-            var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-            var p = 2 * l - q;
+            let q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+            let p = 2 * l - q;
             r = hue2rgb(p, q, h + 1/3);
             g = hue2rgb(p, q, h);
             b = hue2rgb(p, q, h - 1/3);
@@ -279,7 +279,7 @@ function colorLuminance(hex, lum){
     lum = lum || 0;
 
     // convert to decimal and change luminosity
-    var ret = "#", c, i;
+    let ret = "#", c, i;
     for (i = 0; i < 3; i++){
         c = parseInt(hex.substr(i*2,2), 16);
         c = Math.round(Math.min(Math.max(0, c + (c * lum)), 255)).toString(16);
@@ -292,7 +292,7 @@ function colorLuminance(hex, lum){
 function colorsContrast(F, B){
     F= String(F).match(/\d+/g), 
     B= String(B).match(/\d+/g);
-    var abs= Math.abs, 
+    let abs= Math.abs, 
     BG= (B[0]*299 + B[1]*587 + B[2]*114)/1000, 
     FG= (F[0]*299 + F[1]*587 + F[2]*114)/1000, 
     bright= Math.round(Math.abs(BG - FG)), 
@@ -303,16 +303,16 @@ function colorsContrast(F, B){
 function getHexBrightness( color ){
 
     color = color.replace( '#', '' );
-    var r = parseInt( color.substring( 0, 2 ), 16 );
-    var g = parseInt( color.substring( 2, 4 ), 16 );
-    var b = parseInt( color.substring( 4, 6 ), 16 );
+    let r = parseInt( color.substring( 0, 2 ), 16 );
+    let g = parseInt( color.substring( 2, 4 ), 16 );
+    let b = parseInt( color.substring( 4, 6 ), 16 );
 
     return r*2 + g*2 + b;
 }
 
 function brighterColor( hexa, hexb ){
-    var cola = getHexBrightness( hexa );
-    var colb = getHexBrightness( hexb );
+    let cola = getHexBrightness( hexa );
+    let colb = getHexBrightness( hexb );
     if( cola > colb ) return hexa;
     return hexb;
 }
@@ -322,7 +322,7 @@ function brighterColor( hexa, hexb ){
 // **********************************************
 
 function isPortrait( img ){
-    var w = img.naturalWidth || img.width,
+    let w = img.naturalWidth || img.width,
         h = img.naturalHeight || img.height;
     return ( h > w );
 }
@@ -333,17 +333,25 @@ function isPortrait( img ){
 
 // Utils
 
+function addZero( num, pow ){
+    num = parseInt(num);
+    pow = pow || 1;
+    let max = Math.pow( 10, pow );
+    let dif = Math.max( 0, max.toString().length - num.toString().length );
+    return ('0').repeat(dif) + num;
+}
+
 function capitalizeFirstLetter(string){
-    return string.charAt(0).toUpperCase() + string.slice(1);
+    return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
 }
 
 function formatDate( date, dsep, sep, hsep ){
     dsep = dsep || '';
     sep = sep || '';
     hsep = hsep || '';
-    var month = day = hours = mins = secs = year = '';
+    let month = day = hours = mins = secs = year = '';
     if( !date ){
-        var d = new Date();
+        let d = new Date();
         month = d.getMonth()+1;
         day = d.getDate();
         hours = d.getHours();
@@ -359,7 +367,7 @@ function formatDate( date, dsep, sep, hsep ){
         year = date.year;
     }
 
-    var ret = year + dsep +
+    let ret = year + dsep +
         (month<10 ? '0' : '') + month + dsep +
         (day<10 ? '0' : '') + day + sep +
         (hours<10 ? '0' : '') + hours + hsep +
@@ -375,20 +383,65 @@ function splitTrim( string, sep ){
 function splitSanitize( string, sep ){
     return arrClean( string.split( sep || ',' ).map( function(v){ return sanitizeTitle(v); } ) );
 }
+function splitUnique( arr ){
+    return arrUnique( arr.join(',').split(',') );
+}
 
-var replaceBetween = function( str, needle, replace, sep ){
+function chunkSplit( txt, len, needle ){
+
+    len = parseInt( len, 10 ) || 76;
+    needle = needle || '\r\n';
+
+    if( len < 1 )
+        return false;
+
+    return txt.match( new RegExp( '.{0,' + len + '}', 'g' ) ).join( needle );
+}
+
+function replaceBetween( str, needle, replace, sep ){
     sep = sep || ',';
     if( !str || !needle || !replace ) return '';
-    var arr = str.split( sep );
-    for( var i in arr ){
+    let arr = str.split( sep );
+    for( let i in arr ){
         if( arr[i] == needle ) 
         arr[i] = replace;
     }
     return arr.join(sep);
 }
 
+function substrReplace( str, replace, start, length ){
+    if( start < 0 )
+        start = start + str.length;
+
+    length = length !== undefined ? length : str.length;
+    if( length < 0 )
+        length = length + str.length - start;
+
+    return [
+        str.slice( 0, start ),
+        replace.substr( 0, length ),
+        replace.slice( length ),
+        str.slice( start + length )
+    ].join('');
+}
+
+function trimChars( str, characters, flags ){
+    
+    flags = flags || 'g';
+    if( typeof str !== 'string' || typeof characters !== 'string' || typeof flags !== 'string' )
+        return
+    if( !/^[gi]*$/.test( flags ) )
+        return;
+    characters = escapeRegex( characters );
+    return str.replace(new RegExp("^[" + characters + "]+|[" + characters + "]+$", flags), '');
+}
+
 function trimString( string ){
     return string.replace(/^\s+|\s+$/g, '');
+}
+
+function toCamelCase( str ){
+    return str.split( ' ' ).map( w => capitalizeFirstLetter( w.toLowerCase() ) ).join( '' ).trim();
 }
 
 function sanitizeTitle(str,sub){
@@ -396,10 +449,10 @@ function sanitizeTitle(str,sub){
     str = str.toLowerCase();
 
     // remove accents, swap ñ for n, etc
-    var from = "àáäâèéëêìíïîòóöôùúüûñç·/_,:;";
-    var to   = "aaaaeeeeiiiioooouuuunc------";
+    let from = "àáäâèéëêìíïîòóöôùúüûñç·/_,:;";
+    let to   = "aaaaeeeeiiiioooouuuunc------";
 
-    for (var i=0, l=from.length ; i<l ; i++)
+    for (let i=0, l=from.length ; i<l ; i++)
         str = str.replace(new RegExp(from.charAt(i), 'g'), to.charAt(i));
 
     str = str.replace(/[^a-z0-9 -]/g, '') // remove invalid chars
@@ -410,8 +463,12 @@ function sanitizeTitle(str,sub){
 }
 
 function isURL(str){
-    var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
+    let regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
     return regexp.test(str);
+}
+
+function escapeRegex( string ){
+    return string.replace( /[\[\](){}?*+\^$\\.|\-]/g, "\\$&" );
 }
 
 function escapeJSON( str ){
@@ -425,25 +482,171 @@ function escapeJSON( str ){
                .replace(/\\f/g, "\\f");
 };
 
-function oppositePos( pos ){
-    return ( pos == 'top' ? 'bottom' : ( pos == 'bottom' ? 'top' : ( pos == 'left' ? 'right' : 'left' ) ) );
-}
-
 function replaceAll( search, replace, txt ){
-    return txt.replace(new RegExp(search, 'g'), replace);
+    return txt.replace(new RegExp(search.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'g'), replace);
 }
-
 function removeSpaces( string, sub ){
     return string.replace( /\s+/g, sub || '' );
 }
+function escapeBS( text ) {
+    return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+}
+function removeSlash( text ) {
+    return text.replace( /\//g, '' );
+}
 
+function trailingSlash( str ) {
+    if( str.substr( -1 ) == '/')
+        return str.substr( 0, str.length - 1 );
+    return str;
+}
 function validateEmail( email ){
-    var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    let re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     return re.test( email );
 }
 
-var getFileExtension = function( string ){
+function getFileExtension( string ){
     return ( string.substring( string.lastIndexOf( '.' ) + 1, string.length ) || string ).split( '/' )[0];
+}
+
+function replaceState( url, state, title ) {
+    if ( typeof window.history.replaceState == 'function' )
+        history.replaceState( state, title, url );
+}
+
+function pushState( url, state, title ) {
+    if ( typeof window.history.pushState == 'function' )
+        history.pushState( state, title, url );
+}
+
+function getUrlData( str ) {
+
+    str = str.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+
+    let regex = new RegExp("[\\?&]" + str + "=([^&#]*)"),
+        results = regex.exec(location.search);
+
+    return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+    
+}
+
+function getCleanUrl( url, just ) {
+
+    if( !url )
+        url = window.location.href;
+
+    let anchor = url.indexOf('#');
+    if( anchor != -1 )
+        url = url.substring(0, anchor);
+
+    if( !just ){
+        let params = url.indexOf('?');
+        if( params != -1 )
+            url = url.substring(0, params);
+    }
+
+    return url;
+}
+
+function getUrlHash( url, fallback ) {
+
+    if( !url )
+        url = window.location.href;
+
+    if( typeof fallback === 'undefined' )
+        fallback = '';
+
+    let split = url.split('#');
+    if( split.length > 1 )
+        return '#' + split[1];
+
+    return fallback;        
+}
+
+function getUrlAnchor( url, fallback ) {
+
+    if( !url )
+        url = window.location.href;
+
+    if( typeof fallback === 'undefined' )
+        fallback = '';
+
+    let split = url.split('#');
+    if( split.length > 1 )
+        return split[1];
+
+    return fallback;        
+}
+
+function getUrlSearch( url, fallback ) {
+    if( !url )
+        url = window.location.href;
+
+    if( typeof fallback === 'undefined' )
+        fallback = '';
+    
+    url = url.split( '?' );
+    if( url.length > 1 )
+        return '?' + url[1];
+
+    return fallback;
+}
+
+function urlParameters( url, fallback ) {
+    if( !url )
+        url = window.location.href;
+
+    if( typeof fallback === 'undefined' )
+        fallback = '';
+    
+    url = url.split( '?' );
+    if( url.length > 1 )
+        return url[1];
+
+    return fallback;
+}
+
+function getUrlParameters( url, fallback ) {
+
+    if( !url )
+        url = window.location.href;
+
+    if( typeof fallback === 'undefined' )
+        fallback = {};
+
+    url = urlParameters( url, '' );
+
+    return url?JSON.parse('{"' + url.replace(/&/g, '","').replace(/=/g,'":"') + '"}', function(key, value) { return key===""?value:decodeURIComponent(value) }):{};
+}
+
+function getUrlParameter( name, url, fallback ) {
+
+    if( !url )
+        url = window.location.href;
+
+    if( typeof fallback === 'undefined' )
+        fallback = '';
+
+    if( !name )
+        return fallback;
+
+    let params = getUrlParameters( getCleanUrl( url, 1 ) );
+    if( typeof params[name] !== 'undefined' )
+        return params[name];
+    
+    return fallback;
+
+}
+
+function replaceUrlParameter( param, newval, search ) {
+    let regex = new RegExp("([?;&])" + param + "[^&;]*[;&]?");
+    let query = search.replace(regex, "$1").replace(/&$/, '');
+
+    return (query.length > 2 ? query + "&" : "?") + (newval ? param + "=" + newval : '');
+}
+
+function oppositePos( pos ){
+    return ( pos == 'top' ? 'bottom' : ( pos == 'bottom' ? 'top' : ( pos == 'left' ? 'right' : 'left' ) ) );
 }
 
 // **********************************************
@@ -456,8 +659,8 @@ function isNumeric(n){
 
 function mathRound( num, rnd ){
     rnd = rnd && rnd !== true ? rnd : 0;
-    var mlt = '1';
-    for( var i = 0; i < rnd; i++){
+    let mlt = '1';
+    for( let i = 0; i < rnd; i++){
         mlt = mlt + '0';
     }
     mlt = parseInt( mlt );
@@ -465,8 +668,8 @@ function mathRound( num, rnd ){
 }
 function mathFloor( num, rnd ){
     rnd = rnd && rnd !== true ? rnd : 0;
-    var mlt = '1';
-    for( var i = 0; i < rnd; i++){
+    let mlt = '1';
+    for( let i = 0; i < rnd; i++){
         mlt = mlt + '0';
     }
     mlt = parseInt( mlt );
@@ -474,8 +677,8 @@ function mathFloor( num, rnd ){
 }
 function mathCeil( num, rnd ){
     rnd = rnd && rnd !== true ? rnd : 0;
-    var mlt = '1';
-    for( var i = 0; i < rnd; i++){
+    let mlt = '1';
+    for( let i = 0; i < rnd; i++){
         mlt = mlt + '0';
     }
     mlt = parseInt( mlt );
@@ -496,11 +699,31 @@ function isObject( obj ){
 }
 
 function objMerge( a, b ){
-    for( var key in b ){
-        if (b.hasOwnProperty(key))
+    for( let key in b ){
+        if( b.hasOwnProperty( key ) )
             a[key] = b[key];
     }
     return a;
+}
+var objExtend = Object.assign || function( target ){
+    for( let arg of arguments )
+        for( let key in arg )
+            if( Object.prototype.hasOwnProperty.call( arg, key ) )
+                target[key] = arg[key];
+    return target;
+};
+
+function objEqual( a, b ){
+    return !count( objDiff( a, b ) );
+}
+
+function objDiff( a, b ){
+    let c = {};
+    for( let key in b ){
+        if( b.hasOwnProperty( key ) && !b.hasOwnProperty( key ) )
+            c[key] = b[key];
+    }
+    return c;
 }
 
 function cloneObject( obj ){
@@ -508,7 +731,7 @@ function cloneObject( obj ){
 }
 
 function objKeys( obj ){
-    var arr = [];
+    let arr = [];
     for (key in obj)
         if (obj.hasOwnProperty(key)) arr.push( key );
     
@@ -516,7 +739,7 @@ function objKeys( obj ){
 }
 
 function objValues( obj ){
-    var arr = [];
+    let arr = [];
     for (key in obj)
         if (obj.hasOwnProperty(key)) arr.push( obj[key] );
     
@@ -543,7 +766,7 @@ function objLastValue(obj){
 
 
 function objSize(obj){
-    var size = 0, key;
+    let size = 0, key;
     for (key in obj)
         if (obj.hasOwnProperty(key)) size++;
     
@@ -551,8 +774,8 @@ function objSize(obj){
 };
 
 function objInsert(obj,n,k){
-    var o ={};
-    var key, nkey;
+    let o ={};
+    let key, nkey;
     for( key in obj ){
         if( obj.hasOwnProperty(key) ){
             if( k !== '' && ( !k || k==key ) ){
@@ -573,16 +796,16 @@ function objInsert(obj,n,k){
 };
 
 function objToArray(obj){
-    var arr = [];
-    for (var key in obj){
+    let arr = [];
+    for (let key in obj){
         if (obj.hasOwnProperty(key)) arr.push({ key: obj[key] } );
     }
     return arr;
 };
 function arrToObject(arr){
-    var obj ={};
-    for (var i = 0; i < arr.length; i++){
-        var k,v = '';
+    let obj ={};
+    for (let i = 0; i < arr.length; i++){
+        let k,v = '';
         k = Object.keys(arr[i])[0];
         v = arr[i][k];
         obj[k] = v;
@@ -590,16 +813,32 @@ function arrToObject(arr){
     return obj;
 }
 
+function sortBy( arr, attr, alt, inv ){
+    attr = attr || 'id';
+    alt = alt || 'id';
+    let compare = function(a,b) {
+        if( a[attr] < b[attr] )
+            return inv ? 1 : -1;
+        if( a[attr] > b[attr] )
+            return inv ? -1 : 1;
+        if( undefined !== alt && a[alt] < b[alt] )
+            return inv ? 1 : -1;
+        if( undefined !== alt && a[alt] > b[alt] )
+            return inv ? -1 : 1;
+        return 0;
+    }
+    return arr.sort(compare);
+}
 function sortObj( obj ){
-    var nobj ={};
+    let nobj ={};
     
-    var keys = Object.keys( obj ),
+    let keys = Object.keys( obj ),
         i, len = keys.length;
 
     keys.sort();
 
     for (i = 0; i < len; i++){
-      k = keys[i];
+      let k = keys[i];
       nobj[k] = obj[k];
     }
 
@@ -608,16 +847,16 @@ function sortObj( obj ){
 }
 
 function rsortObj( obj ){
-    var nobj ={};
+    let nobj ={};
     
-    var keys = Object.keys( obj ),
+    let keys = Object.keys( obj ),
         i, len = keys.length;
 
     keys.sort();
     keys.reverse();
 
     for (i = 0; i < len; i++){
-      k = keys[i];
+      let k = keys[i];
       nobj[k] = obj[k];
     }
 
@@ -625,10 +864,50 @@ function rsortObj( obj ){
 
 }
 
+function sortByValue( obj ){
+
+    let nobj ={}
+    let keys = Object.keys( obj ),
+        i, len = keys.length;
+
+    keys.sort( function( a, b ){
+        return obj[a] - obj[b];
+    });
+
+    return keys;
+    
+    /*for( i = 0; i < len; i++ ){
+        nobj[keys[i].toString()] = obj[keys[i]];
+    };
+
+    return nobj;*/
+
+};
+function rsortByValue( obj ){
+
+    let nobj ={}
+    let keys = Object.keys( obj ),
+        i, len = keys.length;
+
+    keys.sort( function( a, b ){
+        return obj[a] - obj[b];
+    });
+    keys.reverse();
+
+    return keys;
+
+    /*for( i = 0; i < len; i++ ){
+        nobj[keys[i].toString()] = obj[keys[i]];
+    };
+
+    return nobj;*/
+
+};
+
 function rsortByKey( obj, key ){
-    var keys = [];
-    var nobj ={}
-    for(var k in obj){
+    let keys = [];
+    let nobj ={}
+    for(let k in obj){
         if (obj.hasOwnProperty(k))
             keys.push(k);
     }
@@ -637,7 +916,7 @@ function rsortByKey( obj, key ){
         return obj[b][key] - obj[a][key];
     
     });
-    for (var i = 0; i < keys.length; i++){
+    for (let i = 0; i < keys.length; i++){
         nobj[keys[i]] = obj[keys[i]];
     };
 
@@ -645,18 +924,17 @@ function rsortByKey( obj, key ){
 
 };
 function sortByKey( obj, key ){
-    var keys = [];
-    var nobj ={}
-    for(var k in obj){
+    let keys = [];
+    let nobj ={}
+    for(let k in obj){
         if (obj.hasOwnProperty(k))
             keys.push(k);
     }
 
     keys.sort( function( a, b ){
         return obj[a][key] - obj[b][key];
-    
     });
-    for (var i = 0; i < keys.length; i++){
+    for (let i = 0; i < keys.length; i++){
         nobj[keys[i]] = obj[keys[i]];
     };
 
@@ -665,22 +943,22 @@ function sortByKey( obj, key ){
 };
 
 function sortKeys( obj ){
-    var keys = [];
-    for(var key in obj)
+    let keys = [];
+    for(let key in obj)
         keys.push(key);
     return keys.sort(function(a,b){return obj[a]-obj[b]});
 }
 
 function rsortKeys( obj ){
-    var keys = [];
-    for(var key in obj)
+    let keys = [];
+    for(let key in obj)
         keys.push(key);
     return keys.sort(function(a,b){return obj[b]-obj[a]});
 }
 
 function objByValueKey( obj, value, key ){
     key = key || 'name';
-    for( var k in obj ){
+    for( let k in obj ){
         if( obj[k] && obj[k][key] !== undefined && obj[k][key] === value )
             return k;
     }
@@ -688,8 +966,8 @@ function objByValueKey( obj, value, key ){
 }
 
 function objNext( obj, key, loop ){
-    var keys = Object.keys( obj );
-    var ind = keys.indexOf(key);
+    let keys = Object.keys( obj );
+    let ind = keys.indexOf(key);
     if( ind < 0 ) return false;
     if( ind == keys.length-1 ){
         if( loop ) ind = 0;
@@ -699,8 +977,8 @@ function objNext( obj, key, loop ){
     return obj[keys[ind]];
 }
 function objPrev( obj, key, loop ){
-    var keys = Object.keys( obj );
-    var ind = keys.indexOf(key);
+    let keys = Object.keys( obj );
+    let ind = keys.indexOf(key);
     if( ind < 0 ) return false;
     if( !ind ){
         if( loop ) ind = keys.length-1;
@@ -714,9 +992,13 @@ function objPrev( obj, key, loop ){
 // ARRAY
 // **********************************************
 
+function isArray( arr ){
+    return Array.isArray( arr ) ? arr : false;
+}
+
 function letterRange( start, stop ){
-  var result = [];
-  for( var idx = start.charCodeAt(0), end = stop.charCodeAt(0); idx <= end; ++idx ){
+  let result = [];
+  for( let idx = start.charCodeAt(0), end = stop.charCodeAt(0); idx <= end; ++idx ){
     result.push( String.fromCharCode( idx ) );
   }
   return result;
@@ -727,11 +1009,20 @@ function toArray( obj ){
 }
 
 function inArray( arr, elem ){
-    return arr.indexOf( elem ) > -1;
+    for( let c = 0; c < arr.length; c++ ){
+        if( arr[c] === elem) return true;
+    }
+    return false;
+}
+function indArray( arr, elem ){
+    for( let c = 0; c < arr.length; c++ ){
+        if( arr[c] === elem) return c;
+    }
+    return -1;
 }
 
 function arrRemove( arr, elem ){
-    var index = arr.indexOf( elem );
+    let index = arr.indexOf( elem );
     if( index > -1 )
         arr.splice( index, 1 );
 }
@@ -744,8 +1035,8 @@ function arrAdd( arr, elem ){
 }
 
 function arrClean( arr ){
-    var clean = [];
-    for( var i = 0; i < arr.length; i++ ){
+    let clean = [];
+    for( let i = 0; i < arr.length; i++ ){
         if( arr[i] || arr[i] === 0 || arr[i] === false )
             clean.push( arr[i] );
     }
@@ -760,16 +1051,16 @@ function arrEqual( a, b ){
     a = a.concat().sort();
     b = b.concat().sort();
 
-    for( var i = 0; i < a.length; ++i ){
+    for( let i = 0; i < a.length; ++i ){
         if( a[i] !== b[i] ) return false;
     }
     return true;
 }
 
 function arrUnique( arr ){
-    var a = arr.concat();
-    for( var i = 0; i < a.length; ++i ){
-        for( var j = i + 1 ; j < a.length; ++j ){
+    let a = arr.concat();
+    for( let i = 0; i < a.length; ++i ){
+        for( let j = i + 1 ; j < a.length; ++j ){
             if( a[i] === a[j] )
                 a.splice( j--, 1 );
         }
@@ -778,9 +1069,9 @@ function arrUnique( arr ){
 }
 
 function arrMerge(){
-    var args = Array.prototype.slice.call( arguments );
-    var a = [];
-    for( var i = 0; i < args.length; ++i ){
+    let args = Array.prototype.slice.call( arguments );
+    let a = [];
+    for( let i = 0; i < args.length; ++i ){
        a = a.concat( args[i] );
     }
     return arrUnique( a );
@@ -794,7 +1085,7 @@ function arrMove( arr, from, to ){
         to += arr.length;
     }
     if (to >= arr.length){
-        var k = to - arr.length;
+        let k = to - arr.length;
         while ((k--) + 1){
             arr.push(undefined);
         }
@@ -805,7 +1096,7 @@ function arrMove( arr, from, to ){
 
 function arrSwap( arr, a, b ){
 
-    var temp = arr[a];
+    let temp = arr[a];
     arr[a] = arr[b];
     arr[b] = temp;
     return arr;
@@ -820,7 +1111,7 @@ function arrCombinations(input,permArr,usedChars){
     if( !permArr ) permArr = [];
     if( !usedChars ) usedChars = [];
 
-    var i, ch;
+    let i, ch;
     for (i = 0; i < input.length; i++){
         ch = input.splice(i, 1)[0];
         usedChars.push(ch);
@@ -840,15 +1131,15 @@ function arrSum( arr ){
 
 function arrAverage( arr ){
     //arr = arr.values();
-    var tot = arr.length;
+    let tot = arr.length;
     if (!tot)
         return 0;
     return arrSum( arr ) / tot;
 }
 
 function getAllByValue( arr, value ){
-    var res = [];
-    for( var k in arr ){
+    let res = [];
+    for( let k in arr ){
         if( arr[k] !== undefined && arr[k] === value )
             res.push( k );
     }
@@ -857,8 +1148,8 @@ function getAllByValue( arr, value ){
 
 function getAllByValueKey( arr, value, key ){
     key = key || 'name';
-    var res = [];
-    for( var k in arr ){
+    let res = [];
+    for( let k in arr ){
         if( arr[k] && arr[k][key] !== undefined && arr[k][key] === value )
             res.push( k );
     }
@@ -867,16 +1158,20 @@ function getAllByValueKey( arr, value, key ){
 
 function getByValueKey( arr, value, key ){
     key = key || 'name';
-    for( var k in arr ){
+    for( let k in arr ){
         if( arr[k] && arr[k][key] !== undefined && arr[k][key] === value )
             return k;
     }
     return -1;
 }
 
+function getByID( arr, id ){
+    return getByValueKey( arr, parseInt(id), 'id' );
+}
+
 function arrNext( arr, val, attr, loop ){
 
-    var ind = parseInt( getByValueKey( arr, val, attr ) );
+    let ind = parseInt( getByValueKey( arr, val, attr ) );
     if( ind < 0 ) return false;
     if( ind == arr.length-1 ){
         if( loop ) ind = 0;
@@ -887,7 +1182,7 @@ function arrNext( arr, val, attr, loop ){
 }
 function arrPrev( arr, val, attr, loop ){
 
-    var ind = parseInt( getByValueKey( arr, val, attr ) );
+    let ind = parseInt( getByValueKey( arr, val, attr ) );
     if( ind < 0 ) return false;
     if( !ind ){
         if( loop ) ind = arr.length-1;
@@ -897,10 +1192,9 @@ function arrPrev( arr, val, attr, loop ){
     return arr[ind];
 }
 
-
 function csvGetColumns( csv, head ){
-    var arr = [];
-    for( var i in head ){
+    let arr = [];
+    for( let i in head ){
         arr[ head[i] ] = csvGetColumn( csv, head[i] );
     }
     return arr;
@@ -908,8 +1202,8 @@ function csvGetColumns( csv, head ){
 
 function csvGetColumn( csv, head ){
     if( typeof head == 'string' ) head = csvGetColumnIndex( csv, head );
-    var arr = [];
-    for( var i = 1; i < csv.length; i++ )
+    let arr = [];
+    for( let i = 1; i < csv.length; i++ )
         arr.push( csv[i][head] );
     return arr;
 }
@@ -919,22 +1213,22 @@ function csvGetColumnIndex( csv, head ){
 }
 
 function csvRemoveColumn( arr, index ){
-    var index = ( undefined == index ? arr.length : index );
-    for (var i = 0; i < arr.length; i++){
+    let index = ( undefined == index ? arr.length : index );
+    for (let i = 0; i < arr.length; i++){
         arr[i].splice( index, 1 );
     }
     return arr;
 }
 
 function csvSwapColumn( arr, a, b ){
-    for (var i = 0; i < arr.length; i++){
+    for (let i = 0; i < arr.length; i++){
         arr = arrSwap( arr[i], a, b );
     }
     return arr;
 }
 
 function csvMoveColumn( arr, from, to ){
-    for (var i = 0; i < arr.length; i++){
+    for (let i = 0; i < arr.length; i++){
         arr = arrMove( arr[i], from, to );
     }
     return arr;
@@ -942,7 +1236,7 @@ function csvMoveColumn( arr, from, to ){
 
 function csvInsertColumn( arr, col, index ){
     index = ( undefined == index ? arr.length : index );
-    for (var i = 0; i < arr.length; i++){
+    for (let i = 0; i < arr.length; i++){
         arr[i].splice(index, 0, col);
         if(!i) col = '';
     }
