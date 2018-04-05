@@ -152,7 +152,7 @@ var $MAGIC;
 		"fa-star-half-full":		[ "far", "star-half" ],
 		"fa-code-fork":				[ "fas", "code-branch" ],
 		"fa-chain-broken":			[ "fas", "unlink" ],
-		"fa-shield":				[ "fas", "shield-alt" ],
+		//"fa-shield":				[ "fas", "shield-alt" ],
 		//"fa-calendar-o":			[ "far", "calendar-alt" ],
 		"fa-maxcdn":				[ "fab", "maxcdn" ],
 		"fa-html5":					[ "fab", "html5" ],
@@ -590,6 +590,17 @@ var $MAGIC;
 
 	// *****************************************************
 
+	$.fn.getResponsive = function(){
+		let state = '';
+		if ( this.hasClass( 'smartmin' ) )		state = 'smartmin';
+		else if( this.hasClass( 'smart' ) )		state = 'smart';
+		else if( this.hasClass( 'portrait' ) )	state = 'portrait';
+		else if( this.hasClass( 'notebook' ) )	state = 'notebook';
+		else if( this.hasClass( 'landscape' ) )	state = 'landscape';
+		else if( this.hasClass( 'wide' ) )		state = 'wide';
+		else if( this.hasClass( 'desktop' ) )	state = 'desktop';
+		return state;
+	}
 	$.fn.eventResponsive = function( option ) {
 
 		var w 			= $( window ).width(),
@@ -669,15 +680,7 @@ var $MAGIC;
 
 			if( option == 'force' || old != this.attr( 'class' ) ){
 
-				if ( this.hasClass( 'smartmin' ) )		state = 'smartmin';
-				else if( this.hasClass( 'smart' ) )		state = 'smart';
-				else if( this.hasClass( 'portrait' ) )	state = 'portrait';
-				else if( this.hasClass( 'notebook' ) )	state = 'notebook';
-				else if( this.hasClass( 'landscape' ) )	state = 'landscape';
-				else if( this.hasClass( 'wide' ) )		state = 'wide';
-				else if( this.hasClass( 'desktop' ) )	state = 'desktop';
-
-				this.trigger( 'responsive', [ state ] );
+				this.trigger( 'responsive', [ this.getResponsive() ] );
 			}			
 		}
 		
@@ -707,7 +710,8 @@ var $MAGIC;
 				if( image.isLoaded ){
 					$this.trigger( 'imgLoaded', instance, image );
 					var portrait = isPortrait( image.img );
-					$(image.img).addClass( portrait ? 'portrait' : 'landscape' );
+					var square = isSquare( image.img );
+					$(image.img).addClass( portrait ? 'portrait' : ( square ? 'square' : 'landscape' ) );
 					$.consoleDebug( DEBUG, '-- imgLoaded: ' + image.img.src );
 				}else{
 					$this.trigger( 'imgFailed', instance, image );
@@ -935,6 +939,8 @@ var $MAGIC;
 				$this.attr( 'href', href ).attr( 'target', target );
 
 			$this.attr( 'data-link-type', ( back ? 'back' : ( app ? app : state ) ) );
+
+			$this.addClass( samepath ? 'current' : '' );
 
 		});
 	}
@@ -1531,6 +1537,56 @@ var $MAGIC;
 			$this.trigger( 'disabled' );
 
 		});
+	}
+
+	// *****************************************************
+	// *      SCROLL MENU
+	// *****************************************************
+
+	$.fn.scrollNavMenu = function( link, block ){
+		
+		let $link = link && link.length ? link : false;
+		
+		let $menu = this.find( '.menu' );
+		if( !$menu.length ) return this;
+		let $li = $menu.children( 'li' );
+		$li = $link ? $li.add( $link.find( '.menu > li' ) ) : $li;
+
+		if( $li.length ){
+
+			if( !block ){
+
+				var win = $(window).width();
+				var margin = ( win * 40 ) / 100;
+				var tot = $menu.children( 'li' ).length;
+				var width = Math.max( 250, win / tot );
+				$li.css( { 'width': width } );
+				$menu.css( { 'left': 0, 'width': $li.outerWidth()*tot } );
+				
+				var dif = $menu.outerWidth() - $menu.parent().outerWidth();
+				var old = 0;
+				var current = 0;
+				
+				$menu.off('mousemove').on( 'mousemove', function(e){
+					
+					if(dif>0){
+
+						let p = Math.min( 1, Math.max( 0, (e.screenX-margin*.5)/(win-margin) ) );
+						old = parseInt( $menu.css( 'left' ) );
+						let remain = current - old;
+						current = -(dif*p);
+						let val = Math.abs( current-old );
+						$menu.stop().animate( { 'left': current }, Math.max( Math.abs(1000*val/width) + Math.abs(1000*remain/width), 1000 ), 'easeOutQuint' );
+
+					}
+				});
+			}else{
+				$li.css( { 'width': '100%' } );
+				$menu.css( { 'width': '100%' } ).off('mousemove');
+			}
+
+		}
+		return this;
 	}
 
 	// *****************************************************
@@ -2422,7 +2478,7 @@ var $MAGIC;
 			var $this 		= $( this ),
 				markers 	= $this.children( '.marker' ).clone(),
 				zoom 		= parseFloat( $this.data( 'zoom' ) ),
-				infowidth 	= parseInt( $this.data( 'infowidth' ) ? $this.data( 'infowidth' ) : 0 ),
+				infowidth 	= $this.data( 'infowidth' ) || null,
 				color 		= ( $this.data( 'icon-color' ) ? $this.data( 'icon-color' ) : '' ),
 				style 		= [],
 				args 		= [],
@@ -2526,6 +2582,8 @@ var $MAGIC;
 				},
 	        ];
 
+	        $this.trigger( 'googlemapStyle', [ style ] );
+
 	        args = {
 	        	center: new google.maps.LatLng(0, 0),
 				zoom: zoom,
@@ -2549,9 +2607,9 @@ var $MAGIC;
 	        };
 			map = new google.maps.Map( this, args );
 			$this.append( markers );
-
+			
 			if( infowidth !== 0 ){
-				infowidth = infowidth ? infowidth : 500;
+				infowidth = infowidth ? infowidth : $(window).width();
 				infowindow = new google.maps.InfoWindow({
 					content		: '',
 					maxWidth	: infowidth
@@ -2825,6 +2883,75 @@ var $MAGIC;
 
 			$.centerMap( map, zoom );
 
+		});
+	}
+
+	// *****************************************************
+	// *      BG IMAGES
+	// *****************************************************
+
+	$.fn.bgLoadImages = function( imgs ){
+		let $this = this;
+		let tot = imgs.length-1;
+		for( let i in imgs ){
+			let img = document.createElement('img');
+			$( img ).load( function(e){
+				$this.trigger( 'imgLoaded', [ $(this), this, parseInt( i ) ] );
+				if( parseInt( i ) >= tot ){
+					$this.trigger( 'imgsLoaded', [ $(this), this ] );
+				}
+			});
+			img.src = imgs[i];
+			$( img ).appendTo( $this );
+		}
+		return this;
+	}
+	$.bgFadeImages = function( a, b, delay, fade ){
+		delay = delay || 4000;
+		fade = fade || 1500;
+		setTimeout(
+			function(){
+
+				b.addClass('active');
+				a.delay( 500 ).removeClass('active');
+				$.bgFadeImages( b, b.nextLoop() );
+
+			}, delay + fade );
+	}
+
+	$.fn.bgImages = function(){
+		let size = 'image';
+		let w = $( window ).width();
+		let h = $( window ).height();
+		if( w < 301 && h < 401 ) size = 'thumb';
+		else if( w < 701 && h < 601 ) size = 'mobile';
+		else if( w < 901 && h < 801 ) size = 'large';
+		return this.each( function(){
+			let $this = $(this);
+			let $images = $this.find( '.bg-image' );
+			let animation = $this.attr( 'data-transition' ) || 'fade';
+			let x = $this.attr( 'data-x' ) || 'center';
+			let y = $this.attr( 'data-y' ) || 'center';
+			let images = [];
+			var first = false;
+			$this
+				.on( 'imgLoaded', function(e,inst,img,cnt){
+					if( cnt ) return;
+					inst.addClass('active');
+				} )
+				.on( 'imgsLoaded', function(e,inst,img){
+					let $imgs = $this.find('img');
+					if( $imgs.length <= 1 ) return;
+					let $first = $imgs.first();
+					let $next = $first.next();
+					$.bgFadeImages( $first, $next );
+				} )
+
+			$images.each( function(){
+				let $image = $(this).detach();
+				images.push( $image.attr( 'data-' + size ) );
+			});
+			$this.bgLoadImages( images );
 		});
 	}
 	
@@ -3471,7 +3598,6 @@ var $MAGIC;
 						beforeClose: function() {
 
 							if( $overlay && $wrap ){
-								console.log( 'PIPPO' );
 								$( '.fancybox-wrap' ).remove();
 								$( '.fancybox-overlay' ).remove();
 								$('body').append( $overlay.append( $wrap ) );

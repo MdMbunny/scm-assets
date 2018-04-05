@@ -1,4 +1,13 @@
 // **********************************************
+// TOUCH
+// **********************************************
+
+function isTouch() {
+  return 'ontouchstart' in window        // works on most browsers 
+      || navigator.maxTouchPoints;       // works on IE10/11 and Surface
+}
+
+// **********************************************
 // SCROLL
 // **********************************************
 
@@ -325,6 +334,11 @@ function isPortrait( img ){
     let w = img.naturalWidth || img.width,
         h = img.naturalHeight || img.height;
     return ( h > w );
+}
+function isSquare( img ){
+    let w = Math.floor( img.naturalWidth || img.width ),
+        h = Math.floor( img.naturalHeight || img.height );
+    return ( h === w );
 }
 
 // **********************************************
@@ -1029,9 +1043,8 @@ function arrRemove( arr, elem ){
 
 function arrAdd( arr, elem ){
     if( !arr ) arr = [];
-    if( undefined === elem ) return arr.length;
-    if( !inArray( arr, elem ) )
-        return arr.push( elem );
+    if( undefined === elem || inArray( arr, elem ) ) return arr.length;
+    return arr.push( elem );
 }
 
 function arrClean( arr ){

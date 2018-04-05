@@ -244,14 +244,14 @@
 					return this;
 
 				var equal 			= ( !equal_max ? equal_min : equal_max ),
-					current 	 	= ( !equal_max ? 0 : 1493747292 ),
+					current 	 	= ( !equal_max ? 0 : 9999999 ),
 					max 			= !current,
 					maxw 			= $.parsePx( $elem.data( 'max-width' ) ),
 					maxh 			= $.parsePx( $elem.data( 'max-height' ) ),
 					minw 			= $.parsePx( $elem.data( 'min-width' ) ),
 					minh 			= $.parsePx( $elem.data( 'min-height' ) );
 
-				$($elems).each( function( i ) {
+				$elems.each( function( i ) {
 
 					var $this 	= $( this ),
 						m 		= 0;
