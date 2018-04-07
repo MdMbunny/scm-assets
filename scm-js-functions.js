@@ -218,7 +218,7 @@ function getIcon( icon, cls, col, bg, data, tag ){
         icon = icon[1];
     }
 
-    if( icon.length > 1 )
+    if( icon.startsWith( 'fa-' ) )
         html = '<i class="fa ' + icon + ico + cls + '"' + data + '></i>';
     else if( icon )
         html = '<' + ( tag || 'i' ) + ' class="fa text letter' + ico + cls + '"' + data + '>' + icon + '</' + ( tag || 'i' ) + '>';
@@ -704,7 +704,8 @@ function mathCeil( num, rnd ){
 // **********************************************
 
 function count( elem ){
-    if( Array.isArray( elem ) || typeof elem == 'string' ) return elem.length;
+    if( !elem ) return 0;
+    if( isArray( elem ) || typeof elem == 'string' ) return elem.length;
     return objSize( elem );
 }
 
@@ -816,6 +817,11 @@ function objToArray(obj){
     }
     return arr;
 };
+function arrsToObject(keys,values){
+    var result = {};
+    keys.forEach((key, i) => result[key] = values[i]);
+    return result;
+}
 function arrToObject(arr){
     let obj ={};
     for (let i = 0; i < arr.length; i++){

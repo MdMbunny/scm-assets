@@ -451,14 +451,13 @@
 		return this;
 	}
 
-
 	$.fn.editCell = function ( cell ) {
 
 		this.validCell( cell );
 		
 		if( !cell && cell !== 0 ) return this;
 		var invert = cell instanceof jQuery;
-		
+
 		var $input = ( invert ? this : 0 ),
 			$cell = ( $input ? cell : this ),
 			format = ( $cell.data('cell-format') ? $cell.data('cell-format') : 'string' ),
@@ -467,7 +466,6 @@
 			auto = $cell.data('cell-auto') === true,
 			decimal = parseInt( $cell.data( 'cell-decimal' ) ),
 			val = ( $input ? $input.val() : cell.toString() ),
-			evt = $.Event('change'),
 			orig;
 
 		// Text is the same || Validate Event returned Error = keeps original text
@@ -504,11 +502,9 @@
 		
 		// Change Event = back to original text if Event returned false
 		orig = $cell.html();
-		/*$cell.removeText();
-		$cell.insertText( val.toString() );*/
+
+		let evt = $.Event('change');
 		$cell.trigger( evt, [ val, $input ] );
-		/*console.log( $cell.html() );
-		console.log( evt.result );*/
 		if( evt.result === false ){
 			$cell.html( orig );
 		}else{
