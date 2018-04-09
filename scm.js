@@ -21,6 +21,7 @@
 	// *****************************************************
 
 	var initPage = function(){
+
 		$.consoleDebug( DEBUG, 'initPage()');
 
 		$window 	= $( window );
@@ -28,6 +29,7 @@
 
 		start 		= 'documentDone';
 		wait 		= $body.data( 'fade-wait' );
+
 		touch 		= isTouch();//$body.hasClass( 'touch' );
 
 		GOOGLE_API_KEY = $body.attr( 'data-gmap' );

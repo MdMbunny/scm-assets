@@ -591,7 +591,7 @@ var $MAGIC;
 	// *****************************************************
 
 	$.fn.getResponsive = function(){
-		let state = '';
+		var state = '';
 		if ( this.hasClass( 'smartmin' ) )		state = 'smartmin';
 		else if( this.hasClass( 'smart' ) )		state = 'smart';
 		else if( this.hasClass( 'portrait' ) )	state = 'portrait';
@@ -1545,11 +1545,11 @@ var $MAGIC;
 
 	$.fn.scrollNavMenu = function( link, block ){
 		
-		let $link = link && link.length ? link : false;
+		var $link = link && link.length ? link : false;
 		
-		let $menu = this.find( '.menu' );
+		var $menu = this.find( '.menu' );
 		if( !$menu.length ) return this;
-		let $li = $menu.children( 'li' );
+		var $li = $menu.children( 'li' );
 		$li = $link ? $li.add( $link.find( '.menu > li' ) ) : $li;
 
 		if( $li.length ){
@@ -1571,11 +1571,11 @@ var $MAGIC;
 					
 					if(dif>0){
 
-						let p = Math.min( 1, Math.max( 0, (e.screenX-margin*.5)/(win-margin) ) );
+						var p = Math.min( 1, Math.max( 0, (e.screenX-margin*.5)/(win-margin) ) );
 						old = parseInt( $menu.css( 'left' ) );
-						let remain = current - old;
+						var remain = current - old;
 						current = -(dif*p);
-						let val = Math.abs( current-old );
+						var val = Math.abs( current-old );
 						$menu.stop().animate( { 'left': current }, Math.max( Math.abs(1000*val/width) + Math.abs(1000*remain/width), 1000 ), 'easeOutQuint' );
 
 					}
@@ -2891,10 +2891,10 @@ var $MAGIC;
 	// *****************************************************
 
 	$.fn.bgLoadImages = function( imgs ){
-		let $this = this;
-		let tot = imgs.length-1;
-		for( let i in imgs ){
-			let img = document.createElement('img');
+		var $this = this;
+		var tot = imgs.length-1;
+		for( var i in imgs ){
+			var img = document.createElement('img');
 			$( img ).load( function(e){
 				$this.trigger( 'imgLoaded', [ $(this), this, parseInt( i ) ] );
 				if( parseInt( i ) >= tot ){
@@ -2920,19 +2920,19 @@ var $MAGIC;
 	}
 
 	$.fn.bgImages = function(){
-		let size = 'image';
-		let w = $( window ).width();
-		let h = $( window ).height();
+		var size = 'image';
+		var w = $( window ).width();
+		var h = $( window ).height();
 		if( w < 301 && h < 401 ) size = 'thumb';
 		else if( w < 701 && h < 601 ) size = 'mobile';
 		else if( w < 901 && h < 801 ) size = 'large';
 		return this.each( function(){
-			let $this = $(this);
-			let $images = $this.find( '.bg-image' );
-			let animation = $this.attr( 'data-transition' ) || 'fade';
-			let x = $this.attr( 'data-x' ) || 'center';
-			let y = $this.attr( 'data-y' ) || 'center';
-			let images = [];
+			var $this = $(this);
+			var $images = $this.find( '.bg-image' );
+			var animation = $this.attr( 'data-transition' ) || 'fade';
+			var x = $this.attr( 'data-x' ) || 'center';
+			var y = $this.attr( 'data-y' ) || 'center';
+			var images = [];
 			var first = false;
 			$this
 				.on( 'imgLoaded', function(e,inst,img,cnt){
@@ -2940,15 +2940,15 @@ var $MAGIC;
 					inst.addClass('active');
 				} )
 				.on( 'imgsLoaded', function(e,inst,img){
-					let $imgs = $this.find('img');
+					var $imgs = $this.find('img');
 					if( $imgs.length <= 1 ) return;
-					let $first = $imgs.first();
-					let $next = $first.next();
+					var $first = $imgs.first();
+					var $next = $first.next();
 					$.bgFadeImages( $first, $next );
 				} )
 
 			$images.each( function(){
-				let $image = $(this).detach();
+				var $image = $(this).detach();
 				images.push( $image.attr( 'data-' + size ) );
 			});
 			$this.bgLoadImages( images );
