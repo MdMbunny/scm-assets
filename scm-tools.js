@@ -1178,7 +1178,9 @@ var $MAGIC;
 							if( !replace ){
 								$body.trigger( 'loadSingleAfter', [ $parent ] );
 							}else{
-								$parent.eventsInit( 1, 1, 1, null, 1 );
+
+								//$parent.eventsInit( 1, 1, 1, null, 1 );
+								$parent.eventsInit( 1, 1, 1, 1, 1 );
 								$body.enableIt();
 							}
 						} );
@@ -1280,7 +1282,8 @@ var $MAGIC;
 			}
 
 			var replaceContent = function( html, err ){
-				$container.hide().html( html ).eventsInit( 1, 1, 1, null, 1 );
+				$container.hide().html( html );//.eventsInit( 1, 1, 1, null, 1 );
+
 				$container.eventsInit(1,1,1,1);
 				$container.fadeIn('fast', enableContent );
 			}
@@ -1288,7 +1291,8 @@ var $MAGIC;
 			var moreContent = function( html, err ){
 				$children = $( html ).hide();
 				$first = $children.first();
-				$container.append( $children ).eventsInit( 1, 1, 1, null, 1 );
+				$container.append( $children );//.eventsInit( 1, 1, 1, null, 1 );
+
 				$container.eventsInit(1,1,1,1);
 				$children.fadeIn( 'fast' );
 				$children.not( '.scm-pagination' ).last().addClass( 'last' );
