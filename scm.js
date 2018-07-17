@@ -30,7 +30,8 @@
 		start 		= 'documentDone';
 		wait 		= $body.data( 'fade-wait' );
 
-		touch 		= isTouch();//$body.hasClass( 'touch' );
+		//touch 		= isTouch();//$body.hasClass( 'touch' );
+		touch 		= typeof isTouch !== "undefined" ? isTouch() : ( !$body.hasClass( 'no-touch' ) && $body.hasClass( 'touch' ) );
 
 		GOOGLE_API_KEY = $body.attr( 'data-gmap' );
 
