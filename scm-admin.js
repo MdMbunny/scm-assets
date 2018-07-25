@@ -546,25 +546,6 @@
 	jQuery('.acf-field .acf-label label:empty').addClass('empty');
 	jQuery('.acf-flexible-content .layout' ).addClass( '-collapsed' );
 
-	// COLLAPSE LAYOUTS
-
-	$body.on('click', function(e){
-		var $this = jQuery( e.target );
-		if( $this.hasClass('acf-fc-layout-handle') ){
-			e.stopPropagation();
-			e.preventDefault();
-			
-			$this.siblings( '.acf-fields' ).slideToggle( 'fast', function(){
-				$this.parent('.layout').toggleClass('-collapsed');
-			} );
-			/*if( $this.parent('.layout').hasClass('-collapsed') )
-				$this.parent('.layout').removeClass('-collapsed');//.siblings('.layout').addClass('-collapsed');
-			else
-				$this.parent('.layout').addClass('-collapsed');*/
-		}/*else if( $this.parents('.layout').length == 0 ){
-			$body.find('.layout').addClass('-collapsed');
-		}*/
-	} );
 
 	// CONTROL MENU
 
