@@ -275,7 +275,7 @@
 			break;
 		}
 
-		$table.trigger( 'sort', [ name, column, state ] );
+		$table.trigger( 'sorting', [ name, column, state ] );
 
 		return this;
 
@@ -565,14 +565,15 @@
 				}
 			}
 
-			var showEditor = function( select ) {
+			var showEditor = function( sel ) {
 				$cell = $this.find( 'td.edit:focus' );
 				if( $cell.length ){
 					$cell.removeClass('error');
 					format = $cell.data( 'cell-format' );
 					var name = $cell.data( 'column-name' );
-					var list = $this.find( 'th[data-column-name="' + name + '"]' ).data( 'auto-complete' );
-					var hints = $this.find( 'th[data-column-name="' + name + '"]' ).data( 'hints' );
+					var $th = $this.find( 'th[data-column-name="' + name + '"]' );
+					var list = $th.data( 'auto-complete' );
+					var hints = $th.data( 'hints' );
 
 					$temp = ( format == 'color' ? $picker : ( format == 'date' ? $calendar : $input ) );
 					if( format == 'date' )
@@ -610,35 +611,31 @@
 
 							var open = function( event, ui ){
 								$cell.trigger( 'open', [ $temp ] );
-					    	};
+					    	}
 					    	var change = function( event, ui ){
 					    		if( list != 'multi' )
 						    		$temp.validCell( $cell );
-					    	};
-							
+					    	}
 							var focus = function( event, ui ){
 						    	$temp.validCell( $cell );
-						    };
-
+						    }
 						    var select = function( event, ui ){
 					    		if( ui.item.value )
 						    		hideEditor( $temp, $cell, ui.item.value );
-					    	};
+					    	}
 
-						    $temp.addUIAutocomplete( arr, list, {open:open,change:change,focus:focus,select:select}, $parent );
+						    $temp.addUIAutocomplete( arr, list, { open:open, change:change, focus:focus, select:select }, $parent );
 
 						}else if( $temp.autocomplete( 'instance' ) ){
-							$temp.autocomplete('disable');
+							$temp.disableUIAutocomplete();
 						}
-
 					}else if( $temp.autocomplete( 'instance' ) ){
-						$temp.autocomplete('disable');
+						$temp.disableUIAutocomplete();
 					}
 
 					$temp.focus();
 
-					if( select )
-						$temp.select();
+					if( sel ) $temp.select();
 
 					var caret = $temp.getCursorPosition();
 					$temp.data( 'caret-start', caret.start );

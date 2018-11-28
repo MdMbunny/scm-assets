@@ -238,9 +238,16 @@
 					$this.autocomplete( 'search', '' );
 				} )
 
-				
+				return $this;
+			}
+			$.fn.disableUIAutocomplete = function(){
+
+				var $this = $( this );
+				$this.autocomplete( 'disable' );
+				$this.off( 'focusin' );
 
 				return $this;
+
 			}
 
 			// ********************************************** CALENDAR INPUT

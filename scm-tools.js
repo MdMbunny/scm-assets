@@ -2913,9 +2913,9 @@ var $MAGIC;
 	$.bgFadeImages = function( a, b, delay, fade ){
 		delay = delay || 4000;
 		fade = fade || 1500;
-		a.addClass( 'active' );
 		setTimeout(
 			function(){
+
 				b.addClass('active');
 				a.delay( 500 ).removeClass('active');
 				$.bgFadeImages( b, b.nextLoop() );
