@@ -1149,6 +1149,10 @@ function indObject( obj, elem ){
 // ARRAY
 // **********************************************
 
+function isList( elem ){
+    return isArray( elem ) || isObject( elem );
+}
+
 function isArray( arr ){
     return Array.isArray( arr ) ? arr : false;
 }
@@ -1286,11 +1290,26 @@ function arrSum( arr ){
 }
 
 function arrAverage( arr ){
-    //arr = arr.values();
     var tot = arr.length;
     if (!tot)
         return 0;
     return arrSum( arr ) / tot;
+}
+
+function arrShuffle( arr ){
+    for( let i = arr.length - 1; i > 0; i-- ){
+        const j = Math.floor( Math.random() * ( i + 1 ) );
+        [ arr[i], arr[j] ] = [ arr[j], arr[i] ];
+    }
+    return arr;
+}
+
+function getShuffle( tot ){
+    var arr = [];
+    for( let i = 0; i < tot; i++ ){
+        arr.push( i );
+    }
+    return arrShuffle( arr );
 }
 
 function getAllByValue( arr, value ){
