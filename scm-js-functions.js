@@ -326,138 +326,6 @@ function brighterColor( hexa, hexb ){
     return hexb;
 }
 
-function getImageColors( img, num, opt ){
-
-    if( typeof Vibrant != 'function' || typeof ColorThief != 'function' ){
-        alert( 'getImageColors needs Vibrant.js and ColorThief.js in order to work' );
-        return;
-    }
-
-    opt = objMerge( {
-        main: [ 128, 10 ],                  // First Vibrant Count+Quality
-        more: [ 64, 4 ],                    // Second Vibrant Count+Quality
-        quality: 1,                         // ColorThief Quality
-        contrast: 50,                       // Min contrast
-        luminosity: .09,                    // Luminosity multiplier for low contrast
-        saturation: .06,                    // Saturation multiplier for low contrast
-        adjust: [                           // Max and Min hue, saturation, luminosity
-            //  LIGHTER       DARKER
-            //  MAX  MIN      MAX  MIN
-            [ [ 1.0, 0.0 ], [ 1.0, 0.0 ] ], // HUE
-            [ [ 0.7, 0.0 ], [ 0.5, 0.1 ] ], // SATURATION
-            [ [ 0.8, 0.4 ], [ 0.6, 0.1 ] ], // LUMINOSITY
-        ],
-    }, opt || {} );
-
-    num = num || 1;
-    var arr = [];
-    
-    // PALETTE VIBRANT
-
-    var colors = [];
-    var main = {};
-    var swatches = new Vibrant( img, opt.main[0], opt.main[1] ).swatches();
-    
-    for( var swatch in swatches ){
-        if( swatches.hasOwnProperty( swatch ) && swatches[swatch] ){
-            main[swatch] = swatches[swatch].getHex();
-        }
-    }
-    
-    arr.push( main.Vibrant );
-    arr.push( main.DarkVibrant );
-
-    if( num > 1 ){
-        arr.push( main.Muted );
-        arr.push( main.DarkMuted );
-    }
-
-    if( num > 2 ){
-        var more = {};
-        var vibrants = new Vibrant( img, opt.more[0], opt.more[1] ).swatches();
-        for( var vibrant in vibrants ){
-            if( vibrants.hasOwnProperty( vibrant ) && vibrants[vibrant] ){
-                more[vibrant] = vibrants[vibrant].getHex();
-            }
-        }
-
-        arr.push( more.Vibrant );
-        arr.push( more.DarkVibrant );
-
-        if( num > 3 ){
-        
-            arr.push( more.Muted );
-            arr.push( more.DarkMuted );
-
-        }
-    }
-
-    // PALETTE THIEF
-
-    if( num > 4 ){
-
-        num = ( num-4 ) * 2 + 1;
-        var thief = [];
-        var colorThief = new ColorThief();
-
-        thief.push( colorThief.getPalette( img, num, opt.quality ) );
-
-        for (var i = 0; i < thief.length; i++) {
-
-            for (var j = 0; j < thief[i].length; j++)
-                arr.push( new Swatch( thief[i][j], 1 ).getHex() );
-        }
-    }
-
-//******* ADJUSTMENTS
-
-    for( var k = 0; k < arr.length; k += 2 ){
-        var cola = arr[k];
-        var colb = arr[k+1];
-        // invert by brightness
-        if( brighterColor( cola, colb ) == colb ){
-            colb = arr[k];
-            cola = arr[k+1];
-        }
-        // create swatch
-        cola = new Swatch( objValues( hexToRgb( cola ) ), 1 );
-        colb = new Swatch( objValues( hexToRgb( colb ) ), 1 );
-        // store contrast
-        var contr = colorsContrast( cola.getRgb(), colb.getRgb() );
-        // convert to hsl
-        cola = cola.getHsl();
-        colb = colb.getHsl();
-        // adjust contrast
-        var dif = ( opt.contrast - contr[0] ) / opt.contrast;
-        if( contr[0] < opt.contrast ){
-            cola[2] += opt.luminosity * dif;
-            cola[1] += opt.saturation * dif;
-            colb[2] -= opt.luminosity * dif;
-            colb[1] -= opt.saturation * dif;
-        }
-        // adjust hi luminosity
-        if( cola[2] > opt.adjust[2][0][0] ){
-            colb[2] -= cola[2] - opt.adjust[2][0][0];
-            cola[2] = opt.adjust[2][0][0];
-        }
-        if( colb[2] > opt.adjust[2][1][0] ) colb[2] = opt.adjust[2][1][0];
-        // adjust low luminosity
-        if( cola[2] < opt.adjust[2][0][1] ) cola[2] = opt.adjust[2][0][1];
-        if( colb[2] < opt.adjust[2][1][1] ) colb[2] = opt.adjust[2][1][1];
-        // adjust hi saturation
-        if( cola[1] > opt.adjust[1][0][0] ) cola[1] = opt.adjust[1][0][0];
-        if( colb[1] > opt.adjust[1][1][0] ) colb[1] = opt.adjust[1][1][0];
-        // adjust low saturation
-        if( cola[1] < opt.adjust[1][0][1] ) cola[1] = opt.adjust[1][0][1];
-        if( colb[1] < opt.adjust[1][1][1] ) colb[1] = opt.adjust[1][1][1];
-
-        colors.push( [ rgbToHex( hslToRgb( cola[0], cola[1], cola[2] ) ), rgbToHex( hslToRgb( colb[0], colb[1], colb[2] ) ) ] );
-    }
-
-    return colors;
-
-}
-
 // **********************************************
 // IMG
 // **********************************************
@@ -853,10 +721,21 @@ function objMerge( a, b ){
     return a;
 }
 var objExtend = Object.assign || function( target ){
-    for( var arg of arguments )
-        for( var key in arg )
-            if( Object.prototype.hasOwnProperty.call( arg, key ) )
+    for(var i = 0; i < arguments.length; i++){
+        var arg = arguments[i];
+        for( var key in arg ){
+            if( Object.prototype.hasOwnProperty.call( arg, key ) ){
                 target[key] = arg[key];
+            }
+        }
+    }
+    /*for( var arg of arguments ){
+        for( var key in arg ){
+            if( Object.prototype.hasOwnProperty.call( arg, key ) ){
+                target[key] = arg[key];
+            }
+        }
+    }*/
     return target;
 };
 
@@ -1140,18 +1019,9 @@ function objPrev( obj, key, loop ){
     return obj[keys[ind]];
 }
 
-function indObject( obj, elem ){
-    var arr = Object.values( obj );
-    return indArray( arr, elem );
-}
-
 // **********************************************
 // ARRAY
 // **********************************************
-
-function isList( elem ){
-    return isArray( elem ) || isObject( elem );
-}
 
 function isArray( arr ){
     return Array.isArray( arr ) ? arr : false;
@@ -1290,26 +1160,11 @@ function arrSum( arr ){
 }
 
 function arrAverage( arr ){
+    //arr = arr.values();
     var tot = arr.length;
     if (!tot)
         return 0;
     return arrSum( arr ) / tot;
-}
-
-function arrShuffle( arr ){
-    for( let i = arr.length - 1; i > 0; i-- ){
-        const j = Math.floor( Math.random() * ( i + 1 ) );
-        [ arr[i], arr[j] ] = [ arr[j], arr[i] ];
-    }
-    return arr;
-}
-
-function getShuffle( tot ){
-    var arr = [];
-    for( let i = 0; i < tot; i++ ){
-        arr.push( i );
-    }
-    return arrShuffle( arr );
 }
 
 function getAllByValue( arr, value ){
