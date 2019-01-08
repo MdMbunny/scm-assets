@@ -1308,7 +1308,7 @@ function arrAverage( arr ){
 }
 
 function arrShuffle( arr ){
-    for( let i = arr.length - 1; i > 0; i-- ){
+    for( var i = arr.length - 1; i > 0; i-- ){
         const j = Math.floor( Math.random() * ( i + 1 ) );
         [ arr[i], arr[j] ] = [ arr[j], arr[i] ];
     }
@@ -1317,7 +1317,7 @@ function arrShuffle( arr ){
 
 function getShuffle( tot ){
     var arr = [];
-    for( let i = 0; i < tot; i++ ){
+    for( var i = 0; i < tot; i++ ){
         arr.push( i );
     }
     return arrShuffle( arr );

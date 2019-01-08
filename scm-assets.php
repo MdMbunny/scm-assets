@@ -3,7 +3,7 @@
  * Plugin Name:         SCM Assets
  * Plugin URI:          http://studiocreativo-m.it/
  * Description:         SCM Javascript Integration
- * Version:             2.4.1
+ * Version:             2.4.2
  * Author:              Studio Creativo M
  * Author URI:          http://studiocreativo-m.it/
  * License:             http://www.gnu.org/licenses/gpl-3.0.html
@@ -142,7 +142,8 @@
 
             $bx = apply_filters( 'scm_assets_filter_block_bx', false );
             if( !$bx && ( $scm_assets_settings['slider'] == 'bx' || $scm_assets_settings['bx'] ) ){
-                wp_register_style( 'bx-style', SCM_ASSETS_URI_ASSETS . 'jquery.bxslider-4.2.11/jquery.bxslider.css', false, null );
+                //wp_register_style( 'bx-style', SCM_ASSETS_URI_ASSETS . 'jquery.bxslider-4.2.11/jquery.bxslider.css', false, null );
+                wp_register_style( 'bx-style', SCM_ASSETS_URI_ASSETS . 'jquery.bxslider-4.2.12/css/jquery.bxslider.css', false, null );
                 wp_enqueue_style( 'bx-style' );
             }
         }
@@ -222,7 +223,8 @@
             // BX Slider --- You could replace it (probably with _ScrollMagic_)
             $bx = apply_filters( 'scm_assets_filter_block_bx', false );
             if( !$bx && ( $scm_assets_settings['slider'] == 'bx' || $scm_assets_settings['bx'] ) ){
-                wp_register_script( 'bx', SCM_ASSETS_URI_ASSETS . 'jquery.bxslider-4.2.11/jquery.bxslider.min.js', array( 'imagesloaded' ), null, true );
+                //wp_register_script( 'bx', SCM_ASSETS_URI_ASSETS . 'jquery.bxslider-4.2.11/jquery.bxslider.min.js', array( 'imagesloaded' ), null, true );
+                wp_register_script( 'bx', SCM_ASSETS_URI_ASSETS . 'jquery.bxslider-4.2.12/js/jquery.bxslider.js', array( 'imagesloaded' ), null, true );
                 wp_enqueue_script( 'bx' );
             }
 
