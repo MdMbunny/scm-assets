@@ -2848,12 +2848,7 @@ var $MAGIC;
 							info.close();
 							info.setContent( $this.html() );
 							info.open( map, marker );
-<<<<<<< aec22b341fd31159a0edaa8c7fc2f5558ec988f1
-							$(info).trigger( 'infoOpened' );
-							setTimeout( function(){$map.eventsInit(1,1);}, 100 );
-=======
 							$map.eventsInit(1,1);
->>>>>>> v2.5.0
 							$( '.onmap' ).removeClass( 'infowindow' );
 							if( location.hasClass( 'onmap' ) )
 								location.addClass( 'infowindow' );

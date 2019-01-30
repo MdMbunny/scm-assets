@@ -1308,11 +1308,7 @@ function arrAverage( arr ){
 }
 
 function arrShuffle( arr ){
-<<<<<<< aec22b341fd31159a0edaa8c7fc2f5558ec988f1
-    for( var i = arr.length - 1; i > 0; i-- ){
-=======
     for( let i = arr.length - 1; i > 0; i-- ){
->>>>>>> v2.5.0
         const j = Math.floor( Math.random() * ( i + 1 ) );
         [ arr[i], arr[j] ] = [ arr[j], arr[i] ];
     }
@@ -1321,11 +1317,7 @@ function arrShuffle( arr ){
 
 function getShuffle( tot ){
     var arr = [];
-<<<<<<< aec22b341fd31159a0edaa8c7fc2f5558ec988f1
-    for( var i = 0; i < tot; i++ ){
-=======
     for( let i = 0; i < tot; i++ ){
->>>>>>> v2.5.0
         arr.push( i );
     }
     return arrShuffle( arr );
