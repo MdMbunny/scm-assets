@@ -694,6 +694,10 @@
 
 		    $body.on('click', function(e){
 		    	var $this = jQuery( e.target );
+<<<<<<< aec22b341fd31159a0edaa8c7fc2f5558ec988f1
+=======
+		    	if( !e.target.className.indexOf ) return;
+>>>>>>> v2.5.0
 				if( e.target.className.indexOf( 'show-field-key' ) > -1 ){
 					if ( e.altKey || e.shiftKey ){
 						e.stopPropagation();
