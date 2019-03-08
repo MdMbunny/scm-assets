@@ -3,7 +3,7 @@
  * Plugin Name:         SCM Assets
  * Plugin URI:          http://studiocreativo-m.it/
  * Description:         SCM Javascript Integration
- * Version:             2.6.0
+ * Version:             2.6.1
  * Author:              Studio Creativo M
  * Author URI:          http://studiocreativo-m.it/
  * License:             http://www.gnu.org/licenses/gpl-3.0.html
@@ -276,7 +276,6 @@
             wp_register_script( 'jquery-scm-functions', SCM_ASSETS_URI . 'scm-functions.js', array( 'jquery-scm-js-functions' ), null, true );
             wp_enqueue_script( 'jquery-scm-functions' );
             wp_register_script( 'jquery-scm-tools', SCM_ASSETS_URI . 'scm-tools.js', array( 'jquery-scm-functions' ), null, true );
-
             wp_enqueue_script( 'jquery-scm-tools' );
 
             if( $scm_assets_settings['tables'] ){
