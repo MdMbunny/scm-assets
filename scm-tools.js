@@ -1869,7 +1869,7 @@ var $MAGIC;
 	            	$body 		= $( 'body' ),
 	            	heightWin 	= $win.height(),
 	            	heightBody 	= $body.outerHeight(),
-	            	scrollPos 	= $win.scrollTop(),
+	            	scrollPos 	= $win.scrollTop() + 1,
 	            	pageEnd 	= scrollPos + heightWin >= heightBody,
 	            	current 	= '',
 	            	off 		= ( head ? $.getStickyHeight() : 0 ) + offset;
