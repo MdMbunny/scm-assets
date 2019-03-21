@@ -320,7 +320,7 @@
 		"fa-facebook-official":		[ "fab", "facebook" ],
 		"fa-pinterest-p":			[ "fab", "pinterest-p" ],
 		"fa-whatsapp":				[ "fab", "whatsapp" ],
-		"fa-hotel":					[ "fas", "bed" ],
+		//"fa-hotel":					[ "fas", "bed" ],
 		"fa-viacoin":				[ "fab", "viacoin" ],
 		"fa-medium":				[ "fab", "medium" ],
 		"fa-y-combinator":			[ "fab", "y-combinator" ],
@@ -508,7 +508,7 @@
 					type = 'fab';
 				}
 
-				var fix = ( type == 'fab' ? ['fab',fa] : jQuery.FAFIX_DEBUG( fa, $this ) );
+				var fix = ( type == 'fab' ? ['fab',fa] : [type || 'fas',fa] /*$.FAFIX_DEBUG( fa, $icon )*/ );
 				fa = ( type || fix[0] ) + ' ' + fix[1];
 
 			}

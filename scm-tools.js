@@ -354,7 +354,7 @@ var $MAGIC;
 		"fa-facebook-official":		[ "fab", "facebook" ],
 		"fa-pinterest-p":			[ "fab", "pinterest-p" ],
 		"fa-whatsapp":				[ "fab", "whatsapp" ],
-		"fa-hotel":					[ "fas", "bed" ],
+		//"fa-hotel":					[ "fas", "bed" ],
 		"fa-viacoin":				[ "fab", "viacoin" ],
 		"fa-medium":				[ "fab", "medium" ],
 		"fa-y-combinator":			[ "fab", "y-combinator" ],
@@ -551,7 +551,7 @@ var $MAGIC;
 					type = 'fab';
 				}
 
-				var fix = ( type == 'fab' ? ['fab',fa] : $.FAFIX_DEBUG( fa, $icon ) );
+				var fix = ( type == 'fab' ? ['fab',fa] : [type || 'fas',fa] /*$.FAFIX_DEBUG( fa, $icon )*/ );
 				type = type || fix[0];
 				fa = fix[1] || '';
 
