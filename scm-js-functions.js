@@ -890,29 +890,25 @@ function cloneObject( obj ){
 
 function objKeys( obj ){
     var arr = [];
-    for (key in obj)
-        if (obj.hasOwnProperty(key)) arr.push( key );
+    for( var key in obj )
+        if( obj.hasOwnProperty(key) ) arr.push( key );
     
     return arr;
 }
 
 function objValues( obj ){
     var arr = [];
-    for (key in obj)
-        if (obj.hasOwnProperty(key)) arr.push( obj[key] );
+    for( var key in obj )
+        if( obj.hasOwnProperty(key) ) arr.push( obj[key] );
     
     return arr;
 }
-/*function objValues(obj){
-    return Object.keys(obj).map(function(key){
-        return obj[key];
-    });
-}*/
-
 function objFirstKey(obj){
+    if( !objSize(obj) ) return undefined;
     return Object.keys(obj)[0];
 }
 function objFirstValue(obj){
+    if( !objSize(obj) ) return undefined;
     return obj[Object.keys(obj)[0]];
 }
 function objLastKey(obj){
@@ -921,18 +917,16 @@ function objLastKey(obj){
 function objLastValue(obj){
     return obj[Object.keys(obj)[objSize(obj)-1]];
 }
-
-
 function objSize(obj){
-    var size = 0, key;
-    for (key in obj)
-        if (obj.hasOwnProperty(key)) size++;
+    var size = 0;
+    for( var key in obj )
+        if( obj.hasOwnProperty(key) ) size++;
     
     return size;
 };
 
 function objInsert(obj,n,k){
-    var o ={};
+    var o = {};
     var key, nkey;
     for( key in obj ){
         if( obj.hasOwnProperty(key) ){

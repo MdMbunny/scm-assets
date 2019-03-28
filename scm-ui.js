@@ -726,8 +726,8 @@
 			opt = opt || ( id && typeof id != 'string' ? id : {} );
 
 			var options = $.extend( defaults, opt );
-
-			return $tabs = $.UIContent( options ).addClass( 'scm-ui-tabs' );//.attr( 'data-from', options.position );
+			
+			return $.UIContent( options ).addClass( 'scm-ui-tabs' );
 
 		}
 		$.fn.addUITabs = function( opt, prepend ){

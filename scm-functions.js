@@ -581,11 +581,11 @@ if ( !$.fn.imgsSVG ) {
 */
 
 	$.functionExists = function( str ){
-		return undefined !== typeof $.fn[str] && $.isFunction($.fn[str]);
+		return undefined !== $.fn[str] && undefined !== typeof $.fn[str] && $.isFunction($.fn[str]);
 	}
 	
 	$.funExists = function( str ){
-		return undefined !== typeof $[str] && $.isFunction($[str]);
+		return undefined !== $[str] && undefined !== typeof $[str] && $.isFunction($[str]);
 	}
 	
 	$.consoleDebug = function( db, lg ){
