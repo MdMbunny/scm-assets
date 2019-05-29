@@ -551,9 +551,15 @@ var $MAGIC;
 					type = 'fab';
 				}
 
+				var fafix = $.FAFIX_DEBUG( fa, $icon );
+				type = fafix[0] == 'fab' ? fafix[0] : type;
+				fa = fafix[1];
+
 				var fix = ( type == 'fab' ? ['fab',fa] : [type || 'fas',fa] /*$.FAFIX_DEBUG( fa, $icon )*/ );
 				type = type || fix[0];
 				fa = fix[1] || '';
+
+				//console.log(cls, fa, type);
 
 				break;
 
