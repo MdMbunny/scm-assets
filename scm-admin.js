@@ -473,46 +473,71 @@
 		return [ 'fas', c ];
 	}
 	jQuery.fn.FAFIX = function(){
-		var $icons = this.find( '.fa' ).andSelf().filter( '.fa' ).not( '.text' ).addClass( 'faicon' );
+		var $icons = this.find( '.fa, .fas, .far, .fal, .fab, .fad' ).andSelf().filter( '.fa, .fas, .far, .fal, .fab, .fad' ).not( '.text' ).addClass( 'faicon' ).removeClass( 'fa' );
 
-		jQuery.each( $icons, function(){
-			var $this = jQuery(this);
-			var cls = $this.attr('class').split(/\s+/);
+		$.each( $icons, function(){
+			var $icon = $(this);
+			var cls = $icon.attr('class').split(/\s+/);
 			var fa = '';
 			var type = '';
 
 			for( var i in cls ){
 
-				if( !cls[i].startsWith( 'fa-' ) ||
+				if( cls[i].indexOf( 'fa-' ) !== 0 ||
 					cls[i] == 'fa-spin' ||
-					cls[i].startsWith( 'fa-stack' ) )
+					cls[i].indexOf( 'fa-stack' ) === 0 )
 					continue;
 
 				fa = cls[i];
 				
-				$this
-					.removeClass( 'fa' )
-					.removeClass( cls[i] );
+				//$icon
+					//.removeClass( 'fa' );
+					//.removeClass( cls[i] );
 
 				if( fa.lastIndexOf( '-r' ) == fa.length-2 ){
+					console.log(fa);
 					fa = fa.substr( 0, fa.length-2 );
-					type = 'far';
+					//type = 'far';
 				}else if( fa.lastIndexOf( '-l' ) == fa.length-2 ){
+					console.log(fa);
 					fa = fa.substr( 0, fa.length-2 );
-					type = 'fal';
+					//type = 'fal';
 				}else if( fa.lastIndexOf( '-s' ) == fa.length-2 ){
+					console.log(fa);
 					fa = fa.substr( 0, fa.length-2 );
-					type = 'fas';
+					//type = 'fas';
 				}else if( fa.lastIndexOf( '-b' ) == fa.length-2 ){
+					console.log(fa);
 					fa = fa.substr( 0, fa.length-2 );
-					type = 'fab';
+					//type = 'fab';
+				}else if( fa.lastIndexOf( '-d' ) == fa.length-2 ){
+					console.log(fa);
+					fa = fa.substr( 0, fa.length-2 );
+					//type = 'fad';
 				}
 
-				var fix = ( type == 'fab' ? ['fab',fa] : [type || 'fas',fa] /*$.FAFIX_DEBUG( fa, $icon )*/ );
-				fa = ( type || fix[0] ) + ' ' + fix[1];
+				//var fafix = $.FAFIX_DEBUG( fa, $icon );
+				//type = fafix[0] == 'fab' ? fafix[0] : type;
+				//fa = fafix[1];
+
+				//var fix = ( type == 'fab' ? ['fab',fa] : [type || 'fas',fa] /*$.FAFIX_DEBUG( fa, $icon )*/ );
+				//type = type || fix[0];
+				//fa = fix[1] || '';
+
+				//console.log(cls, fa, type);
+
+				break;
 
 			}
-			$this.addClass( fa );
+
+			//console.log(type);
+			//console.log(fa);
+			
+			//$icon
+				//.removeClass( 'far fab fal fas fad' )
+				//.addClass( type )
+				//.addClass( fa );
+
 		} );
 		return this;
 	}
@@ -550,10 +575,10 @@
 	// CONTROL MENU
 
 	var $publish = jQuery( '#publishing-action, #edittag p.submit' );
-	$publish.prepend( '<i class="fa fa-save-r"></i>' );
-	$publish.prepend( '<i class="fa fa-spin fa-cog-s"></i>' );
+	$publish.prepend( '<i class="far fa-save"></i>' );
+	$publish.prepend( '<i class="fas fa-spin fa-cog"></i>' );
 
-	jQuery( '#major-publishing-actions' ).append( '<div id="options-action" style="cursor:pointer;"><i class="fa fa-bars"></i><div>' );
+	jQuery( '#major-publishing-actions' ).append( '<div id="options-action" style="cursor:pointer;"><i class="fas fa-bars"></i><div>' );
 	jQuery( 'body:not(.post-new-php):not(.post-php) #options-action' ).css( 'display', 'none' );
 	jQuery( 'body.post-php #save-action' ).css( 'display', 'none' );
 	
@@ -563,16 +588,16 @@
 	$options.on( 'click', function(e){
 		if( $stuff.hasClass( 'options' ) ){
 			$stuff.removeClass( 'options' );
-			$options.find( '.fa' ).addClass( 'fa-bars' ).removeClass( 'fa-times' );
+			$options.find( '.fa' ).addClass( 'fas fa-bars' ).removeClass( 'fa-times' );
 		}else{
 			$stuff.addClass( 'options' );
-			$options.find( '.fa' ).addClass( 'fa-times' ).removeClass( 'fa-bars' );
+			$options.find( '.fa' ).addClass( 'fas fa-times' ).removeClass( 'fa-bars' );
 		}
 	} );
 
 
-	jQuery( '#delete-action a' ).prepend( '<i class="fa fa-trash-r"></i>' );
-	jQuery( '#delete-action a' ).prepend( '<i class="fa fa-spin fa-cog-s"></i>' );
+	jQuery( '#delete-action a' ).prepend( '<i class="fas fa-trash-alt"></i>' );
+	jQuery( '#delete-action a' ).prepend( '<i class="fas fa-spin fa-cog"></i>' );
 
 
 	function htmlEntities(str) {
@@ -582,11 +607,11 @@
 
 	var $save = jQuery( '#save-action' );
 	if( $save.find( '.button' ).length > 0 ){
-		$save.prepend( '<i class="fa fa-file-r"></i>' );
-		$save.prepend( '<i class="fa fa-spin fa-cog-s"></i>' );
+		$save.prepend( '<i class="fas fa-file"></i>' );
+		$save.prepend( '<i class="fas fa-spin fa-cog"></i>' );
 	}
 
-	jQuery( '#preview-action a' ).prepend( '<i class="fa fa-search"></i>' );
+	jQuery( '#preview-action a' ).prepend( '<i class="fas fa-search"></i>' );
 
 
 	jQuery( '#delete-action .deletion, #save-action input, #publishing-action input, #edittag p.submit input' ).on( 'click', function(e){

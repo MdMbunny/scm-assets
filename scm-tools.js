@@ -516,7 +516,7 @@ var $MAGIC;
 		return [ 'fas', c ];
 	}
 	$.fn.FAFIX = function(){
-		var $icons = this.find( '.fa' ).andSelf().filter( '.fa' ).not( '.text' ).addClass( 'faicon' );
+		var $icons = this.find( '.fa, .fas, .far, .fal, .fab, .fad' ).andSelf().filter( '.fa, .fas, .far, .fal, .fab, .fad' ).not( '.text' ).addClass( 'faicon' ).removeClass( 'fa' );
 
 		$.each( $icons, function(){
 			var $icon = $(this);
@@ -533,42 +533,53 @@ var $MAGIC;
 
 				fa = cls[i];
 				
-				$icon
-					.removeClass( 'fa' )
-					.removeClass( cls[i] );
+				//$icon
+					//.removeClass( 'fa' );
+					//.removeClass( cls[i] );
 
 				if( fa.lastIndexOf( '-r' ) == fa.length-2 ){
+					console.log(fa);
 					fa = fa.substr( 0, fa.length-2 );
-					type = 'far';
+					//type = 'far';
 				}else if( fa.lastIndexOf( '-l' ) == fa.length-2 ){
+					console.log(fa);
 					fa = fa.substr( 0, fa.length-2 );
-					type = 'fal';
+					//type = 'fal';
 				}else if( fa.lastIndexOf( '-s' ) == fa.length-2 ){
+					console.log(fa);
 					fa = fa.substr( 0, fa.length-2 );
-					type = 'fas';
+					//type = 'fas';
 				}else if( fa.lastIndexOf( '-b' ) == fa.length-2 ){
+					console.log(fa);
 					fa = fa.substr( 0, fa.length-2 );
-					type = 'fab';
+					//type = 'fab';
+				}else if( fa.lastIndexOf( '-d' ) == fa.length-2 ){
+					console.log(fa);
+					fa = fa.substr( 0, fa.length-2 );
+					//type = 'fad';
 				}
 
-				var fafix = $.FAFIX_DEBUG( fa, $icon );
-				type = fafix[0] == 'fab' ? fafix[0] : type;
-				fa = fafix[1];
+				//var fafix = $.FAFIX_DEBUG( fa, $icon );
+				//type = fafix[0] == 'fab' ? fafix[0] : type;
+				//fa = fafix[1];
 
-				var fix = ( type == 'fab' ? ['fab',fa] : [type || 'fas',fa] /*$.FAFIX_DEBUG( fa, $icon )*/ );
-				type = type || fix[0];
-				fa = fix[1] || '';
+				//var fix = ( type == 'fab' ? ['fab',fa] : [type || 'fas',fa] /*$.FAFIX_DEBUG( fa, $icon )*/ );
+				//type = type || fix[0];
+				//fa = fix[1] || '';
 
 				//console.log(cls, fa, type);
 
 				break;
 
 			}
+
+			//console.log(type);
+			//console.log(fa);
 			
-			$icon
-				.removeClass( 'far fab fal fas' )
-				.addClass( type )
-				.addClass( fa );
+			//$icon
+				//.removeClass( 'far fab fal fas fad' )
+				//.addClass( type )
+				//.addClass( fa );
 
 		} );
 		return this;
@@ -2784,7 +2795,8 @@ var $MAGIC;
 			var $this 			= $( this ),
 				marker_img 		= $this.data( 'img' ),
 				marker_color	= $this.data( 'icon-color' ),
-				marker_icon		= ( $this.data( 'icon' ) && !marker_img ? '<i class="faicon fas ' + $this.data( 'icon' ) + '"' + ( marker_color ? ' style="color:' + marker_color + ';"' : '' ) + '></i>' : '' ),
+				//marker_icon		= ( $this.data( 'icon' ) && !marker_img ? '<i class="faicon fas ' + $this.data( 'icon' ) + '"' + ( marker_color ? ' style="color:' + marker_color + ';"' : '' ) + '></i>' : '' ),
+				marker_icon		= ( $this.data( 'icon' ) && !marker_img ? '<i class="faicon ' + $this.data( 'icon' ) + '"' + ( marker_color ? ' style="color:' + marker_color + ';"' : '' ) + '></i>' : '' ),
 				classes 		= $this.attr('class') + ' ',
 				id 				= classes.substr( classes.indexOf( 'scm-marker marker marker-' ) + 25, classes.substr( 25 ).indexOf( ' ' ) ),
 				$map 			= $( '#map-' + count );
