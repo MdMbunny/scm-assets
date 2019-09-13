@@ -3148,8 +3148,8 @@ var $MAGIC;
 			    	var $next = $this.find( 'a.nivo-nextNav' ),
 			    		$prev = $this.find( 'a.nivo-prevNav' );
 
-			    	$next.append( '<i class="fa ' + $this.data( 'slider-next' ) + '">' );
-			    	$prev.append( '<i class="fa ' + $this.data( 'slider-prev' ) + '">' );
+			    	$next.append( '<i class="far ' + $this.data( 'slider-next' ) + '">' );
+			    	$prev.append( '<i class="far ' + $this.data( 'slider-prev' ) + '">' );
 
 			    	var next_over = parseInt( $next.css( 'right' ) ),
 			    		next_shw = $next.getBoxShadow(),
@@ -3523,14 +3523,14 @@ var $MAGIC;
 							    	$tools = $( '<div class="fancybox-tools"></div>' );
 							    	
 							    	if( color ){
-							    		$( '<a title="Color" class="fancybox-stuff fancybox-item fancybox-color" href="javascript:;"><i class="fa fa-circle"></i></a>' ).click( function() {
+							    		$( '<a title="Color" class="fancybox-stuff fancybox-item fancybox-color" href="javascript:;"><i class="fas fa-circle"></i></a>' ).click( function() {
 									        $( this ).toggleClass( 'on' );
 									        $over.toggleClass( 'white' );
 									    }).appendTo( $tools );
 							    	}
 							    	
 							    	if( info ){
-							    		$( '<a title="Info" class="fancybox-stuff fancybox-item fancybox-info" href="javascript:;"><i class="fa fa-info-circle"></i></a>' ).click( function() {
+							    		$( '<a title="Info" class="fancybox-stuff fancybox-item fancybox-info" href="javascript:;"><i class="fas fa-info-circle"></i></a>' ).click( function() {
 									        $( this ).toggleClass( 'on' );
 									        $over.toggleClass( 'info' );
 									        
@@ -3544,7 +3544,7 @@ var $MAGIC;
 							    	}
 							    	
 							    	//if( close ){
-							    		$( '<a title="Back" class="fancybox-stuff fancybox-item fancybox-back" href="javascript:;"><i class="fa fa-times-circle"></i></a>' ).click( function() {
+							    		$( '<a title="Back" class="fancybox-stuff fancybox-item fancybox-back" href="javascript:;"><i class="fas fa-times-circle"></i></a>' ).click( function() {
 									        $.fancybox.close();
 									    }).appendTo( $tools );
 							    	//}
