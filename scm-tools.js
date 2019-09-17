@@ -2414,7 +2414,7 @@ var $MAGIC;
 	}
 
 	// *****************************************************
-	// *      GOOGLE MAPS
+	// *      GOOGLE CHARTS
 	// *****************************************************
 
 	$.fn.googleChart = function() {
@@ -2643,7 +2643,6 @@ var $MAGIC;
 
 			var markerCluster = new MarkerClusterer(map, map.markers, {
 				imagePath: '../wp-content/plugins/scm-assets/empty.png',
-				//imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m1.png',
 				gridSize: 50,
 				styles: [
 					{
@@ -2672,8 +2671,6 @@ var $MAGIC;
 					}
 				]
 			});
-
-			//$.centerMap( map, zoom );
 			
 			var tilesloaded = google.maps.event.addListener( map, 'tilesloaded', function() {
 
@@ -2699,7 +2696,10 @@ var $MAGIC;
 				lng 			= $this.data( 'lng' ),
 				address 		= $this.data( 'address' );
 
-			if( address ){
+			if( lat && lng ){
+				latlng = new google.maps.LatLng( lat, lng );
+				$this.setMarker(map, infowindow, latlng, count, zoom);
+			}else if( address ){
 				var geocoder = new google.maps.Geocoder();
 
 				var sets = { 'address': address };
@@ -2732,9 +2732,6 @@ var $MAGIC;
 			    	}
 
 			    });
-			}else if( lat ){
-				latlng = new google.maps.LatLng( lat, lng );
-				$this.setMarker(map, infowindow, latlng, count, zoom);
 			}else{
 				latlng = new google.maps.LatLng( 0, 0 );
 				$this.setMarker(map, infowindow, latlng, count, zoom);

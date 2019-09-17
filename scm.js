@@ -372,7 +372,7 @@
 					$.getScript( 'https://cdn.rawgit.com/googlemaps/v3-utility-library/master/markerwithlabel/src/markerwithlabel.js', function( data, textStatus, jqxhr ) {
 						//$.getScript( 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js', function( data, textStatus, jqxhr ) {
 						$.getScript( 'https://cdn.rawgit.com/googlemaps/v3-utility-library/master/markerclustererplus/src/markerclusterer.js', function( data, textStatus, jqxhr ) {
-							
+
 							window.ifgooglemaps = 1;
 							$maps = $( '.scm-map' );
 							$maps.googleMap();
