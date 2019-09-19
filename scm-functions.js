@@ -468,22 +468,27 @@ if ( !$.fn.changeIcon ) {
 
 if ( !$.fn.FASolid ) {
 	$.fn.FASolid = function() {
-		return this.hasClass( 'fas' ) ? this : this.removeClass( 'far fab fal' ).addClass( 'fas' );
+		return this.hasClass( 'fas' ) ? this : this.removeClass( 'fad far fab fal' ).addClass( 'fas' );
 	};
 }
 if ( !$.fn.FARegular ) {
 	$.fn.FARegular = function() {
-		return this.hasClass( 'far' ) ? this : this.removeClass( 'fab fal fas' ).addClass( 'far' );
+		return this.hasClass( 'far' ) ? this : this.removeClass( 'fad fab fal fas' ).addClass( 'far' );
 	};
 }
 if ( !$.fn.FALight ) {
 	$.fn.FALight = function() {
-		return this.hasClass( 'fal' ) ? this : this.removeClass( 'far fab fas' ).addClass( 'fal' );
+		return this.hasClass( 'fal' ) ? this : this.removeClass( 'fad far fab fas' ).addClass( 'fal' );
 	};
 }
 if ( !$.fn.FABrand ) {
 	$.fn.FABrand = function() {
-		return this.hasClass( 'fab' ) ? this : this.removeClass( 'far fal fas' ).addClass( 'fab' );
+		return this.hasClass( 'fab' ) ? this : this.removeClass( 'fad far fal fas' ).addClass( 'fab' );
+	};
+}
+if ( !$.fn.FADuotone ) {
+	$.fn.FADuotone = function() {
+		return this.hasClass( 'fad' ) ? this : this.removeClass( 'far fal fas fab' ).addClass( 'fad' );
 	};
 }
 if ( !$.fn.FAIconWeight ) {
@@ -493,6 +498,7 @@ if ( !$.fn.FAIconWeight ) {
 			case 'r': return this.FARegular(); break;
 			case 'l': return this.FALight(); break;
 			case 'b': return this.FABrand(); break;
+			case 'd': return this.FADuotone(); break;
 			default: return this; break;
 		}
 		return this;
@@ -518,6 +524,60 @@ if ( !$.fn.FAIcon ) {
 
 	};
 }
+/*if ( !$.fn.FABuild ) {
+	$.fn.FABuild = function(){
+		var $icons = this.find( '.fa' ).andSelf().filter( '.fa' ).not( '.text .fas .fal .far .fab .fad' ).addClass( 'faicon' ).removeClass('fa');
+		//var $icons = this.find( '.fa, .faicon' ).andSelf().filter( '.fa, .faicon' ).not( '.text .fas .fal .far .fab .fad' ).addClass( 'faicon' );
+
+		$.each( $icons, function(){
+			var $icon = $(this);
+			var cls = $icon.attr('class').split(/\s+/);
+			var fa = '';
+			var type = '';
+
+			for( var i in cls ){
+
+				if( cls[i].indexOf( 'fa-' ) !== 0 ||
+					cls[i] == 'fa-spin' ||
+					cls[i].indexOf( 'fa-stack' ) === 0 )
+					continue;
+
+				fa = cls[i];
+				
+				$icon.removeClass( cls[i] );
+
+				if( fa.lastIndexOf( '-r' ) == fa.length-2 ){
+					fa = fa.substr( 0, fa.length-2 );
+					type = 'far';
+				}else if( fa.lastIndexOf( '-l' ) == fa.length-2 ){
+					fa = fa.substr( 0, fa.length-2 );
+					type = 'fal';
+				}else if( fa.lastIndexOf( '-s' ) == fa.length-2 ){
+					fa = fa.substr( 0, fa.length-2 );
+					type = 'fas';
+				}else if( fa.lastIndexOf( '-b' ) == fa.length-2 ){
+					fa = fa.substr( 0, fa.length-2 );
+					type = 'fab';
+				}else if( fa.lastIndexOf( '-d' ) == fa.length-2 ){
+					fa = fa.substr( 0, fa.length-2 );
+					type = 'fad';
+				}else{
+					type = 'fas';
+				}
+
+				break;
+
+			}
+			
+			$icon
+				
+				.addClass( type )
+				.addClass( fa );
+
+		} );
+		return this;
+	}
+}*/
 
 // SVG
 
