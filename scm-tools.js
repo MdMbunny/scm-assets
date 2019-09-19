@@ -43,10 +43,10 @@ var $MAGIC;
 	// *****************************************************
 
 	$.fn.FAFIX = function(){
-		var $icons = this.find( '.fa' ).andSelf().filter( '.fa' ).not( '.text, .fas, .fal, .far, .fab, .fad' ).addClass( 'faicon' ).removeClass('fa');
+		var $icons = this.find( '.fa, .fas, .fal, .far, .fab, .fad' ).andSelf().filter( '.fa, .fas, .fal, .far, .fab, .fad' ).not( '.text' ).addClass( 'faicon' ).removeClass('fa');
 		//var $icons = this.find( '.fa, .faicon' ).andSelf().filter( '.fa, .faicon' ).not( '.text .fas .fal .far .fab .fad' ).addClass( 'faicon' );
 
-		$.each( $icons, function(){
+		$.each( $icons.not( '.text, .fas, .fal, .far, .fab, .fad' ), function(){
 			var $icon = $(this);
 			var cls = $icon.attr('class').split(/\s+/);
 			var fa = '';
