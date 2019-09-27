@@ -3,7 +3,7 @@
  * Plugin Name:         SCM Assets
  * Plugin URI:          http://studiocreativo-m.it/
  * Description:         SCM Javascript Integration
- * Version:             2.7.7
+ * Version:             2.7.8
  * Author:              Studio Creativo M
  * Author URI:          http://studiocreativo-m.it/
  * License:             http://www.gnu.org/licenses/gpl-3.0.html
@@ -230,7 +230,7 @@
             // Tooltip --- You could replace it (probably with _ScrollMagic_)
             $tooltip = apply_filters( 'scm_assets_filter_block_tooltip', false );
             if( !$tooltip && $scm_assets_settings['tooltip'] ){
-                wp_register_script( 'tooltip',  SCM_ASSETS_URI_ASSETS . 'jquery.powertip-1.3.0/jquery.powertip.min.js', array( 'imagesloaded' ), null, true );
+                wp_register_script( 'tooltip',  SCM_ASSETS_URI_ASSETS . 'jquery.powertip-1.3.1/jquery.powertip.min.js', array( 'imagesloaded' ), null, true );
                 //wp_register_script( 'tooltip',  SCM_ASSETS_URI_ASSETS . 'jquery.powertip-1.2.0/jquery.powertip.min.js', array( 'imagesloaded' ), null, true );
                 wp_enqueue_script( 'tooltip' );
             }
