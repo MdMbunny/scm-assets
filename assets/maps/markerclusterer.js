@@ -1066,6 +1066,7 @@ ClusterIcon.prototype.triggerClusterClick = function(event) {
  */
 ClusterIcon.prototype.onAdd = function() {
   this.div_ = document.createElement('DIV');
+  this.div_.classList.add("cluster");
   if (this.visible_) {
     var pos = this.getPosFromLatLng_(this.center_);
     this.div_.style.cssText = this.createCss(pos);
